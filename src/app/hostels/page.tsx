@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
-import { ArrowUpDown, ArrowUp, ArrowDown, Download } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Download, Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
-
 
 type Hostel = {
   block: string;
@@ -24,6 +23,30 @@ type Hostel = {
     email?: string;
   }[];
 };
+
+function telHref(phone: string) {
+  return phone.replace(/\s+/g, "");
+}
+
+function openDialer(phone: string) {
+  window.location.href = `tel:${telHref(phone)}`;
+}
+
+function blockPhones(h: Hostel): string[] {
+  const out: string[] = [];
+  if (h.receptionPhone) out.push(h.receptionPhone);
+  for (const w of h.wardens) {
+    if (w.mobiles) out.push(...w.mobiles);
+    if (w.officePhone) out.push(w.officePhone);
+  }
+  return [...new Set(out)];
+}
+
+function wardenPrimaryPhone(w: Hostel["wardens"][number]): string | null {
+  if (w.mobiles?.length) return w.mobiles[0];
+  if (w.officePhone) return w.officePhone;
+  return null;
+}
 
 export default function HostelsPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
@@ -78,23 +101,95 @@ export default function HostelsPage() {
         </Button>
       </div>
       <div className="grid md:grid-cols-2 gap-4">
-        {sortedHostels.map((h) => (
+        {sortedHostels.map((h) => {
+          const receptionPhone = h.receptionPhone;
+          return (
           <Card key={h.block} id={slugify(h.block)} className="glass scroll-mt-24">
             <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-xl font-serif">{h.block}</CardTitle>
-                {h.receptionPhone && (
-                  <a href={`tel:${h.receptionPhone}`} className="text-xs text-muted-foreground hover:text-foreground">
-                    Reception: {h.receptionPhone}
-                  </a>
-                )}
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <CardTitle className="text-xl font-serif">{h.block}</CardTitle>
+                  {h.campus && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{h.campus}</p>
+                  )}
+                </div>
+                <FavoriteButton
+                  item={{
+                    id: `hostel-block-${slugify(h.block)}`,
+                    type: "hostel",
+                    name: h.block,
+                    href: `/hostels#${slugify(h.block)}`,
+                    phones: blockPhones(h),
+                    subtitle: h.campus,
+                  }}
+                  size="sm"
+                />
               </div>
-              {h.campus && (
-                <p className="text-xs text-muted-foreground">{h.campus}</p>
-              )}
             </CardHeader>
             <CardContent className="pt-0 space-y-3">
-              {h.wardens.map((w, i) => (
+              {receptionPhone && (
+                <div
+                  id={`${slugify(h.block)}-reception`}
+                  className="py-2 border-t border-border/50 first:border-t-0"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium">Reception</div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDialer(receptionPhone)}
+                        className="h-7 text-xs px-2 shrink-0"
+                        aria-label={`Call reception at ${receptionPhone}`}
+                        title="Call reception"
+                      >
+                        <Phone className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const v = buildVCard({
+                            name: "Reception",
+                            title: "Hostel reception",
+                            phones: [receptionPhone],
+                            email: h.email,
+                            org: h.block,
+                            address: [h.campus, h.address].filter(Boolean).join(", ") || undefined,
+                          });
+                          downloadVCardFile(`${h.block}-reception`, v);
+                        }}
+                        className="h-7 text-xs px-2 shrink-0"
+                        aria-label="Save reception contact"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-sm font-medium">
+                    <a
+                      href={`tel:${telHref(receptionPhone)}`}
+                      className="text-foreground underline underline-offset-2 decoration-muted-foreground hover:decoration-foreground"
+                    >
+                      {receptionPhone}
+                    </a>
+                    {h.email && (
+                      <a
+                        href={`mailto:${h.email}`}
+                        className="text-xs font-normal text-muted-foreground hover:text-foreground hover:underline underline-offset-2 truncate max-w-[220px]"
+                      >
+                        {h.email}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+              {h.wardens.map((w, i) => {
+                const quickCall = wardenPrimaryPhone(w);
+                return (
                 <div key={i} id={slugify(`${h.block}-${w.name}`)} className="py-2 first:pt-0 border-t first:border-0 border-border/50">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
@@ -104,54 +199,58 @@ export default function HostelsPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-1">
-                      <FavoriteButton
-                        item={{
-                          id: `hostel-warden-${slugify(h.block)}-${slugify(w.name)}`,
-                          type: "hostel",
-                          name: `${w.name} (${h.block})`,
-                          href: `/hostels#${slugify(h.block)}`,
-                          phones: [...(w.mobiles ?? []), ...(w.officePhone ? [w.officePhone] : [])],
-                          subtitle: w.designation || h.block,
-                        }}
-                        size="sm"
-                      />
+                      {quickCall && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openDialer(quickCall)}
+                          className="h-7 text-xs px-2 shrink-0"
+                          aria-label={`Call ${w.name}`}
+                          title="Quick call"
+                        >
+                          <Phone className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                       <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        const v = buildVCard({
-                          name: w.name,
-                          title: w.designation,
-                          phones: [...(w.mobiles ?? []), ...(w.officePhone ? [w.officePhone] : [])],
-                          email: w.email,
-                          org: h.block,
-                          address: [h.campus, h.address].filter(Boolean).join(", ") || undefined,
-                        })
-                        downloadVCardFile(`${h.block}-${w.name}`, v)
-                      }}
-                      className="h-7 text-xs px-2 shrink-0"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const v = buildVCard({
+                            name: w.name,
+                            title: w.designation,
+                            phones: [...(w.mobiles ?? []), ...(w.officePhone ? [w.officePhone] : [])],
+                            email: w.email,
+                            org: h.block,
+                            address: [h.campus, h.address].filter(Boolean).join(", ") || undefined,
+                          });
+                          downloadVCardFile(`${h.block}-${w.name}`, v);
+                        }}
+                        className="h-7 text-xs px-2 shrink-0"
                         aria-label="Save contact"
                       >
                         <Download className="h-3.5 w-3.5" />
-                    </Button>
+                      </Button>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
                     {w.mobiles && w.mobiles.length > 0 && w.mobiles.map((m) => (
-                      <a key={m} href={`tel:${m}`} className="hover:text-foreground hover:underline underline-offset-2">{m}</a>
+                      <a key={m} href={`tel:${telHref(m)}`} className="hover:text-foreground hover:underline underline-offset-2">{m}</a>
                     ))}
                     {w.officePhone && (
-                      <a href={`tel:${w.officePhone}`} className="hover:text-foreground hover:underline underline-offset-2">Office: {w.officePhone}</a>
+                      <a href={`tel:${telHref(w.officePhone)}`} className="hover:text-foreground hover:underline underline-offset-2">Office: {w.officePhone}</a>
                     )}
                     {w.email && (
                       <a href={`mailto:${w.email}`} className="hover:text-foreground hover:underline underline-offset-2 truncate max-w-[200px]">{w.email}</a>
                     )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
     </main>
   );

@@ -202,6 +202,16 @@ export function getAllSearchItems(): SearchItem[] {
         phones: h.receptionPhone ? [h.receptionPhone] : undefined,
         subtitle: h.campus,
       });
+      if (h.receptionPhone) {
+        items.push({
+          title: `Reception (${h.block})`,
+          section: "Hostels",
+          href: `/hostels#${slugify(h.block)}-reception`,
+          phones: [h.receptionPhone],
+          subtitle: h.campus,
+          notes: h.email,
+        });
+      }
       if (Array.isArray(h.wardens)) {
         for (const w of h.wardens) {
           if (w && w.name) {
