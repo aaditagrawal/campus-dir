@@ -21,6 +21,11 @@
     { "name": "Auto Shankar", "phones": ["+91 99026 40346"], "notes": "" }
   ],
   "cabs": [
+    {
+      "name": "Siddharth Tours & Travels",
+      "phones": ["+91 7090503292", "+91 7899183292"],
+      "notes": "Panchdurgaparameshwari, Indrali, Udupi."
+    },
     { "name": "Cab Manipal Khaas", "phones": ["+91 96630 27241"], "notes": "" },
     { "name": "Manipal Cabs", "phones": ["+91 77955 25952"], "notes": "" },
     {
@@ -58,7 +63,11 @@
       "phones": ["8970124780", "+91 9880780403"],
       "notes": ""
     },
-    { "name": "Ambika Travels", "phones": ["+91 7899457629", "+91 7483343031"], "notes": "" },
+    {
+      "name": "Ambika Travels",
+      "phones": ["+91 7899457629", "+91 7483343031"],
+      "notes": ""
+    },
     {
       "name": "Coolcab Holidays",
       "phones": ["+91 8970124780", "+91 8951124780"],
