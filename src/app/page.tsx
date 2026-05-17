@@ -13,9 +13,13 @@ import {
   Wrench,
   Star,
   MessageSquareWarning,
+  Phone,
+  ChevronRight,
+  Shuffle,
 } from "lucide-react";
 import { useMemo } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
+import { slugify } from "@/lib/utils";
 
 export default function Home() {
   const isMac = useMemo(
@@ -51,19 +55,95 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-center">
-        <p className="text-sm flex items-center justify-center gap-2 flex-wrap">
-          <Mail className="h-4 w-4 text-emerald-500" />
-          <span className="text-muted-foreground">
-            Need a leave request?
-          </span>
+      <section className="grid gap-3">
+        <div className="overflow-hidden rounded-xl border-2 border-amber-600/35 bg-amber-500/[0.07] shadow-md transition-shadow hover:shadow-lg dark:border-amber-500/40 dark:bg-amber-500/10">
           <Link
-            href="/tools/mail-to-warden"
-            className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+            href={`/travel#${slugify("Autos")}`}
+            className="group flex items-center gap-4 border-b border-amber-600/20 px-4 py-4 outline-none transition hover:bg-amber-500/12 focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-amber-600/45 focus-visible:ring-inset sm:px-5 dark:border-amber-500/25 dark:hover:bg-amber-500/15 dark:focus-visible:ring-amber-400/50"
           >
-            Generate Mail to Warden →
+            <Shuffle
+              className="size-5 shrink-0 text-amber-700 dark:text-amber-400"
+              aria-hidden
+            />
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-base font-semibold tracking-tight">
+                Call Random Auto
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Jump to the autos section on Travel
+              </p>
+            </div>
+            <ChevronRight
+              className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
           </Link>
-        </p>
+          <Link
+            href="/travel/auto"
+            className="group flex items-center gap-4 px-4 py-4 outline-none transition hover:bg-amber-500/12 focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-amber-600/45 focus-visible:ring-inset sm:px-5 dark:hover:bg-amber-500/15 dark:focus-visible:ring-amber-400/50"
+          >
+            <Phone
+              className="size-5 shrink-0 text-amber-700 dark:text-amber-400"
+              aria-hidden
+            />
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-base font-semibold tracking-tight">
+                Explore Autos list
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Gate stands &amp; drivers — one tap to dial
+              </p>
+            </div>
+            <ChevronRight
+              className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </Link>
+        </div>
+
+        <Link
+          href={`/travel#${slugify("Cabs & Taxis")}`}
+          className="group flex items-center gap-4 rounded-xl border-2 border-neutral-950/90 bg-[#facc15] px-4 py-4 shadow-md outline-none transition hover:bg-[#eab308] hover:shadow-lg focus-visible:ring-2 focus-visible:ring-neutral-950/40 focus-visible:ring-offset-2 sm:px-5 dark:border-neutral-950 dark:bg-yellow-400 dark:hover:bg-yellow-300 dark:focus-visible:ring-yellow-700/60"
+        >
+          <Car
+            className="size-5 shrink-0 text-neutral-950"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1 text-left">
+            <p className="text-base font-semibold tracking-tight text-neutral-950">
+              Get taxis
+            </p>
+            <p className="text-sm text-neutral-900/75">
+              Cabs, airport rates &amp; taxi union contacts
+            </p>
+          </div>
+          <ChevronRight
+            className="size-5 shrink-0 text-neutral-950/70 transition-transform group-hover:translate-x-0.5"
+            aria-hidden
+          />
+        </Link>
+
+        <Link
+          href="/tools/mail-to-warden"
+          className="group flex items-center gap-4 rounded-xl border-2 border-emerald-600/35 bg-emerald-500/[0.06] px-4 py-4 shadow-md outline-none transition hover:border-emerald-600/50 hover:bg-emerald-500/10 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-emerald-600/45 focus-visible:ring-offset-2 sm:px-5 dark:border-emerald-500/40 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/40 dark:focus-visible:ring-emerald-400/45"
+        >
+          <Mail
+            className="size-5 shrink-0 text-emerald-600 dark:text-emerald-400"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1 text-left">
+            <p className="text-base font-semibold tracking-tight">
+              Generate Mail to Warden
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Leave requests &amp; hostel email
+            </p>
+          </div>
+          <ChevronRight
+            className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+            aria-hidden
+          />
+        </Link>
       </section>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
