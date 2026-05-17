@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Phone, Shuffle } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
+import { pickRandomAutoTel } from "@/lib/random-auto";
 import { slugify } from "@/lib/utils";
 
 type Listing = { name: string; phones: string[]; notes?: string };
@@ -48,11 +49,17 @@ export default function AutoQuickCallPage() {
           next.
         </p>
         <div className="mt-6">
-          <Button asChild variant="outline" className="w-full gap-2 sm:w-auto">
-            <Link href={`/travel#${slugify("Autos")}`}>
-              <Shuffle className="size-4" aria-hidden />
-              Call Random Auto
-            </Link>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full gap-2 sm:w-auto"
+            onClick={() => {
+              const tel = pickRandomAutoTel();
+              if (tel) window.location.href = `tel:${tel}`;
+            }}
+          >
+            <Shuffle className="size-4" aria-hidden />
+            Call Random Auto
           </Button>
         </div>
       </div>

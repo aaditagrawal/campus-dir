@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
+import { pickRandomAutoTel } from "@/lib/random-auto";
 import { slugify } from "@/lib/utils";
 
 export default function Home() {
@@ -57,9 +58,14 @@ export default function Home() {
 
       <section className="grid gap-3">
         <div className="overflow-hidden rounded-xl border-2 border-amber-600/35 bg-amber-500/[0.07] shadow-md transition-shadow hover:shadow-lg dark:border-amber-500/40 dark:bg-amber-500/10">
-          <Link
-            href={`/travel#${slugify("Autos")}`}
-            className="group flex items-center gap-4 border-b border-amber-600/20 px-4 py-4 outline-none transition hover:bg-amber-500/12 focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-amber-600/45 focus-visible:ring-inset sm:px-5 dark:border-amber-500/25 dark:hover:bg-amber-500/15 dark:focus-visible:ring-amber-400/50"
+          <button
+            type="button"
+            className="group flex w-full cursor-pointer items-center gap-4 border-b border-amber-600/20 px-4 py-4 text-left outline-none transition hover:bg-amber-500/12 focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-amber-600/45 focus-visible:ring-inset sm:px-5 dark:border-amber-500/25 dark:hover:bg-amber-500/15 dark:focus-visible:ring-amber-400/50"
+            onClick={() => {
+              const tel = pickRandomAutoTel();
+              if (tel) window.location.href = `tel:${tel}`;
+            }}
+            aria-label="Call a random auto from the directory"
           >
             <Shuffle
               className="size-5 shrink-0 text-amber-700 dark:text-amber-400"
@@ -70,14 +76,14 @@ export default function Home() {
                 Call Random Auto
               </p>
               <p className="text-sm text-muted-foreground">
-                Jump to the autos section on Travel
+                Opens your dialer with a random stand or driver number
               </p>
             </div>
             <ChevronRight
               className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
               aria-hidden
             />
-          </Link>
+          </button>
           <Link
             href="/travel/auto"
             className="group flex items-center gap-4 px-4 py-4 outline-none transition hover:bg-amber-500/12 focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-amber-600/45 focus-visible:ring-inset sm:px-5 dark:hover:bg-amber-500/15 dark:focus-visible:ring-amber-400/50"
