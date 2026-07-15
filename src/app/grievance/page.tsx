@@ -129,17 +129,18 @@ export default function GrievancePage() {
                   <Button
                     size="sm"
                     onClick={() => {
-                      for (const c of cat.contacts) {
-                        const emails = contactEmails(c);
-                        const v = buildVCard({
-                          name: contactLabel(c) || cat.title,
-                          email: emails[0],
-                          phones: c.phones,
-                          org: "MIT Manipal",
-                          title: c.role,
-                        });
-                        downloadVCardFile(contactLabel(c) || cat.title, v);
-                      }
+                      const vcards = cat.contacts
+                        .map((c) =>
+                          buildVCard({
+                            name: contactLabel(c) || cat.title,
+                            emails: contactEmails(c),
+                            phones: c.phones,
+                            org: "MIT Manipal",
+                            title: c.role,
+                          })
+                        )
+                        .join("\n");
+                      downloadVCardFile(cat.title, vcards);
                     }}
                   >
                     Download contact{cat.contacts.length > 1 ? "s" : ""}

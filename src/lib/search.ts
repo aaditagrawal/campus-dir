@@ -267,14 +267,14 @@ export function getAllSearchItems(): SearchItem[] {
   }).categories) {
     if (cat && cat.title) {
       for (const c of cat.contacts) {
-        const emails = [c.email, ...(c.emails ?? [])].filter(Boolean).join(", ");
-        const phones = (c.phones ?? []).join(", ");
+        const emails = [c.email, ...(c.emails ?? [])].filter(Boolean);
         items.push({
           title: c.name || c.role || cat.title,
           section: "Grievance Redressal",
           subtitle: cat.title,
           href: `/grievance#${slugify(cat.title)}`,
-          notes: [emails, phones, c.notes].filter(Boolean).join(" · "),
+          phones: c.phones,
+          notes: [emails.join(", "), c.notes].filter(Boolean).join(" · "),
         });
       }
     }

@@ -12,9 +12,11 @@ import { getAllSearchItems, type SearchItem } from "@/lib/search";
 
 const fuseOptions = {
   keys: [
-    { name: "title", weight: 0.6 },
-    { name: "subtitle", weight: 0.2 },
-    { name: "section", weight: 0.2 },
+    { name: "title", weight: 0.5 },
+    { name: "subtitle", weight: 0.15 },
+    { name: "section", weight: 0.1 },
+    { name: "phones", weight: 0.15 },
+    { name: "notes", weight: 0.1 },
   ],
   includeScore: true,
   threshold: 0.35,

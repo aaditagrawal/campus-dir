@@ -2,12 +2,14 @@ export type VCardInput = {
   name: string
   phones?: string[]
   email?: string
+  emails?: string[]
   address?: string
   org?: string
   title?: string
 }
 
-export function buildVCard({ name, phones = [], email, address, org, title }: VCardInput) {
+export function buildVCard({ name, phones = [], email, emails = [], address, org, title }: VCardInput) {
+  const allEmails = [...new Set([...(email ? [email] : []), ...emails].filter(Boolean))]
   const lines = [
     'BEGIN:VCARD',
     'VERSION:3.0',
@@ -15,7 +17,7 @@ export function buildVCard({ name, phones = [], email, address, org, title }: VC
     org ? `ORG:${org}` : undefined,
     title ? `TITLE:${title}` : undefined,
     ...phones.map((p) => `TEL;TYPE=CELL:${p}`),
-    email ? `EMAIL;TYPE=INTERNET:${email}` : undefined,
+    ...allEmails.map((e) => `EMAIL;TYPE=INTERNET:${e}`),
     address ? `ADR;TYPE=WORK:;;${address}` : undefined,
     'END:VCARD',
   ].filter(Boolean) as string[]
