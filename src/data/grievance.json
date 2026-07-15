@@ -4,7 +4,11 @@
       "title": "Food & Hostel Issues",
       "description": "Mess food quality, hostel maintenance, room issues, hygiene complaints",
       "contacts": [
-        { "name": "Chief Warden Office MIT", "email": "chiefwarden.mit@manipal.edu" },
+        {
+          "name": "Chief Warden Office MIT",
+          "email": "chiefwarden.mit@manipal.edu",
+          "phones": ["0820 2925221", "0820 2925225"]
+        },
         { "name": "Chief Warden Office MAHE", "email": "chiefwarden.mahe@manipal.edu" }
       ]
     },
@@ -23,16 +27,122 @@
       "title": "Student Welfare",
       "description": "General student welfare, administrative concerns, campus facilities",
       "contacts": [
-        { "name": "Student Affairs (MAHE-MIT)", "email": "sa.mit@manipal.edu" },
+        {
+          "name": "Student Affairs (MAHE-MIT)",
+          "email": "sa.mit@manipal.edu",
+          "phones": ["0820 2924015", "63641 34846"]
+        },
         { "name": "Student Welfare MIT Manipal", "email": "StudentWelfareMITManipal@manipal.edu" }
       ]
     },
     {
       "title": "Academics",
-      "description": "Academic concerns, course issues, examination queries",
+      "description": "Academic concerns, course issues, examination and ePad queries",
       "contacts": [
-        { "name": "Academic Section (MAHE-MIT)", "email": "academic.section@manipal.edu" },
+        {
+          "name": "Academic Section (MAHE-MIT)",
+          "email": "academic.section@manipal.edu",
+          "emails": ["ada.mit@manipal.edu"],
+          "phones": ["0820 2925912", "0820 2925914"],
+          "notes": "Also handles ePad queries"
+        },
         { "name": "Associate Director — Academics (MAHE-MIT)", "email": "adacademics.mit@manipal.edu" }
+      ]
+    },
+    {
+      "title": "Online Classes / Lecture Capture",
+      "description": "Impartus, online classes, and lecture capture support",
+      "contacts": [
+        {
+          "name": "Educational Technology Centre (MIT)",
+          "email": "etc.mit@manipal.edu",
+          "emails": ["adfd.mit@manipal.edu"],
+          "phones": ["0820 2924042", "0820 2924043"]
+        }
+      ]
+    },
+    {
+      "title": "Admissions",
+      "description": "MAHE / MIT admissions counselling",
+      "contacts": [
+        {
+          "name": "MAHE Admissions",
+          "email": "admissions@manipal.edu",
+          "phones": ["0820 2922574"],
+          "notes": "Counselling lines: 92437 77700–92437 77755"
+        }
+      ]
+    },
+    {
+      "title": "Research",
+      "description": "Research queries and support",
+      "contacts": [
+        {
+          "name": "Research Office (MIT)",
+          "email": "research.mit@manipal.edu",
+          "phones": ["0820 2924016"]
+        }
+      ]
+    },
+    {
+      "title": "Study Abroad",
+      "description": "International / study abroad queries",
+      "contacts": [
+        {
+          "name": "International Office (MIT)",
+          "email": "intl.mit@manipal.edu",
+          "phones": ["0820 2924027"]
+        }
+      ]
+    },
+    {
+      "title": "Placement & Internship",
+      "description": "Placement and internship queries",
+      "contacts": [
+        {
+          "name": "Placement Office (MIT)",
+          "email": "placement.mit@manipal.edu",
+          "phones": ["0820 2925561"]
+        }
+      ]
+    },
+    {
+      "title": "Finance",
+      "description": "Fees, refunds, and hostel finance queries",
+      "contacts": [
+        {
+          "name": "Student Finance (MAHE)",
+          "email": "sfin.mahe@manipal.edu",
+          "emails": ["sfin.fee@manipal.edu", "sfin.ref@manipal.edu"],
+          "phones": ["0820 2922767", "0820 22925223", "0820 22922703"]
+        },
+        {
+          "name": "MIT Hostels Finance",
+          "email": "fin.mithostels@manipal.edu",
+          "phones": ["0820 2922767", "0820 22925223", "0820 22922703"]
+        }
+      ]
+    },
+    {
+      "title": "IT Support",
+      "description": "Campus IT queries and support",
+      "contacts": [
+        {
+          "name": "MAHE IT Helpdesk",
+          "email": "info.mahe@manipal.edu",
+          "phones": ["0820 2925021"]
+        }
+      ]
+    },
+    {
+      "title": "MIT Office",
+      "description": "General MIT office queries",
+      "contacts": [
+        {
+          "name": "MIT Office",
+          "email": "office.mit@manipal.edu",
+          "phones": ["0820 2571060", "0820 2925522"]
+        }
       ]
     }
   ],
@@ -44,5 +154,6 @@
       { "role": "Student Council Technical Secretary (MAHE-MIT)", "email": "techsec.scmit@manipal.edu" },
       { "role": "Student Council General Secretary (MAHE-MIT)", "email": "gensec.scmit@manipal.edu" }
     ]
-  }
+  },
+  "source": "https://www.manipal.edu/mit/about/administration.html"
 }

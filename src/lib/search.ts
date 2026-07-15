@@ -258,15 +258,23 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Grievance Redressal
-  for (const cat of (grievance as { categories: Array<{ title: string; description: string; contacts: Array<{ name?: string; role?: string; email: string }> }> }).categories) {
+  for (const cat of (grievance as {
+    categories: Array<{
+      title: string;
+      description: string;
+      contacts: Array<{ name?: string; role?: string; email: string; emails?: string[]; phones?: string[]; notes?: string }>;
+    }>;
+  }).categories) {
     if (cat && cat.title) {
       for (const c of cat.contacts) {
+        const emails = [c.email, ...(c.emails ?? [])].filter(Boolean);
         items.push({
           title: c.name || c.role || cat.title,
           section: "Grievance Redressal",
           subtitle: cat.title,
           href: `/grievance#${slugify(cat.title)}`,
-          notes: c.email,
+          phones: c.phones,
+          notes: [emails.join(", "), c.notes].filter(Boolean).join(" · "),
         });
       }
     }
