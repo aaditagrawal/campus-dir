@@ -5,13 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
-import { Mail } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
 
 type Contact = {
   name?: string;
   role?: string;
   email: string;
+  emails?: string[];
+  phones?: string[];
+  notes?: string;
 };
 
 type GrievanceCategory = {
@@ -28,6 +31,58 @@ type GrievanceData = {
     contacts: Contact[];
   };
 };
+
+function telHref(phone: string) {
+  return phone.replace(/[^\d+]/g, "");
+}
+
+function contactEmails(c: Contact): string[] {
+  const out = [c.email, ...(c.emails ?? [])];
+  return [...new Set(out.filter(Boolean))];
+}
+
+function contactLabel(c: Contact): string {
+  return c.name || c.role || c.email;
+}
+
+function ContactDetails({ contact }: { contact: Contact }) {
+  const emails = contactEmails(contact);
+  const phones = contact.phones ?? [];
+
+  return (
+    <div className="px-3 py-2.5 space-y-1.5">
+      <div className="min-w-0">
+        <div className="text-sm font-medium truncate">{contactLabel(contact)}</div>
+        {contact.name && contact.role && (
+          <div className="text-xs text-muted-foreground truncate">{contact.role}</div>
+        )}
+      </div>
+      <div className="flex flex-col gap-1">
+        {emails.map((email) => (
+          <a
+            key={email}
+            href={`mailto:${email}`}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:underline underline-offset-2 truncate"
+          >
+            <Mail className="size-3.5 shrink-0" />
+            {email}
+          </a>
+        ))}
+        {phones.map((phone) => (
+          <a
+            key={phone}
+            href={`tel:${telHref(phone)}`}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:underline underline-offset-2"
+          >
+            <Phone className="size-3.5 shrink-0" />
+            {phone}
+          </a>
+        ))}
+      </div>
+      {contact.notes && <p className="text-xs text-muted-foreground">{contact.notes}</p>}
+    </div>
+  );
+}
 
 export default function GrievancePage() {
   const { categories, studentCouncil } = data as GrievanceData;
@@ -67,18 +122,7 @@ export default function GrievancePage() {
               <CardContent className="flex flex-col gap-3 flex-1">
                 <div className="rounded-md border border-border/60 divide-y divide-border/60 overflow-hidden">
                   {cat.contacts.map((c) => (
-                    <a
-                      key={c.email}
-                      href={`mailto:${c.email}`}
-                      className="flex items-center justify-between gap-3 px-3 py-2.5 hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{c.name || c.role}</div>
-                        {c.name && c.role && <div className="text-xs text-muted-foreground truncate">{c.role}</div>}
-                        <div className="text-xs text-muted-foreground truncate">{c.email}</div>
-                      </div>
-                      <Mail className="size-4 text-muted-foreground shrink-0" />
-                    </a>
+                    <ContactDetails key={`${contactLabel(c)}-${c.email}`} contact={c} />
                   ))}
                 </div>
                 <div className="flex gap-2 mt-auto">
@@ -86,13 +130,15 @@ export default function GrievancePage() {
                     size="sm"
                     onClick={() => {
                       for (const c of cat.contacts) {
+                        const emails = contactEmails(c);
                         const v = buildVCard({
-                          name: c.name || c.role || cat.title,
-                          email: c.email,
+                          name: contactLabel(c) || cat.title,
+                          email: emails[0],
+                          phones: c.phones,
                           org: "MIT Manipal",
                           title: c.role,
                         });
-                        downloadVCardFile(c.name || c.role || cat.title, v);
+                        downloadVCardFile(contactLabel(c) || cat.title, v);
                       }
                     }}
                   >

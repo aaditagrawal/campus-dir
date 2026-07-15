@@ -13,7 +13,7 @@ Live at https://cd.coolstuff.work
 | Travel | Auto rickshaw contacts for Gate 2 and Gate 4, individual drivers, cab services (Manipal Khaas, Manipal Cabs, Sashikant Taxi), airport pricing tables. |
 | Services | Laundry (Dhobimate) and xerox/printing (Om Xerox, Print Shop, Pratham Xerox, FC2 Xerox) with phone numbers and locations. |
 | Academics | Links to SLCM (new + legacy), library question papers, EBSCO, Lighthouse, Impartus, Brightspace Pulse, Manipal PURE, Microsoft 365. |
-| Grievance Redressal | Who to contact for what. Food/hostel goes to CWO, buggy to Dr. V Ramachandra Murty, welfare to SA/SW, academics to Academic Section. Student Council contacts listed separately. MIT Manipal only. |
+| Grievance Redressal | Who to contact for what — emails and phones for hostel, welfare, academics, finance, IT, admissions, placement, research, and more (from MIT administration). Student Council listed separately. MIT Manipal only. |
 | Emergency | Campus numbers (Student Clinic, KMC Ambulance, MAHE Control Room, Campus Patrol, Fire), local police, national helplines (100, 101, 102, 112), suicide prevention (Aasra, Spandana). |
 | Search | Cmd+K / Ctrl+K fuzzy search across every contact, restaurant, warden, service, and page. Results link directly to the relevant card. |
 | Favorites | Save any contact locally. Download vCards for any listing. |
