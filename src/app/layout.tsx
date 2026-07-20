@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Geist,
   Geist_Mono,
@@ -10,6 +10,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { FavoritesProvider } from "@/hooks/useFavorites";
 import { SiteHeader } from "@/components/site-header";
+import { PwaInstall } from "@/components/pwa-install";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,9 +40,28 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
+  applicationName: "Campus Directory",
   title: "MIT Manipal Campus Directory",
   description:
     "A glassy, organized directory for restaurants, hostels, travel, and emergency services at MIT Manipal.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Campus Directory",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default function RootLayout({
@@ -65,6 +85,7 @@ export default function RootLayout({
           <FavoritesProvider>
             <SiteHeader />
             {children}
+            <PwaInstall />
             <footer className="py-8 text-center text-muted-foreground text-sm">
               <p>
                 Found something wrong or missing? Help improve this directory by
