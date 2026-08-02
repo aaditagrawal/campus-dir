@@ -14,6 +14,7 @@ import academics from "../../src/data/academics.json"
 import travel from "../../src/data/travel.json"
 import services from "../../src/data/services.json"
 import grievance from "../../src/data/grievance.json"
+import tools from "../../src/data/tools.json"
 
 /** The implementation that shipped before this change, kept verbatim. */
 function slugifyLegacy(input: string): string {
@@ -38,7 +39,7 @@ function collectStrings(node: unknown, into: string[]): string[] {
 }
 
 const realStrings = collectStrings(
-  [restaurants, hostels, emergency, academics, travel, services, grievance],
+  [restaurants, hostels, emergency, academics, travel, services, grievance, tools],
   [],
 )
 
@@ -94,26 +95,36 @@ assertEquivalent("directory data", realStrings, slugifyLegacy, slugify)
 assertEquivalent("edge cases", edgeCases, slugifyLegacy, slugify)
 assertEquivalent("fuzz corpus", fuzzed, slugifyLegacy, slugify)
 
-console.log("\nslugify throughput — cold (unique inputs, cache never hits)")
+// The cold corpus is deliberately larger than SLUG_CACHE_LIMIT (2048), so the
+// public `slugify` path here pays for lookup, insertion, and eviction — the
+// worst case a caller can actually hit.
+console.log("\nslugify throughput — cold (4096 distinct inputs against a 2048-entry cache)")
 const coldCorpus = fuzzed.slice(0, 4096)
 let cursor = 0
 const legacyCold = bench("legacy regex chain", 200_000, () => {
-  slugifyLegacy(coldCorpus[cursor++ & 4095])
+  slugifyLegacy(coldCorpus[cursor++ % coldCorpus.length])
 })
 cursor = 0
-const nextCold = bench("single pass", 200_000, () => {
-  slugifyUncached(coldCorpus[cursor++ & 4095])
+const publicCold = bench("slugify (misses + eviction)", 200_000, () => {
+  slugify(coldCorpus[cursor++ % coldCorpus.length])
 })
-speedup("cold slugify", legacyCold, nextCold)
+speedup("cold slugify", legacyCold, publicCold)
+
+cursor = 0
+const scanOnly = bench("slugifyUncached (scan only)", 200_000, () => {
+  slugifyUncached(coldCorpus[cursor++ % coldCorpus.length])
+})
+speedup("cold slugify, cache overhead excluded", legacyCold, scanOnly)
 
 console.log("\nslugify throughput — hot (render path: same names, every frame)")
 const hotCorpus = Array.from(new Set(realStrings)).slice(0, 256)
+console.log(`  corpus: ${hotCorpus.length} distinct strings`)
 cursor = 0
 const legacyHot = bench("legacy regex chain", 500_000, () => {
-  slugifyLegacy(hotCorpus[cursor++ & 255])
+  slugifyLegacy(hotCorpus[cursor++ % hotCorpus.length])
 })
 cursor = 0
 const nextHot = bench("single pass + memo", 500_000, () => {
-  slugify(hotCorpus[cursor++ & 255])
+  slugify(hotCorpus[cursor++ % hotCorpus.length])
 })
 speedup("hot slugify", legacyHot, nextHot)
