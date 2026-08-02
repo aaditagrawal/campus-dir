@@ -1,7 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
+import { toggleFavorite, useFavoriteStatus, type FavoriteItem } from "@/hooks/useFavorites";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,13 +11,24 @@ type FavoriteButtonProps = {
   size?: "sm" | "md" | "lg";
 };
 
+const sizeClasses = {
+  sm: "h-7 w-7",
+  md: "h-8 w-8",
+  lg: "h-9 w-9",
+};
+
+const iconSizes = {
+  sm: "h-3.5 w-3.5",
+  md: "h-4 w-4",
+  lg: "h-5 w-5",
+};
+
 export function FavoriteButton({
   item,
   className,
   size = "md"
 }: FavoriteButtonProps) {
-  const { isFavorite, toggleFavorite, isLoaded } = useFavorites();
-  const favorited = isLoaded && isFavorite(item.id);
+  const status = useFavoriteStatus(item.id);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -25,19 +36,7 @@ export function FavoriteButton({
     toggleFavorite(item);
   };
 
-  const sizeClasses = {
-    sm: "h-7 w-7",
-    md: "h-8 w-8",
-    lg: "h-9 w-9"
-  };
-
-  const iconSizes = {
-    sm: "h-3.5 w-3.5",
-    md: "h-4 w-4",
-    lg: "h-5 w-5"
-  };
-
-  if (!isLoaded) {
+  if (status === "pending") {
     return (
       <Button
         variant="ghost"
@@ -49,6 +48,8 @@ export function FavoriteButton({
       </Button>
     );
   }
+
+  const favorited = status === "saved";
 
   return (
     <Button

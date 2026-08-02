@@ -18,7 +18,7 @@ import {
   Shuffle,
 } from "lucide-react";
 import { useMemo } from "react";
-import { useFavorites } from "@/hooks/useFavorites";
+import { useFavoritesCount, useFavoritesLoaded } from "@/hooks/useFavorites";
 import { pickRandomAutoTel } from "@/lib/random-auto";
 import { slugify } from "@/lib/utils";
 
@@ -27,7 +27,8 @@ export default function Home() {
     () => navigator.platform.toUpperCase().includes("MAC"),
     [],
   );
-  const { count: favoritesCount, isLoaded } = useFavorites();
+  const favoritesCount = useFavoritesCount();
+  const isLoaded = useFavoritesLoaded();
   return (
     <main className="max-w-5xl mx-auto px-6 py-14 md:py-24 grid gap-12">
       <section className="text-center space-y-6">
