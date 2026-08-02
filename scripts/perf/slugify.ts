@@ -95,11 +95,25 @@ assertEquivalent("directory data", realStrings, slugifyLegacy, slugify)
 assertEquivalent("edge cases", edgeCases, slugifyLegacy, slugify)
 assertEquivalent("fuzz corpus", fuzzed, slugifyLegacy, slugify)
 
-// The cold corpus is deliberately larger than SLUG_CACHE_LIMIT (2048), so the
-// public `slugify` path here pays for lookup, insertion, and eviction — the
-// worst case a caller can actually hit.
+// The cold corpus must be larger than SLUG_CACHE_LIMIT (2048) *and* actually
+// distinct, or some share of the run turns into cache hits and flatters the
+// result. The raw fuzz corpus is not distinct — this seed produces 184 copies
+// of the empty string alone — so pull unique entries until there are 4096.
+const coldCorpus: string[] = []
+{
+  const seen = new Set<string>()
+  for (const value of fuzzed) {
+    if (value.length === 0 || seen.has(value)) continue
+    seen.add(value)
+    coldCorpus.push(value)
+    if (coldCorpus.length === 4096) break
+  }
+  if (coldCorpus.length < 4096) {
+    throw new Error(`cold corpus is only ${coldCorpus.length} distinct entries; widen the fuzzer`)
+  }
+}
+
 console.log("\nslugify throughput — cold (4096 distinct inputs against a 2048-entry cache)")
-const coldCorpus = fuzzed.slice(0, 4096)
 let cursor = 0
 const legacyCold = bench("legacy regex chain", 200_000, () => {
   slugifyLegacy(coldCorpus[cursor++ % coldCorpus.length])
