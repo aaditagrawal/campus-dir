@@ -1,6 +1,13 @@
 "use client";
 
-import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
+import {
+  clearAll,
+  removeFavorite,
+  useFavorites,
+  useFavoritesLoaded,
+  type FavoriteItem,
+  type FavoriteType,
+} from "@/hooks/useFavorites";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, Phone, ExternalLink, Trash2, Download, Check, Copy } from "lucide-react";
@@ -8,37 +15,35 @@ import Link from "next/link";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { useMemo, useState } from "react";
 
+/**
+ * Also fixes the section order. Any type missing from this list is simply not
+ * rendered — previously an unlisted type (`grievance`) crashed the page.
+ */
+const SECTIONS: ReadonlyArray<{ type: FavoriteType; label: string }> = [
+  { type: "restaurant", label: "Restaurants" },
+  { type: "hostel", label: "Hostels" },
+  { type: "emergency", label: "Emergency Contacts" },
+  { type: "service", label: "Services" },
+  { type: "travel", label: "Travel" },
+  { type: "academic", label: "Academic Resources" },
+  { type: "tool", label: "Tools" },
+  { type: "grievance", label: "Grievance Redressal" },
+];
+
 export default function FavoritesPage() {
-  const { favorites, removeFavorite, clearAll, isLoaded } = useFavorites();
+  const favorites = useFavorites();
+  const isLoaded = useFavoritesLoaded();
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
 
   const groupedFavorites = useMemo(() => {
-    const grouped: Record<string, FavoriteItem[]> = {
-      restaurant: [],
-      hostel: [],
-      emergency: [],
-      service: [],
-      travel: [],
-      academic: [],
-      tool: [],
-    };
-
-    favorites.forEach((fav) => {
-      grouped[fav.type].push(fav);
-    });
-
+    const grouped = new Map<FavoriteType, FavoriteItem[]>();
+    for (const fav of favorites) {
+      const bucket = grouped.get(fav.type);
+      if (bucket) bucket.push(fav);
+      else grouped.set(fav.type, [fav]);
+    }
     return grouped;
   }, [favorites]);
-
-  const typeLabels: Record<string, string> = {
-    restaurant: "Restaurants",
-    hostel: "Hostels",
-    emergency: "Emergency Contacts",
-    service: "Services",
-    travel: "Travel",
-    academic: "Academic Resources",
-    tool: "Tools",
-  };
 
   const copyPhone = (phone: string) => {
     navigator.clipboard.writeText(phone).then(() => {
@@ -127,13 +132,14 @@ export default function FavoritesPage() {
         </Card>
       ) : (
         <div className="space-y-8">
-          {Object.entries(groupedFavorites).map(([type, items]) => {
-            if (items.length === 0) return null;
+          {SECTIONS.map(({ type, label }) => {
+            const items = groupedFavorites.get(type);
+            if (!items) return null;
 
             return (
               <section key={type}>
                 <h2 className="text-xl font-serif mb-4 flex items-center gap-2">
-                  {typeLabels[type]}
+                  {label}
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2">
                   {items.map((item) => (
