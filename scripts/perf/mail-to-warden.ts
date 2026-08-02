@@ -100,11 +100,11 @@ assertEquivalent("every block produces identical derived state", BLOCKS, legacyR
 
 console.log("\nderived state per render")
 let cursor = 0
-const legacy = bench("linear finds + includes", 300_000, () => {
+const legacy = bench("linear finds + includes", 20_000, () => {
   legacyRender(BLOCKS[cursor++ % BLOCKS.length])
 })
 cursor = 0
-const indexed = bench("map + set lookups", 300_000, () => {
+const indexed = bench("map + set lookups", 20_000, () => {
   indexedRender(BLOCKS[cursor++ % BLOCKS.length])
 })
 speedup("per render", legacy, indexed)
@@ -118,29 +118,29 @@ console.log("\nbreakdown — each piece of the render, in isolation")
 const start = new Date("2026-08-01")
 const end = new Date("2026-08-09")
 
-const localeDate = bench("toLocaleDateString x2", 300_000, () => {
+const localeDate = bench("toLocaleDateString x2", 20_000, () => {
   start.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })
   end.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })
 })
-const sharedFormat = bench("shared Intl.DateTimeFormat x2", 300_000, () => {
+const sharedFormat = bench("shared Intl.DateTimeFormat x2", 20_000, () => {
   DATE_FORMAT.format(start)
   DATE_FORMAT.format(end)
 })
 speedup("date formatting", localeDate, sharedFormat)
 
-const blockScan = bench("hostels.find by block", 3_000_000, () => {
+const blockScan = bench("hostels.find by block", 500_000, () => {
   hostelsData.find((hostel) => hostel.block === "Block 13")
 })
-const blockLookup = bench("Map.get by block", 3_000_000, () => {
+const blockLookup = bench("Map.get by block", 500_000, () => {
   HOSTELS_BY_BLOCK.get("Block 13")
 })
 speedup("block lookup", blockScan, blockLookup)
 
 const wardenNames = busiestBlock.wardens.map((w) => w.name)
-const arrayMembership = bench("array .includes per checkbox", 3_000_000, () => {
+const arrayMembership = bench("array .includes per checkbox", 500_000, () => {
   for (const name of wardenNames) selectedWardens.includes(name)
 })
-const setMembership = bench("set .has per checkbox", 3_000_000, () => {
+const setMembership = bench("set .has per checkbox", 500_000, () => {
   for (const name of wardenNames) selectedWardenSet.has(name)
 })
 speedup("membership", arrayMembership, setMembership)
