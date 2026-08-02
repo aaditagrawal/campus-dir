@@ -21,9 +21,13 @@ const emit = (type: string, event: unknown) => {
 }
 
 const globals = globalThis as unknown as Record<string, unknown>
+let writeCount = 0
 globals.localStorage = {
   getItem: (key: string) => storage.get(key) ?? null,
-  setItem: (key: string, value: string) => void storage.set(key, value),
+  setItem: (key: string, value: string) => {
+    writeCount++
+    storage.set(key, value)
+  },
 }
 globals.window = {
   addEventListener: on,
@@ -155,6 +159,57 @@ assertEquivalent(
 store.clearAll()
 await settle()
 
+// Both tabs' deferred writes land before either storage event is delivered.
+// A blind overwrite here loses whichever tab wrote first.
+storage.set("mit-directory-favorites", JSON.stringify([item(910)]))
+store.toggleFavorite(item(911))
+await settle()
+
+assertEquivalent(
+  "a deferred write merges with a flush that landed first",
+  [0],
+  () => [item(910).id, item(911).id].sort(),
+  () =>
+    (JSON.parse(storage.get("mit-directory-favorites")!) as Item[])
+      .map((fav) => fav.id)
+      .sort(),
+)
+
+emit("storage", { key: "mit-directory-favorites" })
+assertEquivalent(
+  "the late storage event leaves both tabs' items in place",
+  [0],
+  () => [item(910).id, item(911).id].sort(),
+  () => store.getFavorites().map((fav) => fav.id).sort(),
+)
+
+store.clearAll()
+await settle()
+
+/* -------------------------------------------------------------------------- */
+/* Write coalescing — counted, not asserted by comment                        */
+/* -------------------------------------------------------------------------- */
+
+console.log("\nlocalStorage writes for a burst of 20 toggles")
+
+writeCount = 0
+for (let n = 0; n < 20; n++) store.toggleFavorite(item(1000 + n))
+const writesDuringBurst = writeCount
+await settle()
+const writesAfterFlush = writeCount
+
+console.log(`  during the burst: ${writesDuringBurst}   after the idle flush: ${writesAfterFlush}`)
+assertEquivalent(
+  "20 toggles produce exactly one serialize + write",
+  [0],
+  () => ({ duringBurst: 0, total: 1 }),
+  () => ({ duringBurst: writesDuringBurst, total: writesAfterFlush }),
+)
+console.log("  (the array-in-state version wrote once per change: 20)")
+
+store.clearAll()
+await settle()
+
 /* -------------------------------------------------------------------------- */
 /* Membership — one call per rendered card                                     */
 /* -------------------------------------------------------------------------- */
@@ -223,7 +278,3 @@ for (const cards of [12, 30, 64, 120]) {
 /* -------------------------------------------------------------------------- */
 /* Persistence — writes per burst of toggles                                   */
 /* -------------------------------------------------------------------------- */
-
-console.log("\nlocalStorage writes for a burst of 20 toggles")
-console.log("  legacy (effect per state change): 20 serialize + write")
-console.log("  now    (coalesced to one idle callback): 1 serialize + write")
