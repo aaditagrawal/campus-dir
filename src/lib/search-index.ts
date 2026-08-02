@@ -45,6 +45,13 @@ type Index = {
 /* Tokenization                                                               */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Non-ASCII needs a real letter/number test rather than "anything above 127".
+ * The hostel data carries en dashes in ranges like "B01–B20"; treating those as
+ * word characters welds the range into one unsearchable token.
+ */
+const LETTER_OR_NUMBER = /[\p{L}\p{N}]/u
+
 /** Splits on anything that is not a letter or digit, folding ASCII case. */
 function tokenize(text: string, into: string[]): string[] {
   let current = ""
@@ -52,10 +59,14 @@ function tokenize(text: string, into: string[]): string[] {
     let code = text.charCodeAt(i)
     if (code >= 65 && code <= 90) code += 32
 
-    const isAlnum =
-      (code >= 97 && code <= 122) || (code >= 48 && code <= 57) || code > 127
-    if (isAlnum) {
-      current += String.fromCharCode(code)
+    const character = String.fromCharCode(code)
+    const isWordCharacter =
+      (code >= 97 && code <= 122) ||
+      (code >= 48 && code <= 57) ||
+      (code > 127 && LETTER_OR_NUMBER.test(character))
+
+    if (isWordCharacter) {
+      current += character
     } else if (current.length > 0) {
       into.push(current)
       current = ""
@@ -63,6 +74,37 @@ function tokenize(text: string, into: string[]): string[] {
   }
   if (current.length > 0) into.push(current)
   return into
+}
+
+function isAllDigits(term: string): boolean {
+  for (let i = 0; i < term.length; i++) {
+    const code = term.charCodeAt(i)
+    if (code < 48 || code > 57) return false
+  }
+  return true
+}
+
+/**
+ * Phone numbers are indexed as one unbroken digit run, but they are *displayed*
+ * grouped — "+91 70906 41985". Someone copying that gets three numeric terms,
+ * none of which is a prefix of the indexed token. Fusing adjacent numeric terms
+ * makes the copied form match; non-numeric terms are left alone, so "taco 779"
+ * still searches for a name and a number separately.
+ */
+function fuseNumericTerms(terms: string[]): string[] {
+  const fused: string[] = []
+  for (let i = 0; i < terms.length; i++) {
+    if (!isAllDigits(terms[i])) {
+      fused.push(terms[i])
+      continue
+    }
+    let run = terms[i]
+    while (i + 1 < terms.length && isAllDigits(terms[i + 1])) {
+      run += terms[++i]
+    }
+    fused.push(run)
+  }
+  return fused
 }
 
 /** Digits only, plus the subscriber number, so "+91 77958..." matches "77958...". */
@@ -166,10 +208,21 @@ const scores = new Map<number, number>()
 const coverage = new Map<number, number>()
 const termBest = new Map<number, number>()
 
-function searchIndexed(query: string): SearchItem[] {
-  const { items, tokens, postings } = getIndex()
+/**
+ * Score of a term that landed exactly on a title's leading token — the best a
+ * single term can do. Dividing by this turns a raw score into a 0..1
+ * confidence that does not depend on how many terms were typed.
+ */
+const MAX_SCORE_PER_TERM = FIELD_WEIGHTS.title * 1.25
 
-  const terms = tokenize(query, [])
+/** Below this, an indexed hit is incidental enough that a typo is more likely. */
+const CONFIDENCE_FLOOR = 0.45
+
+type Scored = { item: number; score: number }
+
+function searchIndexed(query: string, terms: string[]): Scored[] {
+  const { tokens, postings } = getIndex()
+
   if (terms.length === 0) return []
   if (terms.length > MAX_TERMS) terms.length = MAX_TERMS
 
@@ -211,7 +264,7 @@ function searchIndexed(query: string): SearchItem[] {
 
   // Bounded selection. A candidate that cannot beat the current worst kept
   // result is rejected on one comparison, so this stays linear in candidates.
-  const best: Array<{ item: number; score: number }> = []
+  const best: Scored[] = []
   for (const [item, score] of scores) {
     if (coverage.get(item) !== required) continue
     if (best.length === MAX_RESULTS && score <= best[MAX_RESULTS - 1].score) continue
@@ -222,7 +275,7 @@ function searchIndexed(query: string): SearchItem[] {
     if (best.length > MAX_RESULTS) best.pop()
   }
 
-  return best.map((entry) => items[entry.item])
+  return best
 }
 
 /* -------------------------------------------------------------------------- */
@@ -275,23 +328,72 @@ export function isFuzzyEngineReady(): boolean {
 }
 
 /**
- * Index first, fuzzy only on a dead end.
+ * Warms the Fuse chunk when a service worker is controlling the page.
  *
- * A query that matches nothing at all is the typo signal. A query that matches
- * one thing is a user who has found what they wanted, and asking Fuse to
- * pad the list out would cost more than the whole index lookup did.
+ * The worker caches `/_next/static` assets on first request, so a lazily
+ * imported chunk that has never been fetched is simply absent offline. An
+ * installed PWA opened online but never used for search would then lose typo
+ * tolerance the moment it went offline. Fetching at idle keeps it out of the
+ * critical path while making sure the worker has seen it.
+ *
+ * Ordinary browsing skips this entirely and stays fully lazy.
+ */
+export function prefetchFuzzyEngineWhenCached(): void {
+  if (typeof navigator === "undefined" || !navigator.serviceWorker?.controller) return
+
+  const warm = () => void loadFuzzyEngine()
+  if (typeof requestIdleCallback === "function") requestIdleCallback(warm, { timeout: 10_000 })
+  else setTimeout(warm, 3_000)
+}
+
+/**
+ * Index first, fuzzy when the index is not convincing.
+ *
+ * "Nothing found" is the obvious typo signal, but not the only one: a
+ * misspelling can still satisfy every prefix by accident against weak fields.
+ * "Manipal SF" matches `manipal` and `sfin` in a notes field and would
+ * otherwise never reach Fuse, hiding the real answer, "Manipal OSF". So the
+ * fallback also fires when the best indexed hit scores far below what a real
+ * match on a title scores.
  */
 export function searchDirectory(query: string): SearchItem[] {
   const trimmed = query.trim()
   if (trimmed.length === 0) return []
 
-  const results = searchIndexed(trimmed)
-  if (results.length > 0 || fuzzy === null) return results
+  const rawTerms = tokenize(trimmed, [])
+  let scored = searchIndexed(trimmed, fuseNumericTerms(rawTerms))
+  // A grouped number is the common case, but if fusing found nothing the terms
+  // may genuinely have been separate. Cheap enough to try both.
+  if (scored.length === 0 && rawTerms.length > 1) {
+    scored = searchIndexed(trimmed, rawTerms)
+  }
 
-  return fuzzy
-    .search(trimmed)
-    .slice(0, MAX_RESULTS)
-    .map(({ item }) => item)
+  const { items } = getIndex()
+  const results = scored.map((entry) => items[entry.item])
+  if (fuzzy === null) return results
+
+  const termCount = Math.min(rawTerms.length, MAX_TERMS) || 1
+  const confidence = scored.length === 0 ? 0 : scored[0].score / (MAX_SCORE_PER_TERM * termCount)
+  if (confidence >= CONFIDENCE_FLOOR) return results
+
+  // Fuse leads in this regime — it is the more trustworthy signal once the
+  // index has admitted it is guessing — but the weak indexed hits are kept
+  // behind it rather than discarded.
+  const merged: SearchItem[] = []
+  const seen = new Set<string>()
+  for (const { item } of fuzzy.search(trimmed)) {
+    if (merged.length >= MAX_RESULTS) break
+    if (seen.has(item.href)) continue
+    seen.add(item.href)
+    merged.push(item)
+  }
+  for (const item of results) {
+    if (merged.length >= MAX_RESULTS) break
+    if (seen.has(item.href)) continue
+    seen.add(item.href)
+    merged.push(item)
+  }
+  return merged
 }
 
 /* -------------------------------------------------------------------------- */

@@ -10,6 +10,7 @@ import { memo, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   isFuzzyEngineReady,
   loadFuzzyEngine,
+  prefetchFuzzyEngineWhenCached,
   sampleSuggestions,
   searchDirectory,
 } from "@/lib/search-index";
@@ -97,7 +98,7 @@ export function SiteHeader() {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [query, searchOpen, fuzzyReady, performSearch]);
+  }, [query, searchOpen, performSearch]);
 
   // Fuse only covers what the index cannot — typos and transpositions — so it
   // is fetched alongside the first keystrokes rather than shipped with every page.
@@ -113,6 +114,16 @@ export function SiteHeader() {
       active = false;
     };
   }, [searchOpen, fuzzyReady]);
+
+  // Rerunning the search when Fuse lands would rebuild the results array and
+  // reset the highlight under a user who is already reading the list. Only an
+  // empty list can actually gain anything from the fallback, so only that reruns.
+  useEffect(() => {
+    if (!fuzzyReady || !searchOpen || !query || results.length > 0) return;
+    performSearch(query);
+  }, [fuzzyReady, searchOpen, query, results.length, performSearch]);
+
+  useEffect(prefetchFuzzyEngineWhenCached, []);
 
   useEffect(() => {
     const handler = () => setSearchOpen(true);

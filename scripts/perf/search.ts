@@ -6,7 +6,7 @@
  */
 import Fuse from "fuse.js"
 import { getAllSearchItems, type SearchItem } from "../../src/lib/search"
-import { loadFuzzyEngine, searchDirectory } from "../../src/lib/search-index"
+import { loadFuzzyEngine, sampleSuggestions, searchDirectory } from "../../src/lib/search-index"
 import { bench, makeRandom, speedup } from "./harness"
 
 const items = getAllSearchItems()
@@ -121,6 +121,38 @@ measureRecall("fuse", typoProbes, fuseSearch)
 measureRecall("inverted index alone", typoProbes, searchDirectory)
 
 /* -------------------------------------------------------------------------- */
+/* Formatting the reviewers found in the data                                  */
+/* -------------------------------------------------------------------------- */
+
+// Phone numbers are displayed grouped, so a copied number arrives as separate
+// numeric terms that are not prefixes of the indexed digit run.
+const groupedPhoneProbes: Probe[] = []
+for (const item of items) {
+  for (const phone of item.phones ?? []) {
+    if (!/\d\s+\d/.test(phone)) continue
+    groupedPhoneProbes.push({ query: phone, target: item })
+    groupedPhoneProbes.push({ query: phone.replace(/^\+\d+\s*/, ""), target: item })
+  }
+}
+
+// Ranges in warden subtitles use en dashes: "B01–B20", "1101–1241".
+const dashRangeProbes: Probe[] = []
+for (const item of items) {
+  for (const match of (item.subtitle ?? "").matchAll(/([A-Za-z0-9]+)[–—]([A-Za-z0-9]+)/g)) {
+    dashRangeProbes.push({ query: match[1], target: item })
+    dashRangeProbes.push({ query: match[2], target: item })
+  }
+}
+
+console.log(`\nrecall — phone numbers copied as displayed (${groupedPhoneProbes.length} queries)`)
+measureRecall("fuse", groupedPhoneProbes, fuseSearch)
+measureRecall("inverted index", groupedPhoneProbes, searchDirectory)
+
+console.log(`\nrecall — either end of an en-dash range (${dashRangeProbes.length} queries)`)
+measureRecall("fuse", dashRangeProbes, fuseSearch)
+measureRecall("inverted index", dashRangeProbes, searchDirectory)
+
+/* -------------------------------------------------------------------------- */
 /* Throughput — one keystroke                                                  */
 /* -------------------------------------------------------------------------- */
 
@@ -218,17 +250,24 @@ console.log(
   `  partial Fisher-Yates              worst item is ${maxDeviation(fisherYatesCounts).toFixed(1)}% off uniform`,
 )
 
-const shuffleRandom = makeRandom(7)
-const comparatorOps = bench("sort comparator shuffle", 200_000, () => {
-  pool.slice().sort(() => shuffleRandom() - 0.5).slice(0, PICK)
+/**
+ * The shipped `sampleSuggestions` filters the corpus and copies the pool before
+ * sampling. Benchmarking bare swaps against a comparator sort that pays for two
+ * array copies would compare the wrong things, so this is the real function
+ * against a faithful reconstruction of the code it replaced.
+ */
+function sampleSuggestionsLegacy(count: number): SearchItem[] {
+  const candidates = items.filter((item) => item.section !== "Pages")
+  return candidates.length > count
+    ? candidates.slice().sort(() => Math.random() - 0.5).slice(0, count)
+    : candidates
+}
+
+console.log("\n  full call, including the filter and pool copy both versions do")
+const comparatorOps = bench("legacy: filter + sort + slice", 200_000, () => {
+  sampleSuggestionsLegacy(PICK)
 })
-const scratch = pool.slice()
-const fisherOps = bench("partial Fisher-Yates", 200_000, () => {
-  for (let i = 0; i < PICK; i++) {
-    const j = i + Math.floor(shuffleRandom() * (scratch.length - i))
-    const swap = scratch[i]
-    scratch[i] = scratch[j]
-    scratch[j] = swap
-  }
+const fisherOps = bench("now: filter + partial Fisher-Yates", 200_000, () => {
+  sampleSuggestions(PICK)
 })
 speedup("suggestion sampling", comparatorOps, fisherOps)
