@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { memo, useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { loadFuzzyEngine, sampleSuggestions, searchDirectory } from "@/lib/search-index";
+import {
+  isFuzzyEngineReady,
+  loadFuzzyEngine,
+  sampleSuggestions,
+  searchDirectory,
+} from "@/lib/search-index";
 import { type SearchItem } from "@/lib/search";
 
 const SUGGESTION_COUNT = 8;
@@ -101,7 +106,8 @@ export function SiteHeader() {
 
     let active = true;
     loadFuzzyEngine().then(() => {
-      if (active) setFuzzyReady(true);
+      // Stays false if the chunk failed to load, so reopening the dialog retries.
+      if (active) setFuzzyReady(isFuzzyEngineReady());
     });
     return () => {
       active = false;

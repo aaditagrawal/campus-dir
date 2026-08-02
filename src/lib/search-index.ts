@@ -243,20 +243,29 @@ let fuzzyLoad: Promise<void> | null = null
  */
 export function loadFuzzyEngine(): Promise<void> {
   if (fuzzyLoad === null) {
-    fuzzyLoad = import("fuse.js").then(({ default: Fuse }) => {
-      fuzzy = new Fuse(getIndex().items as SearchItem[], {
-        keys: [
-          { name: "title", weight: 0.5 },
-          { name: "subtitle", weight: 0.15 },
-          { name: "section", weight: 0.1 },
-          { name: "phones", weight: 0.15 },
-          { name: "notes", weight: 0.1 },
-        ],
-        includeScore: true,
-        threshold: 0.35,
-        ignoreLocation: true,
+    fuzzyLoad = import("fuse.js")
+      .then(({ default: Fuse }) => {
+        fuzzy = new Fuse(getIndex().items as SearchItem[], {
+          keys: [
+            { name: "title", weight: 0.5 },
+            { name: "subtitle", weight: 0.15 },
+            { name: "section", weight: 0.1 },
+            { name: "phones", weight: 0.15 },
+            { name: "notes", weight: 0.1 },
+          ],
+          includeScore: true,
+          threshold: 0.35,
+          ignoreLocation: true,
+        })
       })
-    })
+      .catch((error) => {
+        // A dropped connection or a stale chunk hash should not disable typo
+        // tolerance until the page is reloaded. Forget the failed attempt so
+        // the next dialog open retries, and resolve rather than reject —
+        // search still works, it just falls back to exact prefixes.
+        console.error("Failed to load the fuzzy search engine:", error)
+        fuzzyLoad = null
+      })
   }
   return fuzzyLoad
 }
