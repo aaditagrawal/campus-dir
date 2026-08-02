@@ -7,7 +7,12 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card/60 backdrop-blur-md text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        // No backdrop-blur here. `.glass` already supplies one where the design
+        // calls for it, and an unlayered rule beats this utility anyway — so on
+        // glass cards this only ever cost specificity. On the rest it put a
+        // backdrop-filter on every card in the app for an effect barely visible
+        // against the ambient gradient.
+        "bg-card/60 text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
         className
       )}
       {...props}

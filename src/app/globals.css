@@ -147,8 +147,12 @@
   body::after {
     content: "";
     position: fixed;
-    /* Oversized so the drift never exposes an edge. */
-    inset: -20%;
+    /*
+     * Oversized just enough to cover the 2% drift. A promoted layer costs GPU
+     * memory proportional to its area, and these are viewport sized on every
+     * page — going wider than the animation needs would spend that for nothing.
+     */
+    inset: -6%;
     z-index: -1;
     pointer-events: none;
     will-change: transform;
@@ -220,12 +224,38 @@
   }
 }
 
-/* glass helper - more subtle */
+/*
+ * glass helper - more subtle
+ *
+ * A backdrop-filter is one of the most expensive things a page can ask for: the
+ * element has to sample and blur everything behind it, and it redoes that work
+ * whenever its backdrop changes — which includes every scroll frame, since the
+ * card moves over a fixed background. There are 17 to 25 of these per page
+ * (25 on /emergency), so the cost is paid many times over.
+ *
+ * The blur is kept, at a smaller radius, on pointer devices with a large enough
+ * viewport. Below that it is dropped and the tint carries the effect on its own,
+ * which is where the cost hurts most and the blur reads least.
+ */
 .glass {
   background: color-mix(in oklab, var(--card) 70%, transparent);
-  backdrop-filter: saturate(120%) blur(12px);
-  -webkit-backdrop-filter: saturate(120%) blur(12px);
   border-color: color-mix(in oklab, var(--border) 60%, transparent);
+}
+
+@media (min-width: 768px) {
+  .glass {
+    backdrop-filter: saturate(120%) blur(8px);
+    -webkit-backdrop-filter: saturate(120%) blur(8px);
+  }
+}
+
+/* Honour an explicit request for less transparency, and stop blurring for it. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--card);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* category accent helpers */
