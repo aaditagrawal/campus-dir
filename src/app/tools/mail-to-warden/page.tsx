@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,41 @@ const PURPOSE_TEMPLATES = [
 
 const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
+type Hostel = (typeof hostelsData)[number];
+
+/**
+ * The form re-renders on every keystroke in any of its fourteen fields, so
+ * anything derived from the static hostel data is built once here rather than
+ * rescanned on each of those renders.
+ */
+const HOSTELS_BY_BLOCK = new Map<string, Hostel>(
+  hostelsData.map((hostel) => [hostel.block, hostel]),
+);
+const BLOCKS: readonly string[] = hostelsData.map((hostel) => hostel.block);
+const PURPOSE_TEXT_BY_LABEL = new Map(
+  PURPOSE_TEMPLATES.map((purpose) => [purpose.label, purpose.text]),
+);
+
+/**
+ * `toLocaleDateString` builds a formatter on every call. One shared instance
+ * covers both dates in the duration line.
+ */
+const DATE_FORMAT = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+function describeDuration(startDate: string, endDate: string): string {
+  if (!startDate || !endDate) return "";
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const days = Math.ceil(Math.abs(end.getTime() - start.getTime()) / 86_400_000) + 1;
+
+  return `${days} day(s) from ${DATE_FORMAT.format(start)} to ${DATE_FORMAT.format(end)}`;
+}
+
 function MailToWardenContent() {
   const searchParams = useSearchParams();
   const [isSharedLink, setIsSharedLink] = useState(false);
@@ -101,49 +136,33 @@ function MailToWardenContent() {
         console.error('Failed to parse shared link data:', e);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const selectedHostel = hostelsData.find(hostel => hostel.block === formData.block);
+  const selectedHostel = HOSTELS_BY_BLOCK.get(formData.block);
 
-  const handleInputChange = (field: keyof FormData, value: string | string[]) => {
+  /** Membership is checked once per warden checkbox, so keep it O(1). */
+  const selectedWardenSet = useMemo(
+    () => new Set(formData.selectedWardens),
+    [formData.selectedWardens],
+  );
+
+  const handleInputChange = useCallback((field: keyof FormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const generateDurationText = () => {
-    if (!formData.startDate || !formData.endDate) return "";
-    
-    const start = new Date(formData.startDate);
-    const end = new Date(formData.endDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    
-    const formatDate = (date: Date) => date.toLocaleDateString('en-US', { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric' 
-    });
-    
-    return `${diffDays} day(s) from ${formatDate(start)} to ${formatDate(end)}`;
-  };
+  const durationText = useMemo(
+    () => describeDuration(formData.startDate, formData.endDate),
+    [formData.startDate, formData.endDate],
+  );
 
   const generateMailFromData = (data: FormData) => {
     const subject = `${data.studentName}, ${data.registrationNumber} and ${data.block} ${data.roomNumber}`;
 
     const purposeText = data.purpose === "custom"
       ? data.customPurpose
-      : PURPOSE_TEMPLATES.find(p => p.label === data.purpose)?.text || data.purpose;
+      : PURPOSE_TEXT_BY_LABEL.get(data.purpose) || data.purpose;
 
-    const start = new Date(data.startDate);
-    const end = new Date(data.endDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
-    const durationText = data.startDate && data.endDate ? `${diffDays} day(s) from ${formatDate(start)} to ${formatDate(end)}` : '';
+    const durationText = describeDuration(data.startDate, data.endDate);
 
     const body = `1. Student name: ${data.studentName || '[NOT FILLED]'}
 2. Registration Number: ${data.registrationNumber || '[NOT FILLED]'}
@@ -160,7 +179,7 @@ Purpose: ${purposeText || '[NOT FILLED]'}
     setMailPreview({ subject, body });
 
     // Generate shareable web URL (not mailto)
-    const hostel = hostelsData.find(h => h.block === data.block);
+    const hostel = HOSTELS_BY_BLOCK.get(data.block);
     if (hostel && data.selectedWardens.length > 0) {
       const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(data))}`;
       setShareableLink(shareUrl);
@@ -175,7 +194,7 @@ Purpose: ${purposeText || '[NOT FILLED]'}
     if (!mailPreview || !selectedHostel) return;
 
     const selectedWardenEmails = selectedHostel.wardens
-      .filter(warden => formData.selectedWardens.includes(warden.name))
+      .filter(warden => selectedWardenSet.has(warden.name))
       .map(warden => warden.email);
 
     if (selectedWardenEmails.length === 0) return;
@@ -200,19 +219,37 @@ Purpose: ${purposeText || '[NOT FILLED]'}
     }
   };
 
-  const getMailRecipients = () => {
-    if (!selectedHostel || formData.selectedWardens.length === 0) return { to: [], cc: [] };
-    
-    const to = selectedHostel.wardens
-      .filter(warden => formData.selectedWardens.includes(warden.name))
-      .map(warden => `${warden.name} <${warden.email}>`);
-    
-    const cc = [`${selectedHostel.block} <${selectedHostel.email}>`];
-    
-    return { to, cc };
-  };
+  const recipients = useMemo(() => {
+    if (!selectedHostel || selectedWardenSet.size === 0) {
+      return { to: [] as string[], cc: [] as string[] };
+    }
 
-  const blocks = hostelsData.map(hostel => hostel.block);
+    return {
+      to: selectedHostel.wardens
+        .filter(warden => selectedWardenSet.has(warden.name))
+        .map(warden => `${warden.name} <${warden.email}>`),
+      cc: [`${selectedHostel.block} <${selectedHostel.email}>`],
+    };
+  }, [selectedHostel, selectedWardenSet]);
+
+  const missingFields = useMemo(() => {
+    const missing: string[] = [];
+    if (!formData.studentName) missing.push('Student Name');
+    if (!formData.registrationNumber) missing.push('Registration Number');
+    if (!formData.semester) missing.push('Semester');
+    if (!formData.branch) missing.push('Branch');
+    if (!formData.block) missing.push('Block');
+    if (!formData.roomNumber) missing.push('Room Number');
+    if (!formData.contactNumber) missing.push('Contact Number');
+    if (!formData.startDate || !formData.endDate) missing.push('Leave Dates');
+    if (!formData.placeOfVisit) missing.push('Place of Visit');
+    if (!formData.address) missing.push('Address');
+    if (!formData.purpose || (formData.purpose === 'custom' && !formData.customPurpose)) missing.push('Purpose');
+    if (!formData.parentName) missing.push('Parent Name');
+    if (!formData.parentContact) missing.push('Parent Contact');
+    if (formData.selectedWardens.length === 0) missing.push('Warden Selection');
+    return missing;
+  }, [formData]);
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
@@ -315,7 +352,7 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                   }}
                 >
                   <option value="">Select Block</option>
-                  {blocks.map(block => (
+                  {BLOCKS.map(block => (
                     <option key={block} value={block}>{block}</option>
                   ))}
                 </select>
@@ -339,12 +376,12 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                     <label key={warden.name} className="flex items-center space-x-3">
                       <input
                         type="checkbox"
-                        checked={formData.selectedWardens.includes(warden.name)}
+                        checked={selectedWardenSet.has(warden.name)}
                         onChange={(e) => {
-                          const updated = e.target.checked
-                            ? [...formData.selectedWardens, warden.name]
-                            : formData.selectedWardens.filter(w => w !== warden.name);
-                          handleInputChange("selectedWardens", updated);
+                          const updated = new Set(selectedWardenSet);
+                          if (e.target.checked) updated.add(warden.name);
+                          else updated.delete(warden.name);
+                          handleInputChange("selectedWardens", Array.from(updated));
                         }}
                         className="rounded"
                       />
@@ -394,7 +431,7 @@ Purpose: ${purposeText || '[NOT FILLED]'}
 
             {formData.startDate && formData.endDate && (
               <div className="p-4 bg-muted rounded-md">
-                <p className="text-sm font-medium">Duration: {generateDurationText()}</p>
+                <p className="text-sm font-medium">Duration: {durationText}</p>
               </div>
             )}
 
@@ -437,7 +474,7 @@ Purpose: ${purposeText || '[NOT FILLED]'}
               {formData.purpose && formData.purpose !== "custom" && (
                 <div className="mt-2 p-3 bg-muted rounded-md">
                   <p className="text-sm">
-                    {PURPOSE_TEMPLATES.find(p => p.label === formData.purpose)?.text}
+                    {PURPOSE_TEXT_BY_LABEL.get(formData.purpose)}
                   </p>
                 </div>
               )}
@@ -510,65 +547,39 @@ Purpose: ${purposeText || '[NOT FILLED]'}
               <CardTitle>Mail Preview</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {(() => {
-                const emptyFields = [];
-                if (!formData.studentName) emptyFields.push('Student Name');
-                if (!formData.registrationNumber) emptyFields.push('Registration Number');
-                if (!formData.semester) emptyFields.push('Semester');
-                if (!formData.branch) emptyFields.push('Branch');
-                if (!formData.block) emptyFields.push('Block');
-                if (!formData.roomNumber) emptyFields.push('Room Number');
-                if (!formData.contactNumber) emptyFields.push('Contact Number');
-                if (!formData.startDate || !formData.endDate) emptyFields.push('Leave Dates');
-                if (!formData.placeOfVisit) emptyFields.push('Place of Visit');
-                if (!formData.address) emptyFields.push('Address');
-                if (!formData.purpose || (formData.purpose === 'custom' && !formData.customPurpose)) emptyFields.push('Purpose');
-                if (!formData.parentName) emptyFields.push('Parent Name');
-                if (!formData.parentContact) emptyFields.push('Parent Contact');
-                if (formData.selectedWardens.length === 0) emptyFields.push('Warden Selection');
+              {missingFields.length > 0 && (
+                <div className="glass border border-rose-200/50 bg-rose-50/20 rounded-lg p-4">
+                  <p className="text-sm font-medium text-white mb-2">
+                    Please fill in the following required fields:
+                  </p>
+                  <p className="text-sm text-white">
+                    {missingFields.join(', ')}
+                  </p>
+                </div>
+              )}
 
-                return emptyFields.length > 0 && (
-                  <div className="glass border border-rose-200/50 bg-rose-50/20 rounded-lg p-4">
-                    <p className="text-sm font-medium text-white mb-2">
-                      Please fill in the following required fields:
-                    </p>
-                    <p className="text-sm text-white">
-                      {emptyFields.join(', ')}
+              {recipients.to.length > 0 && (
+                <div>
+                  <Label className="mb-3 block">To</Label>
+                  <div className="p-4 bg-muted rounded-md">
+                    <p className="text-sm">
+                      {recipients.to.join(', ')}
                     </p>
                   </div>
-                );
-              })()}
-              
-              {(() => {
-                const recipients = getMailRecipients();
-                
-                return (
-                  <>
-                    {recipients.to.length > 0 && (
-                      <div>
-                        <Label className="mb-3 block">To</Label>
-                        <div className="p-4 bg-muted rounded-md">
-                          <p className="text-sm">
-                            {recipients.to.join(', ')}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {recipients.cc.length > 0 && (
-                      <div>
-                        <Label className="mb-3 block">CC</Label>
-                        <div className="p-4 bg-muted rounded-md">
-                          <p className="text-sm">
-                            {recipients.cc.join(', ')}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
-              
+                </div>
+              )}
+
+              {recipients.cc.length > 0 && (
+                <div>
+                  <Label className="mb-3 block">CC</Label>
+                  <div className="p-4 bg-muted rounded-md">
+                    <p className="text-sm">
+                      {recipients.cc.join(', ')}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <Label className="mb-3 block">Subject</Label>
                 <div className="p-4 bg-muted rounded-md">
