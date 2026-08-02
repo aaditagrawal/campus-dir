@@ -91,6 +91,12 @@ function subscribe(listener: () => void): () => void {
       clearTimeout(timer);
       timer = null;
     }
+    // No timer is running while nothing is subscribed, so a retained snapshot
+    // goes stale the moment a restaurant opens or closes. Navigating away and
+    // back would then render that stale badge for one frame before the
+    // resubscribe corrected it. Drop back to "unknown", which renders no badge
+    // at all — the same thing the server renders.
+    snapshot = UNKNOWN_STATUSES;
   };
 }
 
