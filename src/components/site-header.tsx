@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Sun, Moon, Menu, Utensils, Building2, Bus, ShieldAlert, Wrench, GraduationCap, Search, X, Settings, Star, MessageSquareWarning } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ const SearchResultRow = memo(function SearchResultRow({
 });
 
 export function SiteHeader() {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -179,42 +181,38 @@ export function SiteHeader() {
 
       if (r.href.startsWith("http")) {
         window.location.href = r.href;
-      } else {
-        const url = new URL(r.href, window.location.origin);
-        if (url.hash) {
-          const elementId = url.hash.substring(1);
-          if (!elementId) {
-            console.error('Invalid hash in URL:', r.href);
-            return;
-          }
-
-          const element = document.getElementById(elementId);
-
-          if (element) {
-            const headerHeight = 56;
-            const viewportHeight = window.innerHeight;
-            const extraOffset = viewportHeight * 0.1;
-            const rect = element.getBoundingClientRect();
-            const absoluteTop = rect.top + window.scrollY;
-            window.scrollTo({
-              top: Math.max(0, absoluteTop - headerHeight - extraOffset),
-              behavior: 'smooth'
-            });
-            window.history.pushState(null, '', r.href);
-          } else {
-            window.location.assign(r.href);
-          }
-        } else {
-          window.location.assign(r.href);
-        }
+        return;
       }
+
+      const url = new URL(r.href, window.location.origin);
+      const elementId = url.hash ? url.hash.substring(1) : "";
+      const element = elementId ? document.getElementById(elementId) : null;
+
+      // Already on this page: scroll, do not route.
+      if (element) {
+        const headerHeight = 56;
+        const extraOffset = window.innerHeight * 0.1;
+        const absoluteTop = element.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({
+          top: Math.max(0, absoluteTop - headerHeight - extraOffset),
+          behavior: 'smooth',
+        });
+        window.history.pushState(null, '', r.href);
+        return;
+      }
+
+      // Every other result used to go through window.location.assign, which
+      // tears down the app and re-parses the whole bundle just to reach another
+      // static page. The router keeps it a client transition; the target cards
+      // carry `scroll-mt-24`, so the sticky header does not cover the anchor.
+      router.push(r.href);
     } catch (error) {
       console.error('Navigation error:', error, r);
       if (r && r.href) {
         window.location.href = r.href;
       }
     }
-  }, []);
+  }, [router]);
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && results.length > 0) {

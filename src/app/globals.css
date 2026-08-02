@@ -126,19 +126,67 @@
   body {
     @apply bg-background text-foreground;
     font-size: 16px;
-    background-image: radial-gradient(20rem 20rem at 10% 10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent), radial-gradient(28rem 28rem at 90% 20%, color-mix(in oklab, var(--accent) 16%, transparent), transparent), radial-gradient(22rem 22rem at 30% 90%, color-mix(in oklab, var(--chart-2) 14%, transparent), transparent);
-    background-attachment: fixed;
-    animation: bgShift 24s ease-in-out infinite alternate;
   }
-  .dark body {
-    background-image: 
+
+  /*
+   * The ambient gradient lives on its own fixed layer rather than on `body`.
+   *
+   * It used to be painted directly on the body with `background-attachment:
+   * fixed` and an infinite `background-position` animation. `background-position`
+   * is not a compositor-accelerated property, so that repainted the full
+   * viewport every frame, forever — and since every `.glass` card samples what
+   * is behind it through a `backdrop-filter`, all 15-23 of them had to be
+   * re-blurred every frame too. The page never got an idle moment.
+   *
+   * A fixed layer animated with `transform` is promoted to its own compositor
+   * layer: the gradient rasterizes once and the GPU moves it. The blurred cards
+   * above it now sample a surface that is not being repainted, so their blur is
+   * cached instead of recomputed.
+   */
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    /*
+     * Oversized just enough to cover the 2% drift. A promoted layer costs GPU
+     * memory proportional to its area, and these are viewport sized on every
+     * page — going wider than the animation needs would spend that for nothing.
+     */
+    inset: -6%;
+    z-index: -1;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  body::before {
+    background-image:
+      radial-gradient(20rem 20rem at 10% 10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent),
+      radial-gradient(28rem 28rem at 90% 20%, color-mix(in oklab, var(--accent) 16%, transparent), transparent);
+    animation: bgDriftA 24s ease-in-out infinite alternate;
+  }
+
+  body::after {
+    background-image:
+      radial-gradient(22rem 22rem at 30% 90%, color-mix(in oklab, var(--chart-2) 14%, transparent), transparent);
+    animation: bgDriftB 24s ease-in-out infinite alternate;
+  }
+
+  .dark body::before {
+    background-image:
       radial-gradient(circle at 25% 25%, color-mix(in oklab, var(--background) 30%, transparent) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, color-mix(in oklab, var(--muted) 20%, transparent) 0%, transparent 40%),
+      radial-gradient(circle at 75% 75%, color-mix(in oklab, var(--muted) 20%, transparent) 0%, transparent 40%);
+    background-size: 100% 100%, 80% 80%;
+    background-position: 0% 0%, 100% 100%;
+    animation-duration: 30s;
+  }
+
+  .dark body::after {
+    background-image:
       radial-gradient(circle at 50% 10%, color-mix(in oklab, var(--border) 15%, transparent) 0%, transparent 35%),
       conic-gradient(from 180deg at 50% 50%, color-mix(in oklab, var(--background) 70%, transparent) 0deg, color-mix(in oklab, var(--card) 80%, transparent) 120deg, color-mix(in oklab, var(--background) 70%, transparent) 240deg, color-mix(in oklab, var(--background) 70%, transparent) 360deg);
-    background-size: 100% 100%, 80% 80%, 60% 60%, 200% 200%;
-    background-position: 0% 0%, 100% 100%, 50% 50%, 50% 50%;
-    animation: darkBgShift 30s ease-in-out infinite alternate;
+    background-size: 60% 60%, 200% 200%;
+    background-position: 50% 50%, 50% 50%;
+    animation-duration: 30s;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-instrument-serif);
@@ -153,22 +201,61 @@
   small { font-size: 0.875rem; }
 }
 
-@keyframes bgShift {
-  0% { background-position: 10% 10%, 90% 20%, 30% 90%; }
-  100% { background-position: 20% 20%, 80% 15%, 35% 85%; }
+/*
+ * Two layers drifting by slightly different amounts, which keeps the parallax
+ * the old per-layer `background-position` keyframes produced. Translations are
+ * small because the layer is oversized by 20% on each side.
+ */
+@keyframes bgDriftA {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(2%, 2%, 0); }
 }
 
-@keyframes darkBgShift {
-  0% { background-position: 0% 0%, 100% 100%, 50% 50%, 50% 50%; }
-  100% { background-position: 10% 10%, 90% 90%, 60% 40%, 60% 50%; }
+@keyframes bgDriftB {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-1.5%, 1%, 0); }
 }
 
-/* glass helper - more subtle */
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none;
+    will-change: auto;
+  }
+}
+
+/*
+ * glass helper - more subtle
+ *
+ * A backdrop-filter is one of the most expensive things a page can ask for: the
+ * element has to sample and blur everything behind it, and it redoes that work
+ * whenever its backdrop changes — which includes every scroll frame, since the
+ * card moves over a fixed background. There are 17 to 25 of these per page
+ * (25 on /emergency), so the cost is paid many times over.
+ *
+ * The blur is kept, at a smaller radius, on pointer devices with a large enough
+ * viewport. Below that it is dropped and the tint carries the effect on its own,
+ * which is where the cost hurts most and the blur reads least.
+ */
 .glass {
   background: color-mix(in oklab, var(--card) 70%, transparent);
-  backdrop-filter: saturate(120%) blur(12px);
-  -webkit-backdrop-filter: saturate(120%) blur(12px);
   border-color: color-mix(in oklab, var(--border) 60%, transparent);
+}
+
+@media (min-width: 768px) {
+  .glass {
+    backdrop-filter: saturate(120%) blur(8px);
+    -webkit-backdrop-filter: saturate(120%) blur(8px);
+  }
+}
+
+/* Honour an explicit request for less transparency, and stop blurring for it. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--card);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* category accent helpers */
