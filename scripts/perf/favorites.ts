@@ -10,19 +10,32 @@ import { assertEquivalent, bench, makeRandom, speedup } from "./harness"
 // The store reads `window`/`localStorage` when it hydrates. Stub enough of both
 // to exercise the real module rather than a copy of it.
 const storage = new Map<string, string>()
+const listeners = new Map<string, Array<(event: unknown) => void>>()
+const on = (type: string, handler: (event: unknown) => void) => {
+  const existing = listeners.get(type)
+  if (existing) existing.push(handler)
+  else listeners.set(type, [handler])
+}
+const emit = (type: string, event: unknown) => {
+  for (const handler of listeners.get(type) ?? []) handler(event)
+}
+
 const globals = globalThis as unknown as Record<string, unknown>
 globals.localStorage = {
   getItem: (key: string) => storage.get(key) ?? null,
   setItem: (key: string, value: string) => void storage.set(key, value),
 }
 globals.window = {
-  addEventListener: () => {},
+  addEventListener: on,
   setTimeout: (fn: () => void) => setTimeout(fn, 0),
 }
 globals.document = {
-  addEventListener: () => {},
+  addEventListener: on,
   visibilityState: "visible",
 }
+
+/** Lets a scheduled idle/timeout persist actually fire. */
+const settle = () => new Promise((resolve) => setTimeout(resolve, 5))
 
 const store = await import("../../src/lib/favorites-store")
 
@@ -103,7 +116,44 @@ assertEquivalent(
 )
 
 store.clearAll()
+await settle()
 assertEquivalent("clearAll empties the store", [0], () => 0, () => store.getCount())
+
+/* -------------------------------------------------------------------------- */
+/* Cross-tab race — this tab has an unwritten toggle when another tab flushes  */
+/* -------------------------------------------------------------------------- */
+
+console.log("\ncross-tab merge")
+
+// This tab saves an item. The write is deferred, so nothing is on disk yet.
+store.toggleFavorite(item(900))
+
+// Meanwhile another tab flushes its own toggle, replacing the stored snapshot
+// and firing a storage event here.
+storage.set("mit-directory-favorites", JSON.stringify([item(901)]))
+emit("storage", { key: "mit-directory-favorites" })
+
+assertEquivalent(
+  "an incoming snapshot does not drop this tab's unwritten toggle",
+  [0],
+  () => [item(900).id, item(901).id].sort(),
+  () => store.getFavorites().map((fav) => fav.id).sort(),
+)
+
+// And this tab's own flush must persist the merge, not overwrite it.
+await settle()
+assertEquivalent(
+  "the deferred write persists the merged result",
+  [0],
+  () => [item(900).id, item(901).id].sort(),
+  () =>
+    (JSON.parse(storage.get("mit-directory-favorites")!) as Item[])
+      .map((fav) => fav.id)
+      .sort(),
+)
+
+store.clearAll()
+await settle()
 
 /* -------------------------------------------------------------------------- */
 /* Membership — one call per rendered card                                     */

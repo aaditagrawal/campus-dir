@@ -142,7 +142,10 @@ export function subscribeToCollection(listener: Listener): () => void {
 /* -------------------------------------------------------------------------- */
 
 export function toggleFavorite(item: FavoriteItem): void {
-  if (!entries.delete(item.id)) entries.set(item.id, item)
+  const removed = entries.delete(item.id)
+  if (!removed) entries.set(item.id, item)
+
+  pendingWrites.set(item.id, removed ? null : item)
   listCacheStale = true
   schedulePersist()
   notify(item.id)
@@ -150,6 +153,8 @@ export function toggleFavorite(item: FavoriteItem): void {
 
 export function removeFavorite(id: string): void {
   if (!entries.delete(id)) return
+
+  pendingWrites.set(id, null)
   listCacheStale = true
   schedulePersist()
   notify(id)
@@ -158,6 +163,9 @@ export function removeFavorite(id: string): void {
 export function clearAll(): void {
   if (entries.size === 0) return
   entries.clear()
+
+  pendingWrites.clear()
+  pendingClear = true
   listCacheStale = true
   schedulePersist()
   notifyAll()
@@ -223,10 +231,7 @@ function hydrate(): void {
   // A second tab writing favourites should be reflected here without a reload.
   window.addEventListener("storage", (event) => {
     if (event.key !== null && event.key !== STORAGE_KEY) return
-    entries.clear()
-    for (const item of readStorage()) entries.set(item.id, item)
-    listCacheStale = true
-    notifyAll()
+    mergeRemote()
   })
 
   // Never lose a pending write to a tab close or a bfcache freeze.
@@ -239,6 +244,40 @@ function hydrate(): void {
 }
 
 let persistHandle: number | null = null
+
+/**
+ * Local changes made since the last successful write, as id -> item, or
+ * `null` for a removal.
+ *
+ * Deferring the write opens a window in which another tab can flush first and
+ * fire a `storage` event here. Without this log, adopting that snapshot would
+ * discard whatever this tab had toggled but not yet written, and the pending
+ * flush would then persist the loss. Replaying the log over the incoming
+ * snapshot resolves it per id: each tab keeps its own edits and picks up the
+ * other's.
+ */
+const pendingWrites = new Map<string, FavoriteItem | null>()
+/** A pending `clearAll` removes everything the other tab knows about too. */
+let pendingClear = false
+
+/** Adopts another tab's snapshot without dropping edits this tab has not written yet. */
+function mergeRemote(): void {
+  entries.clear()
+
+  if (!pendingClear) {
+    for (const item of readStorage()) entries.set(item.id, item)
+  }
+  for (const [id, item] of pendingWrites) {
+    if (item === null) entries.delete(id)
+    else entries.set(id, item)
+  }
+
+  listCacheStale = true
+  // The merged result is now what should be on disk, so keep the pending flush
+  // if there is one, and schedule one if the merge changed anything locally.
+  if (pendingWrites.size > 0 || pendingClear) schedulePersist()
+  notifyAll()
+}
 
 /**
  * Serializing and writing on every toggle put a synchronous `JSON.stringify`
@@ -261,6 +300,9 @@ function flushPersist(): void {
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(getFavorites()))
+    // On disk now, so there is nothing left for a remote merge to replay.
+    pendingWrites.clear()
+    pendingClear = false
   } catch (error) {
     console.error("Failed to save favorites:", error)
   }
