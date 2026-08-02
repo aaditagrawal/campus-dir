@@ -6,22 +6,50 @@ import { Sun, Moon, Menu, Utensils, Building2, Bus, ShieldAlert, Wrench, Graduat
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
 import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import Fuse from "fuse.js";
-import { getAllSearchItems, type SearchItem } from "@/lib/search";
+import { memo, useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { loadFuzzyEngine, sampleSuggestions, searchDirectory } from "@/lib/search-index";
+import { type SearchItem } from "@/lib/search";
 
-const fuseOptions = {
-  keys: [
-    { name: "title", weight: 0.5 },
-    { name: "subtitle", weight: 0.15 },
-    { name: "section", weight: 0.1 },
-    { name: "phones", weight: 0.15 },
-    { name: "notes", weight: 0.1 },
-  ],
-  includeScore: true,
-  threshold: 0.35,
-  ignoreLocation: true,
-};
+const SUGGESTION_COUNT = 8;
+
+/**
+ * Memoized so moving the highlight — which every mouse move over the list
+ * does — re-renders the two rows whose selection changed, not all ten.
+ */
+const SearchResultRow = memo(function SearchResultRow({
+  item,
+  index,
+  selected,
+  rowRef,
+  onSelect,
+  onHover,
+}: {
+  item: SearchItem;
+  index: number;
+  selected: boolean;
+  rowRef: React.Ref<HTMLLIElement> | null;
+  onSelect: (item: SearchItem) => void;
+  onHover: (index: number) => void;
+}) {
+  return (
+    <li
+      ref={rowRef}
+      className={`px-4 py-3 cursor-pointer transition-colors ${
+        selected
+          ? "bg-primary/10 border-l-2 border-primary"
+          : "hover:bg-muted/60 border-l-2 border-transparent"
+      }`}
+      onClick={() => onSelect(item)}
+      onMouseEnter={() => onHover(index)}
+    >
+      <div className="text-sm">
+        <span className="font-medium">{item.title}</span>
+        {item.subtitle && <span className="text-muted-foreground"> • {item.subtitle}</span>}
+      </div>
+      <div className="text-xs text-muted-foreground mt-0.5">{item.section}</div>
+    </li>
+  );
+});
 
 export function SiteHeader() {
   const { theme, setTheme } = useTheme();
@@ -31,6 +59,7 @@ export function SiteHeader() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [fuzzyReady, setFuzzyReady] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const selectedItemRef = useRef<HTMLLIElement | null>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -39,30 +68,19 @@ export function SiteHeader() {
 
   const isMac = useMemo(() => navigator.platform.toUpperCase().includes("MAC"), []);
 
-  const items = useMemo(() => getAllSearchItems(), []);
-  const fuse = useMemo(() => new Fuse(items, fuseOptions), [items]);
-
-  const defaultSuggestions = useMemo(() => {
-    const pool = items.filter((i) => i.section !== "Pages");
-    const shuffled = pool.length > 8 ? pool.slice().sort(() => Math.random() - 0.5).slice(0, 8) : pool;
-    return shuffled;
-  }, [items]);
-
   const performSearch = useCallback((searchQuery: string) => {
-    if (!searchQuery) {
-      setResults(defaultSuggestions);
-      return;
-    }
     try {
-      const searchResults = fuse.search(searchQuery);
-      const r = searchResults.slice(0, 10).map((result) => result.item || result);
-      setResults(r);
+      // The index is built on this first call, when the dialog opens, rather
+      // than on every page load.
+      setResults(searchQuery ? searchDirectory(searchQuery) : sampleSuggestions(SUGGESTION_COUNT));
     } catch {
       setResults([]);
     }
-  }, [fuse, defaultSuggestions]);
+  }, []);
 
   useEffect(() => {
+    if (!searchOpen) return;
+
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -74,7 +92,21 @@ export function SiteHeader() {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [query, performSearch]);
+  }, [query, searchOpen, fuzzyReady, performSearch]);
+
+  // Fuse only covers what the index cannot — typos and transpositions — so it
+  // is fetched alongside the first keystrokes rather than shipped with every page.
+  useEffect(() => {
+    if (!searchOpen || fuzzyReady) return;
+
+    let active = true;
+    loadFuzzyEngine().then(() => {
+      if (active) setFuzzyReady(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, [searchOpen, fuzzyReady]);
 
   useEffect(() => {
     const handler = () => setSearchOpen(true);
@@ -120,7 +152,7 @@ export function SiteHeader() {
     }
   }, [selectedIndex]);
 
-  const navigateToResult = (r: SearchItem) => {
+  const navigateToResult = useCallback((r: SearchItem) => {
     setSearchOpen(false);
     try {
       if (!r || !r.href) {
@@ -165,7 +197,7 @@ export function SiteHeader() {
         window.location.href = r.href;
       }
     }
-  };
+  }, []);
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && results.length > 0) {
@@ -382,23 +414,15 @@ export function SiteHeader() {
                 <li className="px-4 py-3 text-sm text-muted-foreground">No results</li>
               )}
               {results.map((r, idx) => (
-                <li
+                <SearchResultRow
                   key={`${r.href}-${idx}`}
-                  ref={idx === selectedIndex ? selectedItemRef : null}
-                  className={`px-4 py-3 cursor-pointer transition-colors ${
-                    idx === selectedIndex
-                      ? "bg-primary/10 border-l-2 border-primary"
-                      : "hover:bg-muted/60 border-l-2 border-transparent"
-                  }`}
-                  onClick={() => navigateToResult(r)}
-                  onMouseEnter={() => setSelectedIndex(idx)}
-                >
-                  <div className="text-sm">
-                    <span className="font-medium">{r.title}</span>
-                    {r.subtitle && <span className="text-muted-foreground"> • {r.subtitle}</span>}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{r.section}</div>
-                </li>
+                  item={r}
+                  index={idx}
+                  selected={idx === selectedIndex}
+                  rowRef={idx === selectedIndex ? selectedItemRef : null}
+                  onSelect={navigateToResult}
+                  onHover={setSelectedIndex}
+                />
               ))}
             </ul>
           </div>
