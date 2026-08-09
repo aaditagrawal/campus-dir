@@ -1,28 +1,87 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "oxc",
-    "react",
-    "nextjs",
-    "jsx-a11y",
-    "import"
-  ],
+  "plugins": ["typescript", "react", "nextjs", "jsx-a11y", "import"],
   "categories": {
-    "correctness": "error"
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn",
+    "style": "off",
+    "pedantic": "off",
+    "restriction": "off",
+    "nursery": "off"
   },
+  "rules": {
+    "eqeqeq": "error",
+    "no-debugger": "error",
+    "no-console": "warn",
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-non-null-assertion": "warn",
+    "react/jsx-key": "error",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/no-unescaped-entities": "off",
+    "nextjs/no-html-link-for-pages": "error",
+    "nextjs/no-img-element": "warn",
+    "nextjs/no-sync-scripts": "error",
+    "import/no-anonymous-default-export": "error",
+    "import/no-duplicates": "warn",
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-is-valid": "warn",
+    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/interactive-supports-focus": "warn",
+    "react/react-in-jsx-scope": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "jsx-a11y/img-redundant-alt": "warn",
+    "import/no-unassigned-import": "off",
+    "react/no-array-index-key": "warn"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/components/ui/**/*.{ts,tsx,js,jsx}",
+        "**/src/components/ui/**/*.{ts,tsx,js,jsx}",
+        "**/components/component-example.tsx",
+        "**/components/example.tsx"
+      ],
+      "rules": {
+        "no-console": "off",
+        "typescript/no-explicit-any": "off",
+        "typescript/no-non-null-assertion": "off",
+        "import/no-anonymous-default-export": "off",
+        "jsx-a11y/alt-text": "off",
+        "jsx-a11y/anchor-is-valid": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/interactive-supports-focus": "off",
+        "react-hooks/exhaustive-deps": "off"
+      }
+    }
+  ],
   "ignorePatterns": [
     "node_modules/**",
     ".next/**",
     "out/**",
+    "dist/**",
     "build/**",
-    "next-env.d.ts"
+    "coverage/**",
+    "public/**",
+    "next-env.d.ts",
+    "**/*.generated.*",
+    "**/components/ui/**",
+    "**/src/components/ui/**",
+    "**/*.min.js",
+    "**/*.min.css"
   ],
   "env": {
-    "builtin": true,
     "browser": true,
-    "node": true
+    "node": true,
+    "es2024": true
   },
-  "rules": {}
+  "settings": {
+    "react": {
+      "version": "19.0.0"
+    },
+    "next": {
+      "rootDir": "."
+    }
+  }
 }

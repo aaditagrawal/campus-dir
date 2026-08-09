@@ -19,11 +19,13 @@ Thank you for your interest in contributing to the MIT Manipal Campus Directory!
 ## ⚡ Quick Start
 
 ### For Data Updates (No Coding Required)
+
 1. **Fork the repository** on GitHub
 2. **Edit JSON files** in `src/data/` directly on GitHub
 3. **Submit a Pull Request** with your changes
 
 ### For Code Changes
+
 1. **Set up development environment** (see [Development Setup](#development-setup))
 2. **Create a feature branch**
 3. **Make your changes** and test them
@@ -36,6 +38,7 @@ Data contributions are the most common and impactful way to help! Keeping campus
 ### 🍽️ Restaurants (`src/data/restaurants.json`)
 
 **What to Update:**
+
 - **Contact numbers** - Add missing or update changed phone numbers
 - **Business hours** - Add opening/closing times for each day of the week
 - **Delivery fees** - Update delivery and packaging costs
@@ -44,6 +47,7 @@ Data contributions are the most common and impactful way to help! Keeping campus
 - **Status changes** - Mark closed restaurants or update service status
 
 **Data Structure:**
+
 ```json
 [
   {
@@ -53,13 +57,13 @@ Data contributions are the most common and impactful way to help! Keeping campus
     "packagingFee": "₹10",
     "address": "Location description",
     "hours": [
-      {"day": 0, "open": "09:00", "close": "22:00"},
-      {"day": 1, "open": "09:00", "close": "22:00"},
-      {"day": 2, "open": "09:00", "close": "22:00"},
-      {"day": 3, "open": "09:00", "close": "22:00"},
-      {"day": 4, "open": "09:00", "close": "22:00"},
-      {"day": 5, "open": "09:00", "close": "22:00"},
-      {"day": 6, "open": "09:00", "close": "22:00"}
+      { "day": 0, "open": "09:00", "close": "22:00" },
+      { "day": 1, "open": "09:00", "close": "22:00" },
+      { "day": 2, "open": "09:00", "close": "22:00" },
+      { "day": 3, "open": "09:00", "close": "22:00" },
+      { "day": 4, "open": "09:00", "close": "22:00" },
+      { "day": 5, "open": "09:00", "close": "22:00" },
+      { "day": 6, "open": "09:00", "close": "22:00" }
     ]
   }
 ]
@@ -70,6 +74,7 @@ Data contributions are the most common and impactful way to help! Keeping campus
 ### 🏠 Hostels (`src/data/hostels.json`)
 
 **What to Update:**
+
 - **Warden details** - Update names, phone numbers, emails, designations
 - **Reception contacts** - Update main hostel phone numbers and emails
 - **New hostels** - Add information for new hostel blocks
@@ -77,6 +82,7 @@ Data contributions are the most common and impactful way to help! Keeping campus
 - **Block information** - Update campus, address, or email changes
 
 **Data Structure:**
+
 ```json
 [
   {
@@ -101,6 +107,7 @@ Data contributions are the most common and impactful way to help! Keeping campus
 ### 🚑 Emergency Services (`src/data/emergency.json`)
 
 **What to Update:**
+
 - **Clinic contacts** - Update student clinic phone numbers and hours
 - **Ambulance services** - Update emergency medical contacts
 - **Security numbers** - Update campus security contacts
@@ -108,6 +115,7 @@ Data contributions are the most common and impactful way to help! Keeping campus
 - **Service notes** - Update additional information or instructions
 
 **Data Structure:**
+
 ```json
 [
   {
@@ -123,12 +131,14 @@ Data contributions are the most common and impactful way to help! Keeping campus
 ### 🚗 Travel Services (`src/data/travel.json`)
 
 **What to Update:**
+
 - **Auto rickshaw stands** - Update contact numbers and locations
 - **Cab services** - Add/update taxi company contacts
 - **New transport options** - Add new transportation services
 - **Service notes** - Update availability or special instructions
 
 **Data Structure:**
+
 ```json
 {
   "autos": [
@@ -151,12 +161,14 @@ Data contributions are the most common and impactful way to help! Keeping campus
 ### 🔧 General Services (`src/data/services.json`)
 
 **What to Update:**
+
 - **Laundry services** - Update contact numbers and locations
 - **Printing/Xerox shops** - Add/update printing service contacts
 - **New service providers** - Add newly opened service establishments
 - **Service changes** - Update when services or contacts change
 
 **Data Structure:**
+
 ```json
 {
   "laundry": [
@@ -179,12 +191,14 @@ Data contributions are the most common and impactful way to help! Keeping campus
 ### 🛠️ Tools (`src/data/tools.json`)
 
 **What to Update:**
+
 - **Web resources** - Add useful external links for students
 - **Internal tools** - Add new internal tool pages
 - **Broken links** - Fix non-functional URLs
 - **New tools** - Add both web resources and internal applications
 
 **Data Structure:**
+
 ```json
 {
   "web_resources": [
@@ -207,12 +221,14 @@ Data contributions are the most common and impactful way to help! Keeping campus
 ### 📚 Academics (`src/data/academics.json`)
 
 **What to Update:**
+
 - **New academic portals** - Add new university systems
 - **Updated URLs** - Fix broken or changed links
 - **Login credentials** - Update shared credentials when they change
 - **New resources** - Add new academic tools or platforms
 
 **Data Structure:**
+
 ```json
 [
   {
@@ -237,11 +253,13 @@ Data contributions are the most common and impactful way to help! Keeping campus
 ### 🛠️ Development Setup
 
 **Prerequisites:**
+
 - **Node.js 18+** or **Bun** runtime
 - **Git** for version control
 - **Code editor** (VS Code recommended)
 
 **Installation:**
+
 ```bash
 # Clone your fork
 git clone https://github.com/aaditagrawal/campus-dir.git
@@ -255,6 +273,7 @@ bun dev  # or npm run dev
 ```
 
 **Verify Setup:**
+
 - Open [http://localhost:3000](http://localhost:3000)
 - Check that all pages load correctly
 - Test search functionality
@@ -307,6 +326,7 @@ src/
 ### 🔧 Code Guidelines
 
 #### **TypeScript Standards**
+
 - **Strict typing** - Use proper TypeScript types for all functions and components
 - **Interface definitions** - Define clear interfaces for data structures
 - **Type safety** - Avoid `any` types, use proper type assertions
@@ -325,6 +345,7 @@ const restaurant: any = { ... };
 ```
 
 #### **Component Structure**
+
 - **Functional components** with hooks
 - **Proper prop typing** with interfaces
 - **Consistent naming** - PascalCase for components, camelCase for functions
@@ -342,11 +363,13 @@ export function RestaurantCard({ restaurant, onContactClick }: RestaurantCardPro
 ```
 
 #### **File Organization**
+
 - **kebab-case** for file names
 - **PascalCase** for component names
 - **One component per file** (except for related utilities)
 
 #### **Styling Guidelines**
+
 - **Tailwind CSS** for all styling
 - **Consistent spacing** using Tailwind's spacing scale
 - **Responsive design** - Mobile-first approach
@@ -367,12 +390,14 @@ export function RestaurantCard({ restaurant, onContactClick }: RestaurantCardPro
 The search functionality is powered by Fuse.js and located in `src/lib/search.ts`:
 
 **Key Features:**
+
 - **Fuzzy search** across all content types
 - **Weighted search** - titles weighted higher than subtitles
 - **Real-time results** with debouncing
 - **Category filtering** and smart suggestions
 
 **Adding New Searchable Content:**
+
 1. Update the `getAllSearchItems()` function
 2. Add proper TypeScript types
 3. Include relevant search fields (title, subtitle, section)
@@ -383,6 +408,7 @@ The search functionality is powered by Fuse.js and located in `src/lib/search.ts
 The project uses Radix UI primitives for accessibility:
 
 **Available Components:**
+
 - `Button` - Interactive buttons with variants
 - `Card` - Content containers with glass effect
 - `Badge` - Status indicators
@@ -391,6 +417,7 @@ The project uses Radix UI primitives for accessibility:
 - `Switch` - Toggle controls
 
 **Adding New Components:**
+
 1. Create in `src/components/ui/`
 2. Follow Radix UI patterns
 3. Add proper TypeScript types
@@ -400,12 +427,14 @@ The project uses Radix UI primitives for accessibility:
 ### 📱 Responsive Design
 
 **Breakpoints:**
+
 - **Mobile**: Default (< 640px)
 - **Tablet**: `sm:` (640px+)
 - **Desktop**: `md:` (768px+)
 - **Large**: `lg:` (1024px+)
 
 **Grid Systems:**
+
 - **Restaurants**: `columns-1 sm:columns-2` for masonry layout
 - **Hostels**: `grid sm:grid-cols-2` for card grid
 - **Services**: `grid sm:grid-cols-2` for uniform cards
@@ -419,6 +448,7 @@ The tools section contains both external web resources and internal applications
 To add a new external web resource:
 
 1. **Update `src/data/tools.json`**:
+
 ```json
 {
   "web_resources": [
@@ -439,6 +469,7 @@ To add a new external web resource:
 To create a new internal tool:
 
 1. **Create the tool page** in `src/app/tools/your-tool/`:
+
 ```typescript
 // src/app/tools/your-tool/page.tsx
 "use client";
@@ -457,6 +488,7 @@ export default function YourToolPage() {
 ```
 
 2. **Update `src/data/tools.json`**:
+
 ```json
 {
   "internal_tools": [
@@ -475,6 +507,7 @@ export default function YourToolPage() {
 ### **Example: Mail to Warden Tool**
 
 The existing mail-to-warden tool demonstrates best practices:
+
 - **Form handling** with React state
 - **Data integration** with hostels.json
 - **Mail generation** and opening mail clients
@@ -485,6 +518,7 @@ The existing mail-to-warden tool demonstrates best practices:
 ## 🧪 Testing & Quality
 
 ### **Code Quality Checks**
+
 ```bash
 # Run Oxlint
 bun run lint
@@ -494,6 +528,7 @@ bun run build
 ```
 
 ### **Manual Testing Checklist**
+
 - [ ] All pages load without errors
 - [ ] Search functionality works across all categories
 - [ ] Dark/light mode toggle works
@@ -506,6 +541,7 @@ bun run build
 - [ ] Internal navigation works smoothly
 
 ### **Performance Considerations**
+
 - **Image optimization** - Use Next.js Image component
 - **Code splitting** - Automatic with Next.js App Router
 - **Bundle size** - Monitor with `bun run build`
@@ -526,6 +562,7 @@ bun run build
    - Any verification steps taken
 
 **Example PR Titles:**
+
 - "Update Taco House phone number"
 - "Add business hours for Kamath Cafe"
 - "Update warden contact for Block 19"
@@ -555,6 +592,7 @@ bun run build
 ### **PR Review Process**
 
 **For Maintainers:**
+
 - Review data accuracy and formatting
 - Test functionality on different devices
 - Check code quality and adherence to guidelines
@@ -562,6 +600,7 @@ bun run build
 - Merge after approval
 
 **For Contributors:**
+
 - Respond to feedback promptly
 - Make requested changes
 - Test thoroughly before resubmitting
@@ -570,18 +609,21 @@ bun run build
 ## 🐛 Issue Reporting
 
 ### **Data Issues**
+
 - **Outdated information** - Report incorrect or old data
 - **Missing information** - Point out gaps in current data
 - **New services** - Suggest additions to the directory
 - **Broken links** - Report non-functional URLs
 
 ### **Technical Issues**
+
 - **App bugs** - Report functionality problems
 - **UI issues** - Point out display or usability problems
 - **Performance issues** - Report slow loading or responsiveness
 - **Feature requests** - Suggest new functionality
 
 ### **Issue Template**
+
 When creating an issue, please include:
 
 1. **Type**: Data Issue / Bug Report / Feature Request
@@ -594,6 +636,7 @@ When creating an issue, please include:
 ## 📋 Data Guidelines
 
 ### ✅ What to Include
+
 - **Accurate contact information** - Verify phone numbers before adding
 - **Complete business details** - Hours, fees, addresses when available
 - **Clear location descriptions** - Specific building names, landmarks
@@ -601,6 +644,7 @@ When creating an issue, please include:
 - **Consistent formatting** - Follow existing data structure patterns
 
 ### ❌ What to Avoid
+
 - **Unverified information** - Don't add contacts you haven't confirmed
 - **Personal phone numbers** - Only add official business contacts
 - **Incomplete data** - Use "—" for unknown information, don't leave blank
@@ -608,7 +652,9 @@ When creating an issue, please include:
 - **Inconsistent formatting** - Follow the established JSON structure
 
 ### 🔍 Verification Steps
+
 Before submitting data updates:
+
 1. **Call the number** to verify it's working
 2. **Visit the location** to confirm addresses
 3. **Check with multiple sources** for accuracy
@@ -619,6 +665,7 @@ Before submitting data updates:
 ## 🎯 Impact of Your Contribution
 
 Your contributions directly help:
+
 - **Freshmen** find their way around campus and access resources
 - **Students** get food delivered quickly and contact services efficiently
 - **Residents** contact their wardens easily with automated mail generation
@@ -637,4 +684,4 @@ Your contributions directly help:
 
 **Thank you for helping keep MIT Manipal's campus directory accurate and useful! 🎓📚**
 
-*This guide is maintained by the project contributors. If you find any issues or have suggestions for improvement, please open an issue or submit a pull request.*
+_This guide is maintained by the project contributors. If you find any issues or have suggestions for improvement, please open an issue or submit a pull request._
