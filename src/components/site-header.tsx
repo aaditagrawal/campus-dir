@@ -3,10 +3,39 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Menu, Utensils, Building2, Bus, ShieldAlert, Wrench, GraduationCap, Search, X, Settings, Star, MessageSquareWarning } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  Menu,
+  Utensils,
+  Building2,
+  Bus,
+  ShieldAlert,
+  Wrench,
+  GraduationCap,
+  Search,
+  X,
+  Settings,
+  Star,
+  MessageSquareWarning,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
-import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+} from "@/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetClose,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { memo, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   isFuzzyEngineReady,
@@ -138,7 +167,10 @@ export function SiteHeader() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((isMac && e.metaKey && e.key.toLowerCase() === "k") || (!isMac && e.ctrlKey && e.key.toLowerCase() === "k")) {
+      if (
+        (isMac && e.metaKey && e.key.toLowerCase() === "k") ||
+        (!isMac && e.ctrlKey && e.key.toLowerCase() === "k")
+      ) {
         e.preventDefault();
         setSearchOpen((v) => !v);
       }
@@ -169,53 +201,56 @@ export function SiteHeader() {
     if (selectedItemRef.current) {
       selectedItemRef.current.scrollIntoView({
         block: "nearest",
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
 
-  const navigateToResult = useCallback((r: SearchItem) => {
-    setSearchOpen(false);
-    try {
-      if (!r || !r.href) {
-        console.error('Invalid search result:', r);
-        return;
-      }
+  const navigateToResult = useCallback(
+    (r: SearchItem) => {
+      setSearchOpen(false);
+      try {
+        if (!r || !r.href) {
+          console.error("Invalid search result:", r);
+          return;
+        }
 
-      if (r.href.startsWith("http")) {
-        window.location.href = r.href;
-        return;
-      }
+        if (r.href.startsWith("http")) {
+          window.location.href = r.href;
+          return;
+        }
 
-      const url = new URL(r.href, window.location.origin);
-      const elementId = url.hash ? url.hash.substring(1) : "";
-      const element = elementId ? document.getElementById(elementId) : null;
+        const url = new URL(r.href, window.location.origin);
+        const elementId = url.hash ? url.hash.substring(1) : "";
+        const element = elementId ? document.getElementById(elementId) : null;
 
-      // Already on this page: scroll, do not route.
-      if (element) {
-        const headerHeight = 56;
-        const extraOffset = window.innerHeight * 0.1;
-        const absoluteTop = element.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({
-          top: Math.max(0, absoluteTop - headerHeight - extraOffset),
-          behavior: 'smooth',
-        });
-        window.history.pushState(null, '', r.href);
-        return;
-      }
+        // Already on this page: scroll, do not route.
+        if (element) {
+          const headerHeight = 56;
+          const extraOffset = window.innerHeight * 0.1;
+          const absoluteTop = element.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: Math.max(0, absoluteTop - headerHeight - extraOffset),
+            behavior: "smooth",
+          });
+          window.history.pushState(null, "", r.href);
+          return;
+        }
 
-      // Every other result used to go through window.location.assign, which
-      // tears down the app and re-parses the whole bundle just to reach another
-      // static page. The router keeps it a client transition; the target cards
-      // carry `scroll-mt-24`, so the sticky header does not cover the anchor.
-      router.push(r.href);
-    } catch (error) {
-      console.error('Navigation error:', error, r);
-      if (r && r.href) {
-        window.location.href = r.href;
+        // Every other result used to go through window.location.assign, which
+        // tears down the app and re-parses the whole bundle just to reach another
+        // static page. The router keeps it a client transition; the target cards
+        // carry `scroll-mt-24`, so the sticky header does not cover the anchor.
+        router.push(r.href);
+      } catch (error) {
+        console.error("Navigation error:", error, r);
+        if (r && r.href) {
+          window.location.href = r.href;
+        }
       }
-    }
-  }, [router]);
+    },
+    [router],
+  );
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && results.length > 0) {
@@ -242,27 +277,52 @@ export function SiteHeader() {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/academics" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Academics</Link>
+                  <Link
+                    href="/academics"
+                    className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150"
+                  >
+                    Academics
+                  </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/restaurants" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Restaurants</Link>
+                  <Link
+                    href="/restaurants"
+                    className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150"
+                  >
+                    Restaurants
+                  </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/hostels" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Hostels</Link>
+                  <Link
+                    href="/hostels"
+                    className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150"
+                  >
+                    Hostels
+                  </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/travel" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Travel</Link>
+                  <Link
+                    href="/travel"
+                    className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150"
+                  >
+                    Travel
+                  </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/emergency" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Emergency</Link>
+                  <Link
+                    href="/emergency"
+                    className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150"
+                  >
+                    Emergency
+                  </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
@@ -273,7 +333,10 @@ export function SiteHeader() {
                   <ul className="grid w-44 gap-0.5 p-1.5">
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link href="/services" className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150">
+                        <Link
+                          href="/services"
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150"
+                        >
                           <Wrench className="size-4 text-muted-foreground" />
                           Services
                         </Link>
@@ -281,7 +344,10 @@ export function SiteHeader() {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link href="/tools" className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150">
+                        <Link
+                          href="/tools"
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150"
+                        >
                           <Settings className="size-4 text-muted-foreground" />
                           Tools
                         </Link>
@@ -289,7 +355,10 @@ export function SiteHeader() {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link href="/grievance" className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150">
+                        <Link
+                          href="/grievance"
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150"
+                        >
                           <MessageSquareWarning className="size-4 text-muted-foreground" />
                           Grievance Redressal
                         </Link>
@@ -297,7 +366,10 @@ export function SiteHeader() {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link href="/favorites" className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150">
+                        <Link
+                          href="/favorites"
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150"
+                        >
                           <Star className="size-4 text-muted-foreground" />
                           Favorites
                         </Link>
@@ -309,22 +381,42 @@ export function SiteHeader() {
             </NavigationMenuList>
           </NavigationMenu>
 
-          <Button variant="ghost" size="icon" aria-label="Open search" onClick={() => setSearchOpen(true)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Open search"
+            onClick={() => setSearchOpen(true)}
+          >
             <Search className="size-5" />
           </Button>
 
-          <Button variant="ghost" size="icon" aria-label="Toggle theme" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Toggle theme"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
             {mounted && theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
           </Button>
         </div>
 
         <div className="md:hidden flex items-center gap-1">
-          <Button variant="ghost" size="icon" aria-label="Open search" onClick={() => setSearchOpen(true)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Open search"
+            onClick={() => setSearchOpen(true)}
+          >
             <Search className="size-5" />
           </Button>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open navigation menu" aria-expanded={menuOpen}>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Open navigation menu"
+                aria-expanded={menuOpen}
+              >
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
@@ -333,63 +425,99 @@ export function SiteHeader() {
               <SheetHeader className="p-4 pb-3 border-b">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">Navigate</span>
-                  <Button variant="ghost" size="icon" aria-label="Toggle theme" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-                    {mounted && theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Toggle theme"
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  >
+                    {mounted && theme === "dark" ? (
+                      <Sun className="size-5" />
+                    ) : (
+                      <Moon className="size-5" />
+                    )}
                   </Button>
                 </div>
               </SheetHeader>
               <nav className="px-2 py-2">
                 <SheetClose asChild>
-                  <Link href="/academics" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/academics"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <GraduationCap className="size-4 text-muted-foreground" />
                     <span className="text-base">Academics</span>
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/restaurants" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/restaurants"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <Utensils className="size-4 text-muted-foreground" />
                     <span className="text-base">Restaurants</span>
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/hostels" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/hostels"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <Building2 className="size-4 text-muted-foreground" />
                     <span className="text-base">Hostels</span>
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/travel" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/travel"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <Bus className="size-4 text-muted-foreground" />
                     <span className="text-base">Travel</span>
                   </Link>
                 </SheetClose>
                 <div className="my-1 mx-3 border-t border-border/50" />
                 <SheetClose asChild>
-                  <Link href="/emergency" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/emergency"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <ShieldAlert className="size-4 text-rose-400" />
                     <span className="text-base">Emergency</span>
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/services" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/services"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <Wrench className="size-4 text-muted-foreground" />
                     <span className="text-base">Services</span>
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/tools" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/tools"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <Settings className="size-4 text-muted-foreground" />
                     <span className="text-base">Tools</span>
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/grievance" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/grievance"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <MessageSquareWarning className="size-4 text-muted-foreground" />
                     <span className="text-base">Grievance Redressal</span>
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/favorites" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
+                  <Link
+                    href="/favorites"
+                    className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors"
+                  >
                     <Star className="size-4 text-muted-foreground" />
                     <span className="text-base">Favorites</span>
                   </Link>
@@ -407,7 +535,10 @@ export function SiteHeader() {
           aria-modal="true"
           style={{ paddingTop: "calc(3.5rem + 1rem)" }}
         >
-          <div className="w-full max-w-xl rounded-lg border bg-background shadow-lg" style={{ marginTop: 0 }}>
+          <div
+            className="w-full max-w-xl rounded-lg border bg-background shadow-lg"
+            style={{ marginTop: 0 }}
+          >
             <div className="flex items-center gap-2 px-3 py-2 border-b">
               <Search className="size-4 text-muted-foreground" />
               <input

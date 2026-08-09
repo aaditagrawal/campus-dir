@@ -46,17 +46,20 @@ export default function FavoritesPage() {
   }, [favorites]);
 
   const copyPhone = (phone: string) => {
-    navigator.clipboard.writeText(phone).then(() => {
-      setCopiedPhone(phone);
-      setTimeout(() => setCopiedPhone(null), 2000);
-    }).catch((err) => {
-      console.error('Failed to copy:', err);
-    });
+    navigator.clipboard
+      .writeText(phone)
+      .then(() => {
+        setCopiedPhone(phone);
+        setTimeout(() => setCopiedPhone(null), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+      });
   };
 
   const handleDownloadVCard = (item: FavoriteItem) => {
     if (!item.phones || item.phones.length === 0) return;
-    
+
     const vcard = buildVCard({
       name: item.name,
       phones: item.phones,
@@ -76,9 +79,7 @@ export default function FavoritesPage() {
     <main className="max-w-5xl mx-auto px-6 py-12 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl md:text-4xl font-serif tracking-tight mb-2">
-            Your Favorites
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-serif tracking-tight mb-2">Your Favorites</h1>
           <p className="text-muted-foreground">
             {favorites.length === 0
               ? "No favorites yet. Start adding items from any page!"
@@ -108,8 +109,8 @@ export default function FavoritesPage() {
             <Star className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
             <h3 className="text-lg font-medium mb-2">No favorites yet</h3>
             <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-              Browse through restaurants, hostels, emergency contacts, services, or travel
-              options and click the star icon to add them to your favorites.
+              Browse through restaurants, hostels, emergency contacts, services, or travel options
+              and click the star icon to add them to your favorites.
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link href="/restaurants">
@@ -138,32 +139,29 @@ export default function FavoritesPage() {
 
             return (
               <section key={type}>
-                <h2 className="text-xl font-serif mb-4 flex items-center gap-2">
-                  {label}
-                </h2>
+                <h2 className="text-xl font-serif mb-4 flex items-center gap-2">{label}</h2>
                 <div className="grid gap-4 md:grid-cols-2">
                   {items.map((item) => (
                     <Card key={item.id} className="relative group">
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            {item.href.startsWith('http') ? (
-                              <a href={item.href} target="_blank" rel="noreferrer" className="hover:underline cursor-pointer">
-                                <CardTitle className="text-lg mb-1">
-                                  {item.name}
-                                </CardTitle>
+                            {item.href.startsWith("http") ? (
+                              <a
+                                href={item.href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="hover:underline cursor-pointer"
+                              >
+                                <CardTitle className="text-lg mb-1">{item.name}</CardTitle>
                               </a>
                             ) : (
                               <Link href={item.href} className="hover:underline cursor-pointer">
-                                <CardTitle className="text-lg mb-1">
-                                  {item.name}
-                                </CardTitle>
+                                <CardTitle className="text-lg mb-1">{item.name}</CardTitle>
                               </Link>
                             )}
                             {item.subtitle && (
-                              <p className="text-sm text-muted-foreground">
-                                {item.subtitle}
-                              </p>
+                              <p className="text-sm text-muted-foreground">{item.subtitle}</p>
                             )}
                           </div>
                         </div>
@@ -172,10 +170,7 @@ export default function FavoritesPage() {
                         {item.phones && item.phones.length > 0 && (
                           <div className="space-y-2">
                             {item.phones.map((phone, idx) => (
-                              <div
-                                key={idx}
-                                className="flex items-center gap-2 text-sm"
-                              >
+                              <div key={idx} className="flex items-center gap-2 text-sm">
                                 <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                                 <a
                                   href={`tel:${phone}`}
@@ -201,7 +196,7 @@ export default function FavoritesPage() {
                         )}
 
                         <div className="flex gap-2 pt-2 border-t">
-                          {item.href.startsWith('http') ? (
+                          {item.href.startsWith("http") ? (
                             <a href={item.href} target="_blank" rel="noreferrer" className="flex-1">
                               <Button variant="outline" size="sm" className="w-full cursor-pointer">
                                 <ExternalLink className="h-3.5 w-3.5 mr-1.5" />

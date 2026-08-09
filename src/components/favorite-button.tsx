@@ -23,11 +23,7 @@ const iconSizes = {
   lg: "h-5 w-5",
 };
 
-export function FavoriteButton({
-  item,
-  className,
-  size = "md"
-}: FavoriteButtonProps) {
+export function FavoriteButton({ item, className, size = "md" }: FavoriteButtonProps) {
   const status = useFavoriteStatus(item.id);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -59,17 +55,13 @@ export function FavoriteButton({
       className={cn(
         sizeClasses[size],
         "transition-all duration-200 relative z-20 cursor-pointer",
-        className
+        className,
       )}
       title={favorited ? "Remove from favorites" : "Add to favorites"}
       aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
     >
       <Star
-        className={cn(
-          iconSizes[size],
-          favorited && "fill-current",
-          "transition-all duration-200"
-        )}
+        className={cn(iconSizes[size], favorited && "fill-current", "transition-all duration-200")}
       />
     </Button>
   );

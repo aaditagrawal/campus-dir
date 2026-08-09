@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "dev:portless": "portless run",
-    "build": "next build",
+    "build": "next build --turbopack",
     "start": "next start",
-    "lint": "oxlint ."
+    "lint": "oxlint .",
+    "format": "oxfmt --write \"**/*.{js,mjs,cjs,ts,tsx,jsx}\" --ignore-path .gitignore --no-error-on-unmatched-pattern",
+    "format:check": "oxfmt --check \"**/*.{js,mjs,cjs,ts,tsx,jsx}\" --ignore-path .gitignore --no-error-on-unmatched-pattern"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.23",

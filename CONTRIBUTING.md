@@ -486,7 +486,7 @@ The existing mail-to-warden tool demonstrates best practices:
 
 ### **Code Quality Checks**
 ```bash
-# Run ESLint
+# Run Oxlint
 bun run lint
 
 # Type checking (automatic with TypeScript)

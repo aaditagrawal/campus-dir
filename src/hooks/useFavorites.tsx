@@ -26,10 +26,7 @@ export type { FavoriteItem, FavoriteStatus, FavoriteType } from "@/lib/favorites
  * component — the pages render dozens of these.
  */
 export function useFavoriteStatus(id: string): FavoriteStatus {
-  const subscribe = useCallback(
-    (onChange: () => void) => subscribeToId(id, onChange),
-    [id],
-  );
+  const subscribe = useCallback((onChange: () => void) => subscribeToId(id, onChange), [id]);
   const snapshot = useCallback(() => getFavoriteStatus(id), [id]);
   return useSyncExternalStore(subscribe, snapshot, getServerFavoriteStatus);
 }

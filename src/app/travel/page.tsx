@@ -8,7 +8,6 @@ import { slugify } from "@/lib/utils";
 import { Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
 
-
 type Listing = { name: string; phones: string[]; notes?: string };
 type TravelData = { autos: Listing[]; cabs: Listing[] };
 
@@ -17,12 +16,18 @@ function renderNotesWithLinks(notes: string) {
   const parts = notes.split(urlRegex);
   return parts.map((part, i) =>
     urlRegex.test(part) ? (
-      <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline hover:text-primary"
+      >
         {part}
       </a>
     ) : (
       part
-    )
+    ),
   );
 }
 
@@ -33,7 +38,11 @@ export default function TravelPage() {
       <h2 className="text-xl font-semibold">{title}</h2>
       <div className="grid sm:grid-cols-2 gap-4">
         {items.map((i) => (
-          <Card key={i.name} id={slugify(i.name)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24">
+          <Card
+            key={i.name}
+            id={slugify(i.name)}
+            className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24"
+          >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-2">
                 <CardTitle className="text-lg">{i.name}</CardTitle>
@@ -58,7 +67,11 @@ export default function TravelPage() {
                   </a>
                 ))}
               </div>
-              {i.notes && <div className="text-sm text-muted-foreground leading-relaxed">{renderNotesWithLinks(i.notes)}</div>}
+              {i.notes && (
+                <div className="text-sm text-muted-foreground leading-relaxed">
+                  {renderNotesWithLinks(i.notes)}
+                </div>
+              )}
               <div className="flex gap-2 pt-2">
                 <Button
                   variant="secondary"
@@ -99,7 +112,9 @@ export default function TravelPage() {
         <div className="space-y-4 scroll-mt-24" id={slugify("Cabs & Taxis")}>
           <h2 className="text-xl font-semibold">Cabs & Taxis</h2>
           <div className="bg-muted/50 rounded-lg p-4">
-            <h3 className="font-semibold mb-3">Udupi Manipal Taxi Union - Airport Prices (After Jan 2026)</h3>
+            <h3 className="font-semibold mb-3">
+              Udupi Manipal Taxi Union - Airport Prices (After Jan 2026)
+            </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -136,7 +151,11 @@ export default function TravelPage() {
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {travel.cabs.map((i) => (
-              <Card key={i.name} id={slugify(i.name)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24">
+              <Card
+                key={i.name}
+                id={slugify(i.name)}
+                className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-lg">{i.name}</CardTitle>
@@ -161,7 +180,11 @@ export default function TravelPage() {
                       </a>
                     ))}
                   </div>
-                  {i.notes && <div className="text-sm text-muted-foreground leading-relaxed">{renderNotesWithLinks(i.notes)}</div>}
+                  {i.notes && (
+                    <div className="text-sm text-muted-foreground leading-relaxed">
+                      {renderNotesWithLinks(i.notes)}
+                    </div>
+                  )}
                   <div className="flex gap-2 pt-2">
                     <Button
                       variant="secondary"
@@ -193,5 +216,3 @@ export default function TravelPage() {
     </main>
   );
 }
-
-

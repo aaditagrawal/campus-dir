@@ -38,7 +38,14 @@ const RestaurantCard = memo(function RestaurantCard({
           </div>
           <div className="flex items-center gap-1">
             {status && (
-              <Badge variant="outline" className={status.open ? "border-green-500/50 text-green-600 dark:text-green-400" : "border-rose-400/50 text-rose-500"}>
+              <Badge
+                variant="outline"
+                className={
+                  status.open
+                    ? "border-green-500/50 text-green-600 dark:text-green-400"
+                    : "border-rose-400/50 text-rose-500"
+                }
+              >
                 {status.open ? "Open" : "Closed"}
               </Badge>
             )}
@@ -65,7 +72,11 @@ const RestaurantCard = memo(function RestaurantCard({
       <CardContent className="space-y-2 pt-0">
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
           {r.phones?.map((p) => (
-            <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline">
+            <a
+              key={p}
+              href={`tel:${p.replace(/\s+/g, "")}`}
+              className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+            >
               {p}
             </a>
           ))}
@@ -89,14 +100,19 @@ const RestaurantCard = memo(function RestaurantCard({
             <Phone className="size-3.5" />
             Call
           </Button>
-          <Button size="sm" variant="outline" onClick={() => downloadRestaurantVcf(r)} className="h-8">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => downloadRestaurantVcf(r)}
+            className="h-8"
+          >
             Save Contact
           </Button>
           {r.menuUrl && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => window.open(r.menuUrl, '_blank')}
+              onClick={() => window.open(r.menuUrl, "_blank")}
               className="gap-1.5 h-8"
             >
               <ExternalLink className="size-3.5" />
@@ -110,7 +126,7 @@ const RestaurantCard = memo(function RestaurantCard({
 });
 
 export default function RestaurantsPage() {
-  const [sortOrder, setSortOrder] = useState<'alpha-asc' | 'alpha-desc' | 'open-now' | null>(null);
+  const [sortOrder, setSortOrder] = useState<"alpha-asc" | "alpha-desc" | "open-now" | null>(null);
   const [, startTransition] = useTransition();
   const statuses = useRestaurantStatuses();
 
@@ -119,11 +135,11 @@ export default function RestaurantsPage() {
   // alphabetical order rather than another comparator sort.
   const sortedRestaurants = useMemo(() => {
     switch (sortOrder) {
-      case 'alpha-asc':
+      case "alpha-asc":
         return BY_NAME_ASC;
-      case 'alpha-desc':
+      case "alpha-desc":
         return BY_NAME_DESC;
-      case 'open-now':
+      case "open-now":
         return byOpenFirst(statuses);
       default:
         return RESTAURANTS;
@@ -132,10 +148,10 @@ export default function RestaurantsPage() {
 
   const toggleSort = () => {
     startTransition(() => {
-      setSortOrder(current => {
-        if (current === null) return 'alpha-asc';
-        if (current === 'alpha-asc') return 'alpha-desc';
-        if (current === 'alpha-desc') return 'open-now';
+      setSortOrder((current) => {
+        if (current === null) return "alpha-asc";
+        if (current === "alpha-asc") return "alpha-desc";
+        if (current === "alpha-desc") return "open-now";
         return null;
       });
     });
@@ -148,17 +164,18 @@ export default function RestaurantsPage() {
           <h1 className="text-2xl md:text-3xl font-serif">Restaurants</h1>
           <p className="text-sm text-muted-foreground mt-1">Call or save contacts</p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={toggleSort}
-          className="gap-1.5 h-8 text-xs"
-        >
-          {sortOrder === 'alpha-asc' && <ArrowUp className="size-3.5" />}
-          {sortOrder === 'alpha-desc' && <ArrowDown className="size-3.5" />}
-          {sortOrder === 'open-now' && <Clock className="size-3.5" />}
+        <Button variant="outline" size="sm" onClick={toggleSort} className="gap-1.5 h-8 text-xs">
+          {sortOrder === "alpha-asc" && <ArrowUp className="size-3.5" />}
+          {sortOrder === "alpha-desc" && <ArrowDown className="size-3.5" />}
+          {sortOrder === "open-now" && <Clock className="size-3.5" />}
           {sortOrder === null && <ArrowUpDown className="size-3.5" />}
-          {sortOrder === 'alpha-asc' ? 'A-Z' : sortOrder === 'alpha-desc' ? 'Z-A' : sortOrder === 'open-now' ? 'Open' : 'Sort'}
+          {sortOrder === "alpha-asc"
+            ? "A-Z"
+            : sortOrder === "alpha-desc"
+              ? "Z-A"
+              : sortOrder === "open-now"
+                ? "Open"
+                : "Sort"}
         </Button>
       </div>
       <div className="columns-1 sm:columns-2 gap-3">
