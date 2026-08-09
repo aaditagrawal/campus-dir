@@ -6,17 +6,17 @@ Live at https://cd.coolstuff.work
 
 ## What's in it
 
-| Section | What you get |
-|---|---|
-| Restaurants | 12+ listings with phone numbers, delivery fees, packaging costs, and live open/closed status. Taco House, Hungry House, Hit&Run, and more. |
-| Hostels | Every block (4, 7, 8, 9, 10, 14, 15, 17, 18, 19, 20, 21, 22) with warden names, designations, office phones, mobiles, emails, and reception contacts. |
-| Travel | Auto rickshaw contacts for Gate 2 and Gate 4, individual drivers, cab services (Manipal Khaas, Manipal Cabs, Sashikant Taxi), airport pricing tables. |
-| Services | Laundry (Dhobimate) and xerox/printing (Om Xerox, Print Shop, Pratham Xerox, FC2 Xerox) with phone numbers and locations. |
-| Academics | Links to SLCM (new + legacy), library question papers, EBSCO, Lighthouse, Impartus, Brightspace Pulse, Manipal PURE, Microsoft 365. |
+| Section             | What you get                                                                                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Restaurants         | 12+ listings with phone numbers, delivery fees, packaging costs, and live open/closed status. Taco House, Hungry House, Hit&Run, and more.                                                                         |
+| Hostels             | Every block (4, 7, 8, 9, 10, 14, 15, 17, 18, 19, 20, 21, 22) with warden names, designations, office phones, mobiles, emails, and reception contacts.                                                              |
+| Travel              | Auto rickshaw contacts for Gate 2 and Gate 4, individual drivers, cab services (Manipal Khaas, Manipal Cabs, Sashikant Taxi), airport pricing tables.                                                              |
+| Services            | Laundry (Dhobimate) and xerox/printing (Om Xerox, Print Shop, Pratham Xerox, FC2 Xerox) with phone numbers and locations.                                                                                          |
+| Academics           | Links to SLCM (new + legacy), library question papers, EBSCO, Lighthouse, Impartus, Brightspace Pulse, Manipal PURE, Microsoft 365.                                                                                |
 | Grievance Redressal | Who to contact for what — emails and phones for hostel, welfare, academics, finance, IT, admissions, placement, research, and more (from MIT administration). Student Council listed separately. MIT Manipal only. |
-| Emergency | Campus numbers (Student Clinic, KMC Ambulance, MAHE Control Room, Campus Patrol, Fire), local police, national helplines (100, 101, 102, 112), suicide prevention (Aasra, Spandana). |
-| Search | Cmd+K / Ctrl+K fuzzy search across every contact, restaurant, warden, service, and page. Results link directly to the relevant card. |
-| Favorites | Save any contact locally. Download vCards for any listing. |
+| Emergency           | Campus numbers (Student Clinic, KMC Ambulance, MAHE Control Room, Campus Patrol, Fire), local police, national helplines (100, 101, 102, 112), suicide prevention (Aasra, Spandana).                               |
+| Search              | Cmd+K / Ctrl+K fuzzy search across every contact, restaurant, warden, service, and page. Results link directly to the relevant card.                                                                               |
+| Favorites           | Save any contact locally. Download vCards for any listing.                                                                                                                                                         |
 
 Dark/light mode included.
 

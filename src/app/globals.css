@@ -160,45 +160,105 @@
 
   body::before {
     background-image:
-      radial-gradient(20rem 20rem at 10% 10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent),
-      radial-gradient(28rem 28rem at 90% 20%, color-mix(in oklab, var(--accent) 16%, transparent), transparent);
+      radial-gradient(
+        20rem 20rem at 10% 10%,
+        color-mix(in oklab, var(--primary) 12%, transparent),
+        transparent
+      ),
+      radial-gradient(
+        28rem 28rem at 90% 20%,
+        color-mix(in oklab, var(--accent) 16%, transparent),
+        transparent
+      );
     animation: bgDriftA 24s ease-in-out infinite alternate;
   }
 
   body::after {
-    background-image:
-      radial-gradient(22rem 22rem at 30% 90%, color-mix(in oklab, var(--chart-2) 14%, transparent), transparent);
+    background-image: radial-gradient(
+      22rem 22rem at 30% 90%,
+      color-mix(in oklab, var(--chart-2) 14%, transparent),
+      transparent
+    );
     animation: bgDriftB 24s ease-in-out infinite alternate;
   }
 
   .dark body::before {
     background-image:
-      radial-gradient(circle at 25% 25%, color-mix(in oklab, var(--background) 30%, transparent) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, color-mix(in oklab, var(--muted) 20%, transparent) 0%, transparent 40%);
-    background-size: 100% 100%, 80% 80%;
-    background-position: 0% 0%, 100% 100%;
+      radial-gradient(
+        circle at 25% 25%,
+        color-mix(in oklab, var(--background) 30%, transparent) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 75% 75%,
+        color-mix(in oklab, var(--muted) 20%, transparent) 0%,
+        transparent 40%
+      );
+    background-size:
+      100% 100%,
+      80% 80%;
+    background-position:
+      0% 0%,
+      100% 100%;
     animation-duration: 30s;
   }
 
   .dark body::after {
     background-image:
-      radial-gradient(circle at 50% 10%, color-mix(in oklab, var(--border) 15%, transparent) 0%, transparent 35%),
-      conic-gradient(from 180deg at 50% 50%, color-mix(in oklab, var(--background) 70%, transparent) 0deg, color-mix(in oklab, var(--card) 80%, transparent) 120deg, color-mix(in oklab, var(--background) 70%, transparent) 240deg, color-mix(in oklab, var(--background) 70%, transparent) 360deg);
-    background-size: 60% 60%, 200% 200%;
-    background-position: 50% 50%, 50% 50%;
+      radial-gradient(
+        circle at 50% 10%,
+        color-mix(in oklab, var(--border) 15%, transparent) 0%,
+        transparent 35%
+      ),
+      conic-gradient(
+        from 180deg at 50% 50%,
+        color-mix(in oklab, var(--background) 70%, transparent) 0deg,
+        color-mix(in oklab, var(--card) 80%, transparent) 120deg,
+        color-mix(in oklab, var(--background) 70%, transparent) 240deg,
+        color-mix(in oklab, var(--background) 70%, transparent) 360deg
+      );
+    background-size:
+      60% 60%,
+      200% 200%;
+    background-position:
+      50% 50%,
+      50% 50%;
     animation-duration: 30s;
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-instrument-serif);
   }
-  h1 { font-size: 2.25rem; }
-  h2 { font-size: 1.875rem; }
-  h3 { font-size: 1.5rem; }
-  h4 { font-size: 1.25rem; }
-  h5 { font-size: 1.125rem; }
-  h6 { font-size: 1rem; }
-  p, span, div { font-size: 1rem; }
-  small { font-size: 0.875rem; }
+  h1 {
+    font-size: 2.25rem;
+  }
+  h2 {
+    font-size: 1.875rem;
+  }
+  h3 {
+    font-size: 1.5rem;
+  }
+  h4 {
+    font-size: 1.25rem;
+  }
+  h5 {
+    font-size: 1.125rem;
+  }
+  h6 {
+    font-size: 1rem;
+  }
+  p,
+  span,
+  div {
+    font-size: 1rem;
+  }
+  small {
+    font-size: 0.875rem;
+  }
 }
 
 /*
@@ -207,13 +267,21 @@
  * small because the layer is oversized by 20% on each side.
  */
 @keyframes bgDriftA {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(2%, 2%, 0); }
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(2%, 2%, 0);
+  }
 }
 
 @keyframes bgDriftB {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-1.5%, 1%, 0); }
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-1.5%, 1%, 0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -259,7 +327,15 @@
 }
 
 /* category accent helpers */
-.accent-restaurants { color: var(--accent-restaurants); }
-.accent-hostels { color: var(--accent-hostels); }
-.accent-travel { color: var(--accent-travel); }
-.accent-emergency { color: var(--accent-emergency); }
+.accent-restaurants {
+  color: var(--accent-restaurants);
+}
+.accent-hostels {
+  color: var(--accent-hostels);
+}
+.accent-travel {
+  color: var(--accent-travel);
+}
+.accent-emergency {
+  color: var(--accent-emergency);
+}

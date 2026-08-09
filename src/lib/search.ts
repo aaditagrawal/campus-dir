@@ -124,9 +124,13 @@ export function getAllSearchItems(): SearchItem[] {
         href: `/restaurants#${slugify(r.name)}`,
         phones: r.phones,
         address: r.address,
-        subtitle: [r.deliveryFee ? `Delivery ${r.deliveryFee}` : null, r.packagingFee ? `Packaging ${r.packagingFee}` : null]
-          .filter(Boolean)
-          .join(" • ") || undefined,
+        subtitle:
+          [
+            r.deliveryFee ? `Delivery ${r.deliveryFee}` : null,
+            r.packagingFee ? `Packaging ${r.packagingFee}` : null,
+          ]
+            .filter(Boolean)
+            .join(" • ") || undefined,
       });
     }
   }
@@ -258,13 +262,22 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Grievance Redressal
-  for (const cat of (grievance as {
-    categories: Array<{
-      title: string;
-      description: string;
-      contacts: Array<{ name?: string; role?: string; email: string; emails?: string[]; phones?: string[]; notes?: string }>;
-    }>;
-  }).categories) {
+  for (const cat of (
+    grievance as {
+      categories: Array<{
+        title: string;
+        description: string;
+        contacts: Array<{
+          name?: string;
+          role?: string;
+          email: string;
+          emails?: string[];
+          phones?: string[];
+          notes?: string;
+        }>;
+      }>;
+    }
+  ).categories) {
     if (cat && cat.title) {
       for (const c of cat.contacts) {
         const emails = [c.email, ...(c.emails ?? [])].filter(Boolean);
@@ -279,7 +292,11 @@ export function getAllSearchItems(): SearchItem[] {
       }
     }
   }
-  const sc = (grievance as { studentCouncil: { name: string; contacts: Array<{ role?: string; email: string }> } }).studentCouncil;
+  const sc = (
+    grievance as {
+      studentCouncil: { name: string; contacts: Array<{ role?: string; email: string }> };
+    }
+  ).studentCouncil;
   if (sc) {
     items.push({
       title: sc.name,

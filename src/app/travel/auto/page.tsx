@@ -37,16 +37,12 @@ export default function AutoQuickCallPage() {
   return (
     <main className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <Link
-          href="/travel"
-          className="text-sm text-muted-foreground hover:underline"
-        >
+        <Link href="/travel" className="text-sm text-muted-foreground hover:underline">
           ← Travel
         </Link>
         <h1 className="text-3xl font-bold mt-4 mb-2">Rapid-call an auto</h1>
         <p className="text-muted-foreground">
-          Gate stands and drivers — tap to dial. If one line is busy, try the
-          next.
+          Gate stands and drivers — tap to dial. If one line is busy, try the next.
         </p>
         <div className="mt-6">
           <Button
@@ -89,11 +85,7 @@ export default function AutoQuickCallPage() {
             <CardContent className="space-y-4">
               <div className="flex flex-wrap gap-2 items-center">
                 {i.phones.map((p) => (
-                  <a
-                    key={p}
-                    href={`tel:${p.replace(/\s+/g, "")}`}
-                    className="underline"
-                  >
+                  <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className="underline">
                     {p}
                   </a>
                 ))}

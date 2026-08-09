@@ -8,8 +8,6 @@ import { Label } from "@/components/ui/label";
 import hostelsData from "@/data/hostels.json";
 import { useSearchParams } from "next/navigation";
 
-
-
 interface FormData {
   studentName: string;
   registrationNumber: string;
@@ -32,28 +30,28 @@ interface FormData {
 const PURPOSE_TEMPLATES = [
   {
     label: "Health issues - Medical appointment/treatment",
-    text: "Need to visit the hospital for a medical appointment and follow-up treatment."
+    text: "Need to visit the hospital for a medical appointment and follow-up treatment.",
   },
   {
-    label: "Festival - Religious/cultural celebration", 
-    text: "Going home to celebrate the upcoming festival with family."
+    label: "Festival - Religious/cultural celebration",
+    text: "Going home to celebrate the upcoming festival with family.",
   },
   {
     label: "Visiting home - Family time/personal work",
-    text: "Visiting home to spend time with family and attend to personal matters."
+    text: "Visiting home to spend time with family and attend to personal matters.",
   },
   {
     label: "Family event - Wedding/function/occasion",
-    text: "Attending a family wedding and related ceremonies."
+    text: "Attending a family wedding and related ceremonies.",
   },
   {
     label: "Emergency - Urgent family matter",
-    text: "Urgent family emergency requires immediate presence at home."
+    text: "Urgent family emergency requires immediate presence at home.",
   },
   {
     label: "Academic purpose - Conference/competition/exam",
-    text: "Participating in an academic conference relevant to my field of study."
-  }
+    text: "Participating in an academic conference relevant to my field of study.",
+  },
 ];
 
 const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"];
@@ -113,7 +111,7 @@ function MailToWardenContent() {
     customPurpose: "",
     parentName: "",
     parentContact: "",
-    selectedWardens: []
+    selectedWardens: [],
   });
 
   const [mailPreview, setMailPreview] = useState<{ subject: string; body: string } | null>(null);
@@ -122,7 +120,7 @@ function MailToWardenContent() {
 
   // Load form data from URL parameters if present
   useEffect(() => {
-    const dataParam = searchParams.get('data');
+    const dataParam = searchParams.get("data");
     if (dataParam) {
       try {
         const decodedData = JSON.parse(decodeURIComponent(dataParam));
@@ -133,7 +131,7 @@ function MailToWardenContent() {
           generateMailFromData(decodedData);
         }, 100);
       } catch (e) {
-        console.error('Failed to parse shared link data:', e);
+        console.error("Failed to parse shared link data:", e);
       }
     }
   }, [searchParams]);
@@ -147,7 +145,7 @@ function MailToWardenContent() {
   );
 
   const handleInputChange = useCallback((field: keyof FormData, value: string | string[]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
 
   const durationText = useMemo(
@@ -158,23 +156,24 @@ function MailToWardenContent() {
   const generateMailFromData = (data: FormData) => {
     const subject = `${data.studentName}, ${data.registrationNumber} and ${data.block} ${data.roomNumber}`;
 
-    const purposeText = data.purpose === "custom"
-      ? data.customPurpose
-      : PURPOSE_TEXT_BY_LABEL.get(data.purpose) || data.purpose;
+    const purposeText =
+      data.purpose === "custom"
+        ? data.customPurpose
+        : PURPOSE_TEXT_BY_LABEL.get(data.purpose) || data.purpose;
 
     const durationText = describeDuration(data.startDate, data.endDate);
 
-    const body = `1. Student name: ${data.studentName || '[NOT FILLED]'}
-2. Registration Number: ${data.registrationNumber || '[NOT FILLED]'}
-3. Semester & Branch: ${data.semester ? data.semester + ' Semester, ' : '[NOT FILLED] '}${data.branch || '[NOT FILLED]'}
-4. Block and Room Number: ${data.block || '[NOT FILLED]'}${data.roomNumber ? ' - Room ' + data.roomNumber : ' [NOT FILLED]'}
-5. Contact number of Student: ${data.contactNumber || '[NOT FILLED]'}
-6. Duration of leave and dates: ${durationText || '[NOT FILLED]'}
-7. Place of visit, address in detail and purpose: ${data.placeOfVisit || '[NOT FILLED]'}
-${data.address || '[NOT FILLED]'}
-Purpose: ${purposeText || '[NOT FILLED]'}
-8. Parents name & contact details: ${data.parentName || '[NOT FILLED]'} - ${data.parentContact || '[NOT FILLED]'}
-9. Parent's undertaking for the student's leave: ${data.parentName ? `I, ${data.parentName}, hereby undertake full responsibility for my ward ${data.studentName || '[STUDENT NAME NOT FILLED]'}'s leave during the period mentioned above and ensure that they will maintain discipline and adhere to all rules and regulations.` : '[NOT FILLED - Parent name required]'}`;
+    const body = `1. Student name: ${data.studentName || "[NOT FILLED]"}
+2. Registration Number: ${data.registrationNumber || "[NOT FILLED]"}
+3. Semester & Branch: ${data.semester ? data.semester + " Semester, " : "[NOT FILLED] "}${data.branch || "[NOT FILLED]"}
+4. Block and Room Number: ${data.block || "[NOT FILLED]"}${data.roomNumber ? " - Room " + data.roomNumber : " [NOT FILLED]"}
+5. Contact number of Student: ${data.contactNumber || "[NOT FILLED]"}
+6. Duration of leave and dates: ${durationText || "[NOT FILLED]"}
+7. Place of visit, address in detail and purpose: ${data.placeOfVisit || "[NOT FILLED]"}
+${data.address || "[NOT FILLED]"}
+Purpose: ${purposeText || "[NOT FILLED]"}
+8. Parents name & contact details: ${data.parentName || "[NOT FILLED]"} - ${data.parentContact || "[NOT FILLED]"}
+9. Parent's undertaking for the student's leave: ${data.parentName ? `I, ${data.parentName}, hereby undertake full responsibility for my ward ${data.studentName || "[STUDENT NAME NOT FILLED]"}'s leave during the period mentioned above and ensure that they will maintain discipline and adhere to all rules and regulations.` : "[NOT FILLED - Parent name required]"}`;
 
     setMailPreview({ subject, body });
 
@@ -194,8 +193,8 @@ Purpose: ${purposeText || '[NOT FILLED]'}
     if (!mailPreview || !selectedHostel) return;
 
     const selectedWardenEmails = selectedHostel.wardens
-      .filter(warden => selectedWardenSet.has(warden.name))
-      .map(warden => warden.email);
+      .filter((warden) => selectedWardenSet.has(warden.name))
+      .map((warden) => warden.email);
 
     if (selectedWardenEmails.length === 0) return;
 
@@ -215,7 +214,7 @@ Purpose: ${purposeText || '[NOT FILLED]'}
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy link:', err);
+      console.error("Failed to copy link:", err);
     }
   };
 
@@ -226,28 +225,29 @@ Purpose: ${purposeText || '[NOT FILLED]'}
 
     return {
       to: selectedHostel.wardens
-        .filter(warden => selectedWardenSet.has(warden.name))
-        .map(warden => `${warden.name} <${warden.email}>`),
+        .filter((warden) => selectedWardenSet.has(warden.name))
+        .map((warden) => `${warden.name} <${warden.email}>`),
       cc: [`${selectedHostel.block} <${selectedHostel.email}>`],
     };
   }, [selectedHostel, selectedWardenSet]);
 
   const missingFields = useMemo(() => {
     const missing: string[] = [];
-    if (!formData.studentName) missing.push('Student Name');
-    if (!formData.registrationNumber) missing.push('Registration Number');
-    if (!formData.semester) missing.push('Semester');
-    if (!formData.branch) missing.push('Branch');
-    if (!formData.block) missing.push('Block');
-    if (!formData.roomNumber) missing.push('Room Number');
-    if (!formData.contactNumber) missing.push('Contact Number');
-    if (!formData.startDate || !formData.endDate) missing.push('Leave Dates');
-    if (!formData.placeOfVisit) missing.push('Place of Visit');
-    if (!formData.address) missing.push('Address');
-    if (!formData.purpose || (formData.purpose === 'custom' && !formData.customPurpose)) missing.push('Purpose');
-    if (!formData.parentName) missing.push('Parent Name');
-    if (!formData.parentContact) missing.push('Parent Contact');
-    if (formData.selectedWardens.length === 0) missing.push('Warden Selection');
+    if (!formData.studentName) missing.push("Student Name");
+    if (!formData.registrationNumber) missing.push("Registration Number");
+    if (!formData.semester) missing.push("Semester");
+    if (!formData.branch) missing.push("Branch");
+    if (!formData.block) missing.push("Block");
+    if (!formData.roomNumber) missing.push("Room Number");
+    if (!formData.contactNumber) missing.push("Contact Number");
+    if (!formData.startDate || !formData.endDate) missing.push("Leave Dates");
+    if (!formData.placeOfVisit) missing.push("Place of Visit");
+    if (!formData.address) missing.push("Address");
+    if (!formData.purpose || (formData.purpose === "custom" && !formData.customPurpose))
+      missing.push("Purpose");
+    if (!formData.parentName) missing.push("Parent Name");
+    if (!formData.parentContact) missing.push("Parent Contact");
+    if (formData.selectedWardens.length === 0) missing.push("Warden Selection");
     return missing;
   }, [formData]);
 
@@ -256,10 +256,13 @@ Purpose: ${purposeText || '[NOT FILLED]'}
       {isSharedLink && (
         <Card className="mb-6 border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold mb-2">Parent/Guardian: Leave Request Ready to Send</h2>
+            <h2 className="text-lg font-semibold mb-2">
+              Parent/Guardian: Leave Request Ready to Send
+            </h2>
             <p className="text-sm text-muted-foreground mb-0">
-              Your ward has prepared a leave request for hostel warden approval.
-              Please review all the details below, make any necessary corrections, scroll down to preview the email, and click &quot;Send Email to Warden&quot; to send it from your email account.
+              Your ward has prepared a leave request for hostel warden approval. Please review all
+              the details below, make any necessary corrections, scroll down to preview the email,
+              and click &quot;Send Email to Warden&quot; to send it from your email account.
             </p>
           </CardContent>
         </Card>
@@ -267,7 +270,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
 
       <div className="mb-8">
         <h1 className="text-3xl">Generate Mail to Warden</h1>
-        <p className="text-muted-foreground">Generate a formal leave request email for your hostel warden.</p>
+        <p className="text-muted-foreground">
+          Generate a formal leave request email for your hostel warden.
+        </p>
       </div>
 
       <div className="grid gap-8">
@@ -278,7 +283,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
           <CardContent className="grid gap-6">
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="studentName" className="mb-2 block">Student Name</Label>
+                <Label htmlFor="studentName" className="mb-2 block">
+                  Student Name
+                </Label>
                 <Input
                   id="studentName"
                   value={formData.studentName}
@@ -287,7 +294,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                 />
               </div>
               <div>
-                <Label htmlFor="registrationNumber" className="mb-2 block">Registration Number</Label>
+                <Label htmlFor="registrationNumber" className="mb-2 block">
+                  Registration Number
+                </Label>
                 <Input
                   id="registrationNumber"
                   value={formData.registrationNumber}
@@ -299,7 +308,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
 
             <div className="grid sm:grid-cols-3 gap-6">
               <div>
-                <Label htmlFor="semester" className="mb-2 block">Semester</Label>
+                <Label htmlFor="semester" className="mb-2 block">
+                  Semester
+                </Label>
                 <select
                   id="semester"
                   className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
@@ -307,13 +318,17 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                   onChange={(e) => handleInputChange("semester", e.target.value)}
                 >
                   <option value="">Select Semester</option>
-                  {SEMESTERS.map(sem => (
-                    <option key={sem} value={sem}>{sem}</option>
+                  {SEMESTERS.map((sem) => (
+                    <option key={sem} value={sem}>
+                      {sem}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <Label htmlFor="branch" className="mb-2 block">Branch</Label>
+                <Label htmlFor="branch" className="mb-2 block">
+                  Branch
+                </Label>
                 <Input
                   id="branch"
                   value={formData.branch}
@@ -322,7 +337,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                 />
               </div>
               <div>
-                <Label htmlFor="contactNumber" className="mb-2 block">Contact Number</Label>
+                <Label htmlFor="contactNumber" className="mb-2 block">
+                  Contact Number
+                </Label>
                 <Input
                   id="contactNumber"
                   value={formData.contactNumber}
@@ -341,7 +358,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
           <CardContent className="grid gap-6">
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="block" className="mb-2 block">Block</Label>
+                <Label htmlFor="block" className="mb-2 block">
+                  Block
+                </Label>
                 <select
                   id="block"
                   className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
@@ -352,13 +371,17 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                   }}
                 >
                   <option value="">Select Block</option>
-                  {BLOCKS.map(block => (
-                    <option key={block} value={block}>{block}</option>
+                  {BLOCKS.map((block) => (
+                    <option key={block} value={block}>
+                      {block}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <Label htmlFor="roomNumber" className="mb-2 block">Room Number</Label>
+                <Label htmlFor="roomNumber" className="mb-2 block">
+                  Room Number
+                </Label>
                 <Input
                   id="roomNumber"
                   value={formData.roomNumber}
@@ -375,24 +398,24 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                   {selectedHostel.wardens.map((warden, wardenIndex) => {
                     const wardenId = `warden-${wardenIndex}`;
                     return (
-                    <div key={warden.name} className="flex items-center space-x-3">
-                      <input
-                        id={wardenId}
-                        type="checkbox"
-                        checked={selectedWardenSet.has(warden.name)}
-                        onChange={(e) => {
-                          const updated = new Set(selectedWardenSet);
-                          if (e.target.checked) updated.add(warden.name);
-                          else updated.delete(warden.name);
-                          handleInputChange("selectedWardens", Array.from(updated));
-                        }}
-                        className="rounded"
-                      />
-                      <div>
-                        <label htmlFor={wardenId}>{warden.name}</label>
-                        <p className="text-sm text-muted-foreground">{warden.designation}</p>
+                      <div key={warden.name} className="flex items-center space-x-3">
+                        <input
+                          id={wardenId}
+                          type="checkbox"
+                          checked={selectedWardenSet.has(warden.name)}
+                          onChange={(e) => {
+                            const updated = new Set(selectedWardenSet);
+                            if (e.target.checked) updated.add(warden.name);
+                            else updated.delete(warden.name);
+                            handleInputChange("selectedWardens", Array.from(updated));
+                          }}
+                          className="rounded"
+                        />
+                        <div>
+                          <label htmlFor={wardenId}>{warden.name}</label>
+                          <p className="text-sm text-muted-foreground">{warden.designation}</p>
+                        </div>
                       </div>
-                    </div>
                     );
                   })}
                 </div>
@@ -411,7 +434,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
           <CardContent className="grid gap-6">
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="startDate" className="mb-2 block">Start Date</Label>
+                <Label htmlFor="startDate" className="mb-2 block">
+                  Start Date
+                </Label>
                 <Input
                   id="startDate"
                   type="date"
@@ -421,7 +446,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                 />
               </div>
               <div>
-                <Label htmlFor="endDate" className="mb-2 block">End Date</Label>
+                <Label htmlFor="endDate" className="mb-2 block">
+                  End Date
+                </Label>
                 <Input
                   id="endDate"
                   type="date"
@@ -440,7 +467,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
             )}
 
             <div>
-              <Label htmlFor="placeOfVisit" className="mb-2 block">Place of Visit</Label>
+              <Label htmlFor="placeOfVisit" className="mb-2 block">
+                Place of Visit
+              </Label>
               <Input
                 id="placeOfVisit"
                 value={formData.placeOfVisit}
@@ -450,7 +479,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
             </div>
 
             <div>
-              <Label htmlFor="address" className="mb-2 block">Detailed Address</Label>
+              <Label htmlFor="address" className="mb-2 block">
+                Detailed Address
+              </Label>
               <textarea
                 id="address"
                 className="w-full p-3 border rounded-md min-h-[100px]"
@@ -461,7 +492,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
             </div>
 
             <div>
-              <Label htmlFor="purpose" className="mb-2 block">Purpose</Label>
+              <Label htmlFor="purpose" className="mb-2 block">
+                Purpose
+              </Label>
               <select
                 id="purpose"
                 className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
@@ -469,24 +502,26 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                 onChange={(e) => handleInputChange("purpose", e.target.value)}
               >
                 <option value="">Select Purpose</option>
-                {PURPOSE_TEMPLATES.map(purpose => (
-                  <option key={purpose.label} value={purpose.label}>{purpose.label}</option>
+                {PURPOSE_TEMPLATES.map((purpose) => (
+                  <option key={purpose.label} value={purpose.label}>
+                    {purpose.label}
+                  </option>
                 ))}
                 <option value="custom">Custom Purpose</option>
               </select>
-              
+
               {formData.purpose && formData.purpose !== "custom" && (
                 <div className="mt-2 p-3 bg-muted rounded-md">
-                  <p className="text-sm">
-                    {PURPOSE_TEXT_BY_LABEL.get(formData.purpose)}
-                  </p>
+                  <p className="text-sm">{PURPOSE_TEXT_BY_LABEL.get(formData.purpose)}</p>
                 </div>
               )}
             </div>
 
             {formData.purpose === "custom" && (
               <div>
-                <Label htmlFor="customPurpose" className="mb-2 block">Custom Purpose</Label>
+                <Label htmlFor="customPurpose" className="mb-2 block">
+                  Custom Purpose
+                </Label>
                 <textarea
                   id="customPurpose"
                   className="w-full p-3 border rounded-md min-h-[100px]"
@@ -506,7 +541,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
           <CardContent className="grid gap-6">
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="parentName" className="mb-2 block">Parent Name</Label>
+                <Label htmlFor="parentName" className="mb-2 block">
+                  Parent Name
+                </Label>
                 <Input
                   id="parentName"
                   value={formData.parentName}
@@ -515,7 +552,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                 />
               </div>
               <div>
-                <Label htmlFor="parentContact" className="mb-2 block">Parent Contact</Label>
+                <Label htmlFor="parentContact" className="mb-2 block">
+                  Parent Contact
+                </Label>
                 <Input
                   id="parentContact"
                   value={formData.parentContact}
@@ -556,9 +595,7 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                   <p className="text-sm font-medium text-white mb-2">
                     Please fill in the following required fields:
                   </p>
-                  <p className="text-sm text-white">
-                    {missingFields.join(', ')}
-                  </p>
+                  <p className="text-sm text-white">{missingFields.join(", ")}</p>
                 </div>
               )}
 
@@ -566,9 +603,7 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                 <div>
                   <Label className="mb-3 block">To</Label>
                   <div className="p-4 bg-muted rounded-md">
-                    <p className="text-sm">
-                      {recipients.to.join(', ')}
-                    </p>
+                    <p className="text-sm">{recipients.to.join(", ")}</p>
                   </div>
                 </div>
               )}
@@ -577,18 +612,14 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                 <div>
                   <Label className="mb-3 block">CC</Label>
                   <div className="p-4 bg-muted rounded-md">
-                    <p className="text-sm">
-                      {recipients.cc.join(', ')}
-                    </p>
+                    <p className="text-sm">{recipients.cc.join(", ")}</p>
                   </div>
                 </div>
               )}
 
               <div>
                 <Label className="mb-3 block">Subject</Label>
-                <div className="p-4 bg-muted rounded-md">
-                  {mailPreview.subject}
-                </div>
+                <div className="p-4 bg-muted rounded-md">{mailPreview.subject}</div>
               </div>
               <div>
                 <Label className="mb-3 block">Body</Label>
@@ -605,8 +636,9 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                       Share this link with your parents via WhatsApp, SMS, or email
                     </p>
                     <p className="text-xs text-muted-foreground mb-3">
-                      When they click this link, they&apos;ll see this page with all the information pre-filled.
-                      They can review everything and click &quot;Send Mail&quot; to send the leave request from their email.
+                      When they click this link, they&apos;ll see this page with all the information
+                      pre-filled. They can review everything and click &quot;Send Mail&quot; to send
+                      the leave request from their email.
                     </p>
                     <div className="flex gap-2 items-center">
                       <Input
@@ -632,14 +664,16 @@ Purpose: ${purposeText || '[NOT FILLED]'}
 
 export default function MailToWardenPage() {
   return (
-    <Suspense fallback={
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl">Generate Mail to Warden</h1>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </main>
-    }>
+    <Suspense
+      fallback={
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl">Generate Mail to Warden</h1>
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </main>
+      }
+    >
       <MailToWardenContent />
     </Suspense>
   );
