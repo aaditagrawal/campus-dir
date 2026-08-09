@@ -34,26 +34,29 @@ const SearchResultRow = memo(function SearchResultRow({
   item: SearchItem;
   index: number;
   selected: boolean;
-  rowRef: React.Ref<HTMLLIElement> | null;
+  rowRef: React.Ref<HTMLButtonElement> | null;
   onSelect: (item: SearchItem) => void;
   onHover: (index: number) => void;
 }) {
   return (
-    <li
-      ref={rowRef}
-      className={`px-4 py-3 cursor-pointer transition-colors ${
-        selected
-          ? "bg-primary/10 border-l-2 border-primary"
-          : "hover:bg-muted/60 border-l-2 border-transparent"
-      }`}
-      onClick={() => onSelect(item)}
-      onMouseEnter={() => onHover(index)}
-    >
-      <div className="text-sm">
-        <span className="font-medium">{item.title}</span>
-        {item.subtitle && <span className="text-muted-foreground"> • {item.subtitle}</span>}
-      </div>
-      <div className="text-xs text-muted-foreground mt-0.5">{item.section}</div>
+    <li>
+      <button
+        type="button"
+        ref={rowRef}
+        className={`w-full px-4 py-3 cursor-pointer transition-colors text-left ${
+          selected
+            ? "bg-primary/10 border-l-2 border-primary"
+            : "hover:bg-muted/60 border-l-2 border-transparent"
+        }`}
+        onClick={() => onSelect(item)}
+        onMouseEnter={() => onHover(index)}
+      >
+        <div className="text-sm">
+          <span className="font-medium">{item.title}</span>
+          {item.subtitle && <span className="text-muted-foreground"> • {item.subtitle}</span>}
+        </div>
+        <div className="text-xs text-muted-foreground mt-0.5">{item.section}</div>
+      </button>
     </li>
   );
 });
@@ -69,7 +72,7 @@ export function SiteHeader() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [fuzzyReady, setFuzzyReady] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const selectedItemRef = useRef<HTMLLIElement | null>(null);
+  const selectedItemRef = useRef<HTMLButtonElement | null>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => setMounted(true), []);
@@ -398,7 +401,12 @@ export function SiteHeader() {
       </div>
 
       {searchOpen && (
-        <div className="fixed inset-0 z-[60] flex items-start justify-center p-4 bg-background/80 backdrop-blur-sm" role="dialog" aria-modal="true" style={{ paddingTop: 'calc(3.5rem + 1rem)' }}>
+        <dialog
+          open
+          className="fixed inset-0 z-[60] m-0 flex h-full max-h-none w-full max-w-none items-start justify-center border-0 bg-background/80 p-4 backdrop-blur-sm"
+          aria-modal="true"
+          style={{ paddingTop: "calc(3.5rem + 1rem)" }}
+        >
           <div className="w-full max-w-xl rounded-lg border bg-background shadow-lg" style={{ marginTop: 0 }}>
             <div className="flex items-center gap-2 px-3 py-2 border-b">
               <Search className="size-4 text-muted-foreground" />
@@ -441,7 +449,7 @@ export function SiteHeader() {
               ))}
             </ul>
           </div>
-        </div>
+        </dialog>
       )}
     </header>
   );

@@ -118,8 +118,8 @@ export function PwaInstall() {
   if (!visible || !mode) return null;
 
   return (
-    <div
-      role="dialog"
+    <dialog
+      open
       aria-label="Install Campus Directory"
       className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-2xl border bg-card/85 p-4 shadow-2xl backdrop-blur-xl sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-96 animate-in fade-in slide-in-from-bottom-6 duration-500"
     >
@@ -211,6 +211,6 @@ export function PwaInstall() {
           </Button>
         </div>
       )}
-    </div>
+    </dialog>
   );
 }

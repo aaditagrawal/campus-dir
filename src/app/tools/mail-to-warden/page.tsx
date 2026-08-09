@@ -372,9 +372,12 @@ Purpose: ${purposeText || '[NOT FILLED]'}
               <div>
                 <Label className="mb-3 block">Select Warden(s)</Label>
                 <div className="space-y-3">
-                  {selectedHostel.wardens.map(warden => (
-                    <label key={warden.name} className="flex items-center space-x-3">
+                  {selectedHostel.wardens.map((warden, wardenIndex) => {
+                    const wardenId = `warden-${wardenIndex}`;
+                    return (
+                    <div key={warden.name} className="flex items-center space-x-3">
                       <input
+                        id={wardenId}
                         type="checkbox"
                         checked={selectedWardenSet.has(warden.name)}
                         onChange={(e) => {
@@ -386,11 +389,12 @@ Purpose: ${purposeText || '[NOT FILLED]'}
                         className="rounded"
                       />
                       <div>
-                        <span>{warden.name}</span>
+                        <label htmlFor={wardenId}>{warden.name}</label>
                         <p className="text-sm text-muted-foreground">{warden.designation}</p>
                       </div>
-                    </label>
-                  ))}
+                    </div>
+                    );
+                  })}
                 </div>
                 <p className="text-sm text-muted-foreground mt-3">
                   CC will be sent to: {selectedHostel.email}
