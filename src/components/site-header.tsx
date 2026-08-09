@@ -134,7 +134,7 @@ export function SiteHeader() {
     };
   }, [query, searchOpen, performSearch]);
 
-  // Fuse only covers what the index cannot — typos and transpositions — so it
+  // Fuzzy only covers what the index cannot — typos and transpositions — so it
   // is fetched alongside the first keystrokes rather than shipped with every page.
   useEffect(() => {
     if (!searchOpen || fuzzyReady) return;
@@ -149,9 +149,10 @@ export function SiteHeader() {
     };
   }, [searchOpen, fuzzyReady]);
 
-  // Rerunning the search when Fuse lands would rebuild the results array and
-  // reset the highlight under a user who is already reading the list. Only an
-  // empty list can actually gain anything from the fallback, so only that reruns.
+  // Rerunning the search when the fuzzy engine lands would rebuild the results
+  // array and reset the highlight under a user who is already reading the list.
+  // Only an empty list can actually gain anything from the fallback, so only
+  // that reruns.
   useEffect(() => {
     if (!fuzzyReady || !searchOpen || !query || results.length > 0) return;
     performSearch(query);

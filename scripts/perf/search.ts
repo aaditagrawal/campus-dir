@@ -1,34 +1,23 @@
 /**
- * Measures the inverted index against Fuse on the two things that matter:
+ * Measures the inverted index against MiniSearch on the two things that matter:
  * whether it finds what people are looking for, and what a keystroke costs.
  *
  * bun run scripts/perf/search.ts
  */
-import Fuse from "fuse.js";
 import { getAllSearchItems, type SearchItem } from "../../src/lib/search";
-import { loadFuzzyEngine, sampleSuggestions, searchDirectory } from "../../src/lib/search-index";
+import {
+  loadFuzzyEngine,
+  sampleSuggestions,
+  searchDirectory,
+  searchFuzzyOnly,
+} from "../../src/lib/search-index";
 import { bench, makeRandom, speedup } from "./harness";
 
 const items = getAllSearchItems();
 
-const fuse = new Fuse(items, {
-  keys: [
-    { name: "title", weight: 0.5 },
-    { name: "subtitle", weight: 0.15 },
-    { name: "section", weight: 0.1 },
-    { name: "phones", weight: 0.15 },
-    { name: "notes", weight: 0.1 },
-  ],
-  includeScore: true,
-  threshold: 0.35,
-  ignoreLocation: true,
-});
+await loadFuzzyEngine();
 
-const fuseSearch = (query: string): SearchItem[] =>
-  fuse
-    .search(query)
-    .slice(0, 10)
-    .map((result) => result.item);
+const fuzzySearch = (query: string): SearchItem[] => searchFuzzyOnly(query);
 
 console.log(`corpus: ${items.length} entries`);
 
@@ -84,11 +73,11 @@ function measureRecall(label: string, set: Probe[], search: (query: string) => S
 }
 
 console.log(`\nrecall — typing an entry's name (${probes.length} queries)`);
-measureRecall("fuse", probes, fuseSearch);
+measureRecall("minisearch", probes, fuzzySearch);
 measureRecall("inverted index", probes, searchDirectory);
 
 console.log(`\nrecall — typing a phone number (${phoneProbes.length} queries)`);
-measureRecall("fuse", phoneProbes, fuseSearch);
+measureRecall("minisearch", phoneProbes, fuzzySearch);
 measureRecall("inverted index", phoneProbes, searchDirectory);
 
 /* -------------------------------------------------------------------------- */
@@ -116,8 +105,10 @@ for (const item of items) {
 }
 
 console.log(`\nrecall — misspelled names (${typoProbes.length} queries)`);
-measureRecall("fuse", typoProbes, fuseSearch);
-measureRecall("inverted index alone", typoProbes, searchDirectory);
+measureRecall("minisearch", typoProbes, fuzzySearch);
+// searchDirectory already has fuzzy loaded; isolate the index by measuring
+// fuzzy-only above and index+fallback below.
+measureRecall("index + fuzzy fallback", typoProbes, searchDirectory);
 
 /* -------------------------------------------------------------------------- */
 /* Formatting the reviewers found in the data                                  */
@@ -144,11 +135,11 @@ for (const item of items) {
 }
 
 console.log(`\nrecall — phone numbers copied as displayed (${groupedPhoneProbes.length} queries)`);
-measureRecall("fuse", groupedPhoneProbes, fuseSearch);
+measureRecall("minisearch", groupedPhoneProbes, fuzzySearch);
 measureRecall("inverted index", groupedPhoneProbes, searchDirectory);
 
 console.log(`\nrecall — either end of an en-dash range (${dashRangeProbes.length} queries)`);
-measureRecall("fuse", dashRangeProbes, fuseSearch);
+measureRecall("minisearch", dashRangeProbes, fuzzySearch);
 measureRecall("inverted index", dashRangeProbes, searchDirectory);
 
 /* -------------------------------------------------------------------------- */
@@ -159,40 +150,26 @@ const keystrokes = probes.map((probe) => probe.query);
 
 console.log("\nper-keystroke query cost");
 let cursor = 0;
-const fuseOps = bench("fuse.search", 3_000, () => {
-  fuseSearch(keystrokes[cursor++ % keystrokes.length]);
+const fuzzyOps = bench("minisearch.search", 3_000, () => {
+  fuzzySearch(keystrokes[cursor++ % keystrokes.length]);
 });
 cursor = 0;
-const indexOps = bench("inverted index", 3_000, () => {
+const indexOps = bench("inverted index + fallback", 3_000, () => {
   searchDirectory(keystrokes[cursor++ % keystrokes.length]);
 });
-speedup("query", fuseOps, indexOps);
+speedup("query", fuzzyOps, indexOps);
 
 const shortQueries = ["t", "bl", "ma", "ho", "ca", "s", "re", "wa"];
 console.log("\nshort queries (the widest candidate sets)");
 cursor = 0;
-const fuseShort = bench("fuse.search", 3_000, () => {
-  fuseSearch(shortQueries[cursor++ & 7]);
+const fuzzyShort = bench("minisearch.search", 3_000, () => {
+  fuzzySearch(shortQueries[cursor++ & 7]);
 });
 cursor = 0;
-const indexShort = bench("inverted index", 3_000, () => {
+const indexShort = bench("inverted index + fallback", 3_000, () => {
   searchDirectory(shortQueries[cursor++ & 7]);
 });
-speedup("short query", fuseShort, indexShort);
-
-/* -------------------------------------------------------------------------- */
-/* With the fuzzy fallback armed — the steady state once Fuse has loaded       */
-/* -------------------------------------------------------------------------- */
-
-await loadFuzzyEngine();
-
-console.log("\nonce Fuse has loaded, sparse queries also consult it");
-measureRecall("index + fuzzy fallback", typoProbes, searchDirectory);
-cursor = 0;
-const withFallback = bench("inverted index + fallback", 3_000, () => {
-  searchDirectory(keystrokes[cursor++ % keystrokes.length]);
-});
-speedup("query vs fuse", fuseOps, withFallback);
+speedup("short query", fuzzyShort, indexShort);
 
 /* -------------------------------------------------------------------------- */
 /* Suggestion shuffle — bias, not just speed                                   */
