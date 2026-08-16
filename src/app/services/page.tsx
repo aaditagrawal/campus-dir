@@ -69,30 +69,34 @@ export default function ServicesPage() {
       <div className="space-y-2" id={slugify("Web Resources")}>
         <h2 className="text-xl">Web Resources</h2>
         <div className="[column-fill:_balance]_columns-1 sm:columns-2 gap-4">
-            <Card className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid">
-              <CardHeader>
-                <CardTitle>MIT Map – Nakshatra</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                Interactive campus map
-                <br />
-          <a href="https://mit.nakshatramaps.com/" target="_blank" rel="noreferrer">
-                <span className="text-xs text-gray-500 hover:underline">https://mit.nakshatramaps.com/</span>
-          </a>
-              </CardContent>
-            </Card>
-            <Card className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid">
-              <CardHeader>
-                <CardTitle>Indian Kitchen – Weekly Menu</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                Current week&apos;s mess menu
-                <br />
-          <a href="https://fc2.coolstuff.work" target="_blank" rel="noreferrer">
-                <span className="text-xs text-gray-500 hover:underline">https://fc2.coolstuff.work</span>
-          </a>
-              </CardContent>
-            </Card>
+          <Card className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid">
+            <CardHeader>
+              <CardTitle>MIT Map – Nakshatra</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Interactive campus map
+              <br />
+              <a href="https://mit.nakshatramaps.com/" target="_blank" rel="noreferrer">
+                <span className="text-xs text-gray-500 hover:underline">
+                  https://mit.nakshatramaps.com/
+                </span>
+              </a>
+            </CardContent>
+          </Card>
+          <Card className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid">
+            <CardHeader>
+              <CardTitle>Indian Kitchen – Weekly Menu</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Current week&apos;s mess menu
+              <br />
+              <a href="https://fc2.coolstuff.work" target="_blank" rel="noreferrer">
+                <span className="text-xs text-gray-500 hover:underline">
+                  https://fc2.coolstuff.work
+                </span>
+              </a>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Section title="Laundry Services" items={services.laundry} />

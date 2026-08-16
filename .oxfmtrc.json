@@ -1,0 +1,18 @@
+{
+  "ignorePatterns": [
+    "**/*.min.css",
+    "**/*.min.js",
+    "**/data/**",
+    ".next/**",
+    "build/**",
+    "bun.lock",
+    "coverage/**",
+    "data/**",
+    "dist/**",
+    "node_modules/**",
+    "out/**",
+    "package-lock.json",
+    "public/**",
+    "src/data/**"
+  ]
+}

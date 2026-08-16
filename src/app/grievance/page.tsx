@@ -90,7 +90,8 @@ export default function GrievancePage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Grievance Redressal</h1>
         <p className="text-muted-foreground">
-          Got a complaint? Reach out to the right authority. CC the Student Council in all your emails.
+          Got a complaint? Reach out to the right authority. CC the Student Council in all your
+          emails.
           <br />
           <span className="text-xs">This information is for MIT Manipal only.</span>
         </p>
@@ -100,7 +101,11 @@ export default function GrievancePage() {
         <h2 className="text-xl font-semibold">Who to Contact</h2>
         <div className="grid sm:grid-cols-2 gap-4 items-stretch">
           {categories.map((cat) => (
-            <Card key={cat.title} id={slugify(cat.title)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4">
+            <Card
+              key={cat.title}
+              id={slugify(cat.title)}
+              className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4"
+            >
               <CardHeader className="pb-0">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-lg leading-snug">{cat.title}</CardTitle>
@@ -135,7 +140,7 @@ export default function GrievancePage() {
                           phones: c.phones,
                           org: "MIT Manipal",
                           title: c.role,
-                        })
+                        }),
                       )
                       .join("\n")}
                   >
@@ -152,7 +157,11 @@ export default function GrievancePage() {
         <h2 className="text-xl font-semibold">Student Council</h2>
         <div className="grid sm:grid-cols-2 gap-4 items-stretch">
           {studentCouncil.contacts.map((c) => (
-            <Card key={c.email} id={slugify(c.role || c.email)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4">
+            <Card
+              key={c.email}
+              id={slugify(c.role || c.email)}
+              className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4"
+            >
               <CardHeader className="pb-0">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-lg leading-snug">{c.role || c.name}</CardTitle>
@@ -168,7 +177,10 @@ export default function GrievancePage() {
                 </div>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-3">
-                <a href={`mailto:${c.email}`} className="inline-flex items-center gap-1.5 text-sm underline min-w-0 truncate">
+                <a
+                  href={`mailto:${c.email}`}
+                  className="inline-flex items-center gap-1.5 text-sm underline min-w-0 truncate"
+                >
                   <Mail className="size-3.5 shrink-0" />
                   {c.email}
                 </a>

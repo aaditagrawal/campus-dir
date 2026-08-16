@@ -1,54 +1,78 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Fuse from "fuse.js";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getAllSearchItems, type SearchItem } from "@/lib/search";
+import {
+  isFuzzyEngineReady,
+  loadFuzzyEngine,
+  sampleSuggestions,
+  searchDirectory,
+} from "@/lib/search-index";
+import { type SearchItem } from "@/lib/search";
 
-const fuseOptions = {
-  keys: [
-    { name: "title", weight: 0.5 },
-    { name: "subtitle", weight: 0.15 },
-    { name: "section", weight: 0.1 },
-    { name: "phones", weight: 0.15 },
-    { name: "notes", weight: 0.1 },
-  ],
-  includeScore: true,
-  threshold: 0.35,
-  ignoreLocation: true,
-};
+const SUGGESTION_COUNT = 8;
+
+/**
+ * Memoized so moving the highlight — which every mouse move over the list
+ * does — re-renders the two rows whose selection changed, not all ten.
+ */
+const SearchResultRow = memo(function SearchResultRow({
+  item,
+  index,
+  selected,
+  rowRef,
+  onSelect,
+  onHover,
+}: {
+  item: SearchItem;
+  index: number;
+  selected: boolean;
+  rowRef: React.Ref<HTMLButtonElement> | null;
+  onSelect: (item: SearchItem) => void;
+  onHover: (index: number) => void;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        ref={rowRef}
+        className={`w-full px-4 py-3 cursor-pointer transition-colors text-left ${
+          selected
+            ? "bg-primary/10 border-l-2 border-primary"
+            : "hover:bg-muted/60 border-l-2 border-transparent"
+        }`}
+        onClick={() => onSelect(item)}
+        onMouseEnter={() => onHover(index)}
+      >
+        <div className="text-sm">
+          <span className="font-medium">{item.title}</span>
+          {item.subtitle && <span className="text-muted-foreground"> • {item.subtitle}</span>}
+        </div>
+        <div className="text-xs text-muted-foreground mt-0.5">{item.section}</div>
+      </button>
+    </li>
+  );
+});
 
 export default function SearchDialog({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [fuzzyReady, setFuzzyReady] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const selectedItemRef = useRef<HTMLLIElement | null>(null);
+  const selectedItemRef = useRef<HTMLButtonElement | null>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const items = useMemo(() => getAllSearchItems(), []);
-  const fuse = useMemo(() => new Fuse(items, fuseOptions), [items]);
-
-  const defaultSuggestions = useMemo(() => {
-    const pool = items.filter((i) => i.section !== "Pages");
-    const shuffled = pool.length > 8 ? pool.slice().sort(() => Math.random() - 0.5).slice(0, 8) : pool;
-    return shuffled;
-  }, [items]);
-
   const performSearch = useCallback((searchQuery: string) => {
-    if (!searchQuery) {
-      setResults(defaultSuggestions);
-      return;
-    }
     try {
-      const searchResults = fuse.search(searchQuery);
-      const r = searchResults.slice(0, 10).map((result) => result.item || result);
-      setResults(r);
+      setResults(searchQuery ? searchDirectory(searchQuery) : sampleSuggestions(SUGGESTION_COUNT));
     } catch {
       setResults([]);
     }
-  }, [fuse, defaultSuggestions]);
+  }, []);
 
   useEffect(() => {
     if (searchTimeoutRef.current) {
@@ -63,6 +87,30 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
       }
     };
   }, [query, performSearch]);
+
+  // Fuzzy only covers what the index cannot — typos and transpositions — so it
+  // is fetched alongside the first keystrokes rather than shipped with every page.
+  useEffect(() => {
+    if (fuzzyReady) return;
+
+    let active = true;
+    loadFuzzyEngine().then(() => {
+      // Stays false if the chunk failed to load, so reopening the dialog retries.
+      if (active) setFuzzyReady(isFuzzyEngineReady());
+    });
+    return () => {
+      active = false;
+    };
+  }, [fuzzyReady]);
+
+  // Rerunning the search when the fuzzy engine lands would rebuild the results
+  // array and reset the highlight under a user who is already reading the list.
+  // Only an empty list can actually gain anything from the fallback, so only
+  // that reruns.
+  useEffect(() => {
+    if (!fuzzyReady || !query || results.length > 0) return;
+    performSearch(query);
+  }, [fuzzyReady, query, results.length, performSearch]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -88,57 +136,55 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
     if (selectedItemRef.current) {
       selectedItemRef.current.scrollIntoView({
         block: "nearest",
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
 
-  const navigateToResult = (r: SearchItem) => {
-    onClose();
-    try {
-      if (!r || !r.href) {
-        console.error('Invalid search result:', r);
-        return;
-      }
+  const navigateToResult = useCallback(
+    (r: SearchItem) => {
+      onClose();
+      try {
+        if (!r || !r.href) {
+          console.error("Invalid search result:", r);
+          return;
+        }
 
-      if (r.href.startsWith("http")) {
-        window.location.href = r.href;
-      } else {
+        if (r.href.startsWith("http")) {
+          window.location.href = r.href;
+          return;
+        }
+
         const url = new URL(r.href, window.location.origin);
-        if (url.hash) {
-          const elementId = url.hash.substring(1);
-          if (!elementId) {
-            console.error('Invalid hash in URL:', r.href);
-            return;
-          }
+        const elementId = url.hash ? url.hash.substring(1) : "";
+        const element = elementId ? document.getElementById(elementId) : null;
 
-          const element = document.getElementById(elementId);
+        // Already on this page: scroll, do not route.
+        if (element) {
+          const headerHeight = 56;
+          const extraOffset = window.innerHeight * 0.1;
+          const absoluteTop = element.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: Math.max(0, absoluteTop - headerHeight - extraOffset),
+            behavior: "smooth",
+          });
+          window.history.pushState(null, "", r.href);
+          return;
+        }
 
-          if (element) {
-            const headerHeight = 56;
-            const viewportHeight = window.innerHeight;
-            const extraOffset = viewportHeight * 0.1;
-            const rect = element.getBoundingClientRect();
-            const absoluteTop = rect.top + window.scrollY;
-            window.scrollTo({
-              top: Math.max(0, absoluteTop - headerHeight - extraOffset),
-              behavior: 'smooth'
-            });
-            window.history.pushState(null, '', r.href);
-          } else {
-            window.location.assign(r.href);
-          }
-        } else {
-          window.location.assign(r.href);
+        // The router keeps this a client transition instead of tearing down the
+        // app; the target cards carry `scroll-mt-24`, so the sticky header does
+        // not cover the anchor.
+        router.push(r.href);
+      } catch (error) {
+        console.error("Navigation error:", error, r);
+        if (r && r.href) {
+          window.location.href = r.href;
         }
       }
-    } catch (error) {
-      console.error('Navigation error:', error, r);
-      if (r && r.href) {
-        window.location.href = r.href;
-      }
-    }
-  };
+    },
+    [router, onClose],
+  );
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && results.length > 0) {
@@ -154,8 +200,16 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center p-4 bg-background/80 backdrop-blur-sm" role="dialog" aria-modal="true" style={{ paddingTop: 'calc(3.5rem + 1rem)' }}>
-      <div className="w-full max-w-xl rounded-lg border bg-background shadow-lg" style={{ marginTop: 0 }}>
+    <div
+      className="fixed inset-0 z-[60] flex items-start justify-center p-4 bg-background/80 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      style={{ paddingTop: "calc(3.5rem + 1rem)" }}
+    >
+      <div
+        className="w-full max-w-xl rounded-lg border bg-background shadow-lg"
+        style={{ marginTop: 0 }}
+      >
         <div className="flex items-center gap-2 px-3 py-2 border-b">
           <Search className="size-4 text-muted-foreground" />
           <input
@@ -185,23 +239,15 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
             <li className="px-4 py-3 text-sm text-muted-foreground">No results</li>
           )}
           {results.map((r, idx) => (
-            <li
+            <SearchResultRow
               key={`${r.href}-${idx}`}
-              ref={idx === selectedIndex ? selectedItemRef : null}
-              className={`px-4 py-3 cursor-pointer transition-colors ${
-                idx === selectedIndex
-                  ? "bg-primary/10 border-l-2 border-primary"
-                  : "hover:bg-muted/60 border-l-2 border-transparent"
-              }`}
-              onClick={() => navigateToResult(r)}
-              onMouseEnter={() => setSelectedIndex(idx)}
-            >
-              <div className="text-sm">
-                <span className="font-medium">{r.title}</span>
-                {r.subtitle && <span className="text-muted-foreground"> • {r.subtitle}</span>}
-              </div>
-              <div className="text-xs text-muted-foreground mt-0.5">{r.section}</div>
-            </li>
+              item={r}
+              index={idx}
+              selected={idx === selectedIndex}
+              rowRef={idx === selectedIndex ? selectedItemRef : null}
+              onSelect={navigateToResult}
+              onHover={setSelectedIndex}
+            />
           ))}
         </ul>
       </div>

@@ -2,9 +2,7 @@
 
 import { lazy, Suspense, useEffect, useState } from "react";
 
-const PwaInstall = lazy(() =>
-  import("./pwa-install").then((m) => ({ default: m.PwaInstall })),
-);
+const PwaInstall = lazy(() => import("./pwa-install").then((m) => ({ default: m.PwaInstall })));
 
 export function PwaInstallLoader() {
   const [ready, setReady] = useState(false);

@@ -80,7 +80,9 @@ function TileBody({
       >
         {title}
       </span>
-      <span className={`mt-0.5 block text-xs ${accent ? "text-rose-500/70" : "text-muted-foreground"}`}>
+      <span
+        className={`mt-0.5 block text-xs ${accent ? "text-rose-500/70" : "text-muted-foreground"}`}
+      >
         {description}
       </span>
     </>
@@ -137,22 +139,46 @@ export default function Home() {
         <h2 className={sectionLabel}>Browse</h2>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
           <Link href="/academics" className={browseTile}>
-            <TileBody icon={<GraduationCap className="size-5" />} title="Academics" description="Systems & portals" />
+            <TileBody
+              icon={<GraduationCap className="size-5" />}
+              title="Academics"
+              description="Systems & portals"
+            />
           </Link>
           <Link href="/restaurants" className={browseTile}>
-            <TileBody icon={<Utensils className="size-5" />} title="Restaurants" description="Menus & delivery" />
+            <TileBody
+              icon={<Utensils className="size-5" />}
+              title="Restaurants"
+              description="Menus & delivery"
+            />
           </Link>
           <Link href="/hostels" className={browseTile}>
-            <TileBody icon={<Building className="size-5" />} title="Hostels" description="Wardens & contacts" />
+            <TileBody
+              icon={<Building className="size-5" />}
+              title="Hostels"
+              description="Wardens & contacts"
+            />
           </Link>
           <Link href={`/travel#${slugify("Cabs & Taxis")}`} className={browseTile}>
-            <TileBody icon={<Car className="size-5" />} title="Travel" description="Autos, cabs & taxis" />
+            <TileBody
+              icon={<Car className="size-5" />}
+              title="Travel"
+              description="Autos, cabs & taxis"
+            />
           </Link>
           <Link href="/services" className={browseTile}>
-            <TileBody icon={<Wrench className="size-5" />} title="Services" description="Laundry & xerox" />
+            <TileBody
+              icon={<Wrench className="size-5" />}
+              title="Services"
+              description="Laundry & xerox"
+            />
           </Link>
           <Link href="/tools" className={browseTile}>
-            <TileBody icon={<Settings className="size-5" />} title="Tools" description="Maps & resources" />
+            <TileBody
+              icon={<Settings className="size-5" />}
+              title="Tools"
+              description="Maps & resources"
+            />
           </Link>
           <Link href="/grievance" className={browseTile}>
             <TileBody
@@ -162,7 +188,11 @@ export default function Home() {
             />
           </Link>
           <Link href="/favorites" className={browseTile}>
-            <TileBody icon={<Star className="size-5" />} title="Favorites" description={<FavoritesTileLabel />} />
+            <TileBody
+              icon={<Star className="size-5" />}
+              title="Favorites"
+              description={<FavoritesTileLabel />}
+            />
           </Link>
           <Link
             href="/emergency"

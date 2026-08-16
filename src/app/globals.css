@@ -8,7 +8,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-instrument-sans);
   --font-serif: var(--font-instrument-serif);
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -126,35 +127,104 @@
   body {
     @apply bg-background text-foreground;
     font-size: 16px;
-    background-image: radial-gradient(64rem 32rem at 50% -8rem, color-mix(in oklab, var(--primary) 5%, transparent), transparent);
+    /*
+     * A single static gradient: no repaint loop, no promoted compositor
+     * layers, and the `.glass` backdrop blurs sample a stable surface.
+     */
+    background-image: radial-gradient(
+      64rem 32rem at 50% -8rem,
+      color-mix(in oklab, var(--primary) 5%, transparent),
+      transparent
+    );
     background-repeat: no-repeat;
   }
   .dark body {
-    background-image: radial-gradient(64rem 32rem at 50% -8rem, color-mix(in oklab, var(--muted) 45%, transparent), transparent);
+    background-image: radial-gradient(
+      64rem 32rem at 50% -8rem,
+      color-mix(in oklab, var(--muted) 45%, transparent),
+      transparent
+    );
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-instrument-serif);
   }
-  h1 { font-size: 2.25rem; }
-  h2 { font-size: 1.875rem; }
-  h3 { font-size: 1.5rem; }
-  h4 { font-size: 1.25rem; }
-  h5 { font-size: 1.125rem; }
-  h6 { font-size: 1rem; }
-  p, span, div { font-size: 1rem; }
-  small { font-size: 0.875rem; }
+  h1 {
+    font-size: 2.25rem;
+  }
+  h2 {
+    font-size: 1.875rem;
+  }
+  h3 {
+    font-size: 1.5rem;
+  }
+  h4 {
+    font-size: 1.25rem;
+  }
+  h5 {
+    font-size: 1.125rem;
+  }
+  h6 {
+    font-size: 1rem;
+  }
+  p,
+  span,
+  div {
+    font-size: 1rem;
+  }
+  small {
+    font-size: 0.875rem;
+  }
 }
 
-/* glass helper - more subtle */
+/*
+ * glass helper - more subtle
+ *
+ * A backdrop-filter is one of the most expensive things a page can ask for: the
+ * element has to sample and blur everything behind it, and it redoes that work
+ * whenever its backdrop changes — which includes every scroll frame, since the
+ * card moves over a fixed background. There are 17 to 25 of these per page
+ * (25 on /emergency), so the cost is paid many times over.
+ *
+ * The blur is kept, at a smaller radius, on pointer devices with a large enough
+ * viewport. Below that it is dropped and the tint carries the effect on its own,
+ * which is where the cost hurts most and the blur reads least.
+ */
 .glass {
   background: color-mix(in oklab, var(--card) 70%, transparent);
-  backdrop-filter: saturate(120%) blur(12px);
-  -webkit-backdrop-filter: saturate(120%) blur(12px);
   border-color: color-mix(in oklab, var(--border) 60%, transparent);
 }
 
+@media (min-width: 768px) {
+  .glass {
+    backdrop-filter: saturate(120%) blur(8px);
+    -webkit-backdrop-filter: saturate(120%) blur(8px);
+  }
+}
+
+/* Honour an explicit request for less transparency, and stop blurring for it. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--card);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /* category accent helpers */
-.accent-restaurants { color: var(--accent-restaurants); }
-.accent-hostels { color: var(--accent-hostels); }
-.accent-travel { color: var(--accent-travel); }
-.accent-emergency { color: var(--accent-emergency); }
+.accent-restaurants {
+  color: var(--accent-restaurants);
+}
+.accent-hostels {
+  color: var(--accent-hostels);
+}
+.accent-travel {
+  color: var(--accent-travel);
+}
+.accent-emergency {
+  color: var(--accent-emergency);
+}

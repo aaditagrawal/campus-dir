@@ -1,6 +1,13 @@
 "use client";
 
-import { useFavorites, type FavoriteItem } from "@/hooks/useFavorites";
+import {
+  clearAll,
+  removeFavorite,
+  useFavorites,
+  useFavoritesLoaded,
+  type FavoriteItem,
+  type FavoriteType,
+} from "@/hooks/useFavorites";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, Phone, ExternalLink, Trash2, Download, Check, Copy } from "lucide-react";
@@ -8,50 +15,51 @@ import Link from "next/link";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { useMemo, useState } from "react";
 
+/**
+ * Also fixes the section order. Any type missing from this list is simply not
+ * rendered — previously an unlisted type (`grievance`) crashed the page.
+ */
+const SECTIONS: ReadonlyArray<{ type: FavoriteType; label: string }> = [
+  { type: "restaurant", label: "Restaurants" },
+  { type: "hostel", label: "Hostels" },
+  { type: "emergency", label: "Emergency Contacts" },
+  { type: "service", label: "Services" },
+  { type: "travel", label: "Travel" },
+  { type: "academic", label: "Academic Resources" },
+  { type: "tool", label: "Tools" },
+  { type: "grievance", label: "Grievance Redressal" },
+];
+
 export default function FavoritesPage() {
-  const { favorites, removeFavorite, clearAll, isLoaded } = useFavorites();
+  const favorites = useFavorites();
+  const isLoaded = useFavoritesLoaded();
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
 
   const groupedFavorites = useMemo(() => {
-    const grouped: Record<string, FavoriteItem[]> = {
-      restaurant: [],
-      hostel: [],
-      emergency: [],
-      service: [],
-      travel: [],
-      academic: [],
-      tool: [],
-    };
-
-    favorites.forEach((fav) => {
-      grouped[fav.type].push(fav);
-    });
-
+    const grouped = new Map<FavoriteType, FavoriteItem[]>();
+    for (const fav of favorites) {
+      const bucket = grouped.get(fav.type);
+      if (bucket) bucket.push(fav);
+      else grouped.set(fav.type, [fav]);
+    }
     return grouped;
   }, [favorites]);
 
-  const typeLabels: Record<string, string> = {
-    restaurant: "Restaurants",
-    hostel: "Hostels",
-    emergency: "Emergency Contacts",
-    service: "Services",
-    travel: "Travel",
-    academic: "Academic Resources",
-    tool: "Tools",
-  };
-
   const copyPhone = (phone: string) => {
-    navigator.clipboard.writeText(phone).then(() => {
-      setCopiedPhone(phone);
-      setTimeout(() => setCopiedPhone(null), 2000);
-    }).catch((err) => {
-      console.error('Failed to copy:', err);
-    });
+    navigator.clipboard
+      .writeText(phone)
+      .then(() => {
+        setCopiedPhone(phone);
+        setTimeout(() => setCopiedPhone(null), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+      });
   };
 
   const handleDownloadVCard = (item: FavoriteItem) => {
     if (!item.phones || item.phones.length === 0) return;
-    
+
     const vcard = buildVCard({
       name: item.name,
       phones: item.phones,
@@ -71,9 +79,7 @@ export default function FavoritesPage() {
     <main className="max-w-5xl mx-auto px-6 py-12 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl md:text-4xl font-serif tracking-tight mb-2">
-            Your Favorites
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-serif tracking-tight mb-2">Your Favorites</h1>
           <p className="text-muted-foreground">
             {favorites.length === 0
               ? "No favorites yet. Start adding items from any page!"
@@ -103,8 +109,8 @@ export default function FavoritesPage() {
             <Star className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
             <h3 className="text-lg font-medium mb-2">No favorites yet</h3>
             <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-              Browse through restaurants, hostels, emergency contacts, services, or travel
-              options and click the star icon to add them to your favorites.
+              Browse through restaurants, hostels, emergency contacts, services, or travel options
+              and click the star icon to add them to your favorites.
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link href="/restaurants">
@@ -127,37 +133,35 @@ export default function FavoritesPage() {
         </Card>
       ) : (
         <div className="space-y-8">
-          {Object.entries(groupedFavorites).map(([type, items]) => {
-            if (items.length === 0) return null;
+          {SECTIONS.map(({ type, label }) => {
+            const items = groupedFavorites.get(type);
+            if (!items) return null;
 
             return (
               <section key={type}>
-                <h2 className="text-xl font-serif mb-4 flex items-center gap-2">
-                  {typeLabels[type]}
-                </h2>
+                <h2 className="text-xl font-serif mb-4 flex items-center gap-2">{label}</h2>
                 <div className="grid gap-4 md:grid-cols-2">
                   {items.map((item) => (
                     <Card key={item.id} className="relative group">
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            {item.href.startsWith('http') ? (
-                              <a href={item.href} target="_blank" rel="noreferrer" className="hover:underline cursor-pointer">
-                                <CardTitle className="text-lg mb-1">
-                                  {item.name}
-                                </CardTitle>
+                            {item.href.startsWith("http") ? (
+                              <a
+                                href={item.href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="hover:underline cursor-pointer"
+                              >
+                                <CardTitle className="text-lg mb-1">{item.name}</CardTitle>
                               </a>
                             ) : (
                               <Link href={item.href} className="hover:underline cursor-pointer">
-                                <CardTitle className="text-lg mb-1">
-                                  {item.name}
-                                </CardTitle>
+                                <CardTitle className="text-lg mb-1">{item.name}</CardTitle>
                               </Link>
                             )}
                             {item.subtitle && (
-                              <p className="text-sm text-muted-foreground">
-                                {item.subtitle}
-                              </p>
+                              <p className="text-sm text-muted-foreground">{item.subtitle}</p>
                             )}
                           </div>
                         </div>
@@ -166,10 +170,7 @@ export default function FavoritesPage() {
                         {item.phones && item.phones.length > 0 && (
                           <div className="space-y-2">
                             {item.phones.map((phone, idx) => (
-                              <div
-                                key={idx}
-                                className="flex items-center gap-2 text-sm"
-                              >
+                              <div key={idx} className="flex items-center gap-2 text-sm">
                                 <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                                 <a
                                   href={`tel:${phone}`}
@@ -195,7 +196,7 @@ export default function FavoritesPage() {
                         )}
 
                         <div className="flex gap-2 pt-2 border-t">
-                          {item.href.startsWith('http') ? (
+                          {item.href.startsWith("http") ? (
                             <a href={item.href} target="_blank" rel="noreferrer" className="flex-1">
                               <Button variant="outline" size="sm" className="w-full cursor-pointer">
                                 <ExternalLink className="h-3.5 w-3.5 mr-1.5" />

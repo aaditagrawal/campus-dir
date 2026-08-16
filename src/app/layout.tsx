@@ -3,7 +3,6 @@ import { Instrument_Serif, Instrument_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { FavoritesProvider } from "@/hooks/useFavorites";
 import { SiteHeader } from "@/components/site-header";
 import { PwaInstallLoader } from "@/components/pwa-install-loader";
 
@@ -54,35 +53,28 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script
-          defer
-          src="https://stat.sys256.com/script.js"
-          strategy="lazyOnload"
-        />
+        <Script defer src="https://stat.sys256.com/script.js" strategy="lazyOnload" />
       </head>
       <body
         className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased min-h-screen bg-background text-foreground`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <FavoritesProvider>
-            <SiteHeader />
-            {children}
-            <PwaInstallLoader />
-            <footer className="py-8 text-center text-muted-foreground text-sm">
-              <p>
-                Found something wrong or missing? Help improve this directory by
-                contributing at{" "}
-                <a
-                  href="https://github.com/aaditagrawal/campus-dir"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-foreground hover:text-primary transition-colors underline decoration-1 underline-offset-2"
-                >
-                  GitHub
-                </a>
-              </p>
-            </footer>
-          </FavoritesProvider>
+          <SiteHeader />
+          {children}
+          <PwaInstallLoader />
+          <footer className="py-8 text-center text-muted-foreground text-sm">
+            <p>
+              Found something wrong or missing? Help improve this directory by contributing at{" "}
+              <a
+                href="https://github.com/aaditagrawal/campus-dir"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground hover:text-primary transition-colors underline decoration-1 underline-offset-2"
+              >
+                GitHub
+              </a>
+            </p>
+          </footer>
         </ThemeProvider>
       </body>
     </html>

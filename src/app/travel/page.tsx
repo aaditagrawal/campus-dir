@@ -15,18 +15,27 @@ function renderNotesWithLinks(notes: string) {
   const parts = notes.split(urlRegex);
   return parts.map((part, i) =>
     /^https?:\/\//.test(part) ? (
-      <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline hover:text-primary"
+      >
         {part}
       </a>
     ) : (
       part
-    )
+    ),
   );
 }
 
 function ListingCard({ listing, sectionTitle }: { listing: Listing; sectionTitle: string }) {
   return (
-    <Card id={slugify(listing.name)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24">
+    <Card
+      id={slugify(listing.name)}
+      className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24"
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg">{listing.name}</CardTitle>
@@ -51,7 +60,11 @@ function ListingCard({ listing, sectionTitle }: { listing: Listing; sectionTitle
             </a>
           ))}
         </div>
-        {listing.notes && <div className="text-sm text-muted-foreground leading-relaxed">{renderNotesWithLinks(listing.notes)}</div>}
+        {listing.notes && (
+          <div className="text-sm text-muted-foreground leading-relaxed">
+            {renderNotesWithLinks(listing.notes)}
+          </div>
+        )}
         <div className="flex gap-2 pt-2">
           <Button asChild variant="secondary" size="sm" className="gap-2">
             <a href={`tel:${listing.phones?.[0]?.replace(/\s+/g, "") ?? ""}`}>
@@ -93,7 +106,9 @@ export default function TravelPage() {
         <div className="space-y-4 scroll-mt-24" id={slugify("Cabs & Taxis")}>
           <h2 className="text-xl font-semibold">Cabs & Taxis</h2>
           <div className="bg-muted/50 rounded-lg p-4">
-            <h3 className="font-semibold mb-3">Udupi Manipal Taxi Union - Airport Prices (After Jan 2026)</h3>
+            <h3 className="font-semibold mb-3">
+              Udupi Manipal Taxi Union - Airport Prices (After Jan 2026)
+            </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>

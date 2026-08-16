@@ -7,7 +7,13 @@ import { Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
 import { DownloadVCardButton } from "@/components/contact-actions";
 
-type Emergency = { name: string; phones: string[]; address?: string; notes?: string; accent?: string };
+type Emergency = {
+  name: string;
+  phones: string[];
+  address?: string;
+  notes?: string;
+  accent?: string;
+};
 
 function EmergencyContactCard({
   entry,
@@ -23,7 +29,10 @@ function EmergencyContactCard({
   org: string;
 }) {
   return (
-    <Card id={slugify(entry.name)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4">
+    <Card
+      id={slugify(entry.name)}
+      className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4"
+    >
       <CardHeader className="pb-0">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg leading-snug">{entry.name}</CardTitle>
@@ -48,9 +57,13 @@ function EmergencyContactCard({
             </a>
           ))}
         </div>
-        {entry.address ? <div className="text-sm text-muted-foreground">{entry.address}</div> : null}
+        {entry.address ? (
+          <div className="text-sm text-muted-foreground">{entry.address}</div>
+        ) : null}
         {entry.notes ? (
-          <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{entry.notes}</div>
+          <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+            {entry.notes}
+          </div>
         ) : null}
       </CardContent>
       <CardFooter className="mt-auto grid grid-cols-2 gap-2">
@@ -83,7 +96,10 @@ export default function EmergencyPage() {
   const manipalHelplines: Emergency[] = [
     { name: "Student Health Clinic", phones: ["0820-2922057"] },
     { name: "KMC Ambulance", phones: ["0820-2922761"] },
-    { name: "KMC Emergency", phones: ["0820-2922761", "0820-2922246", "0820-2923154", "0820-2922352", "0820-2922721"] },
+    {
+      name: "KMC Emergency",
+      phones: ["0820-2922761", "0820-2922246", "0820-2923154", "0820-2922352", "0820-2922721"],
+    },
     { name: "Fire", phones: ["0820-2922607"] },
     { name: "MAHE Control Room (All Emergency)", phones: ["0820-2922515"] },
     { name: "Police Station", phones: ["0820-2570328", "0820-2526444"] },
@@ -113,7 +129,9 @@ export default function EmergencyPage() {
     <main className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Emergency Services</h1>
-        <p className="text-muted-foreground">Health and safety contacts. In emergencies, call the ambulance first.</p>
+        <p className="text-muted-foreground">
+          Health and safety contacts. In emergencies, call the ambulance first.
+        </p>
       </div>
 
       <section className="space-y-4 mb-8" id={slugify("Emergency Contacts")}>
@@ -179,7 +197,12 @@ export default function EmergencyPage() {
         </div>
         <p className="text-xs text-muted-foreground mt-4">
           Source:{" "}
-          <a className="underline hover:text-blue-600 transition-colors" href="https://ssc.manipal.edu/resources.aspx" target="_blank" rel="noreferrer">
+          <a
+            className="underline hover:text-blue-600 transition-colors"
+            href="https://ssc.manipal.edu/resources.aspx"
+            target="_blank"
+            rel="noreferrer"
+          >
             Student Support Centre resources
           </a>
         </p>

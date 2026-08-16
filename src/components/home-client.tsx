@@ -2,7 +2,7 @@
 
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useFavorites } from "@/hooks/useFavorites";
+import { useFavoritesCount, useFavoritesLoaded } from "@/hooks/useFavorites";
 
 export function SearchLauncher() {
   const [isMac, setIsMac] = useState(false);
@@ -28,6 +28,7 @@ export function SearchLauncher() {
 }
 
 export function FavoritesTileLabel() {
-  const { count, isLoaded } = useFavorites();
-  return <>{!isLoaded ? "Save your contacts" : count === 0 ? "Save your contacts" : "Your saved items"}</>;
+  const count = useFavoritesCount();
+  const isLoaded = useFavoritesLoaded();
+  return <>{!isLoaded || count === 0 ? "Save your contacts" : "Your saved items"}</>;
 }

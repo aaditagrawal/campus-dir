@@ -3,9 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { slugify } from "@/lib/utils";
 import { FavoriteButton } from "@/components/favorite-button";
 
-function AcademicCard({ title, url, children }: { title: string; url: string; children: ReactNode }) {
+function AcademicCard({
+  title,
+  url,
+  children,
+}: {
+  title: string;
+  url: string;
+  children: ReactNode;
+}) {
   return (
-    <Card className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid scroll-mt-24 relative group" id={slugify(title)}>
+    <Card
+      className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid scroll-mt-24 relative group"
+      id={slugify(title)}
+    >
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle>{title}</CardTitle>
@@ -21,7 +32,13 @@ function AcademicCard({ title, url, children }: { title: string; url: string; ch
           />
         </div>
       </CardHeader>
-      <a href={url} target="_blank" rel="noreferrer" className="absolute inset-0 z-0" aria-label={`Open ${title}`} />
+      <a
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        className="absolute inset-0 z-0"
+        aria-label={`Open ${title}`}
+      />
       <CardContent className="text-sm text-muted-foreground relative z-10">
         {children}
         <br />
@@ -54,16 +71,26 @@ export default function AcademicsPage() {
       <div className="space-y-2" id={slugify("Library")}>
         <h2 className="text-xl">Library</h2>
         <div className="[column-fill:_balance]_columns-1 sm:columns-2 gap-4">
-          <AcademicCard title="Previous Years&apos; Questions Archive" url="https://library-orpin-two.vercel.app">
+          <AcademicCard
+            title="Previous Years' Questions Archive"
+            url="https://library-orpin-two.vercel.app"
+          >
             Browse past question papers
           </AcademicCard>
-          <AcademicCard title="Manipal OSF" url="https://learnermanipal.sharepoint.com/sites/ManipalOSF">
+          <AcademicCard
+            title="Manipal OSF"
+            url="https://learnermanipal.sharepoint.com/sites/ManipalOSF"
+          >
             Student led initiative to compile and share past question papers
           </AcademicCard>
           <AcademicCard title="EBSCO search" url="https://research.ebsco.com/c/fqdtcf/search">
-            <span className="text-xs">User ID: <span className="font-mono">ebscopreviewmity</span></span>
+            <span className="text-xs">
+              User ID: <span className="font-mono">ebscopreviewmity</span>
+            </span>
             <br />
-            <span className="text-xs">Password: <span className="font-mono">UIPreview2021!</span></span>
+            <span className="text-xs">
+              Password: <span className="font-mono">UIPreview2021!</span>
+            </span>
             <br />
             Search academic databases
           </AcademicCard>
@@ -79,16 +106,32 @@ export default function AcademicsPage() {
           <AcademicCard title="Lighthouse" url="https://lighthouse.manipal.edu">
             Semester-wise resources and quiz platform
           </AcademicCard>
-          <AcademicCard title="Pulse (Android)" url="https://play.google.com/store/apps/details?id=com.d2l.brightspace.student.android">
+          <AcademicCard
+            title="Pulse (Android)"
+            url="https://play.google.com/store/apps/details?id=com.d2l.brightspace.student.android"
+          >
             Brightspace Pulse app for Lighthouse
           </AcademicCard>
-          <AcademicCard title="Pulse (iOS)" url="https://apps.apple.com/us/app/brightspace-pulse/id1001688546">
+          <AcademicCard
+            title="Pulse (iOS)"
+            url="https://apps.apple.com/us/app/brightspace-pulse/id1001688546"
+          >
             Brightspace Pulse app for Lighthouse
           </AcademicCard>
           <AcademicCard title="Impartus" url="https://impartus.manipal.edu">
             Class recordings platform
             <br />
-            <span className="text-xs relative z-20">Alt: <a href="https://a.impartus.com" target="_blank" rel="noreferrer" className="underline hover:text-foreground">a.impartus.com</a></span>
+            <span className="text-xs relative z-20">
+              Alt:{" "}
+              <a
+                href="https://a.impartus.com"
+                target="_blank"
+                rel="noreferrer"
+                className="underline hover:text-foreground"
+              >
+                a.impartus.com
+              </a>
+            </span>
           </AcademicCard>
         </div>
       </div>

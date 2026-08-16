@@ -8,7 +8,12 @@ type DownloadVCardButtonProps = React.ComponentProps<typeof Button> & {
   filename: string;
 };
 
-export function DownloadVCardButton({ vcard, filename, children, ...props }: DownloadVCardButtonProps) {
+export function DownloadVCardButton({
+  vcard,
+  filename,
+  children,
+  ...props
+}: DownloadVCardButtonProps) {
   return (
     <Button {...props} onClick={() => downloadVCardFile(filename, vcard)}>
       {children}

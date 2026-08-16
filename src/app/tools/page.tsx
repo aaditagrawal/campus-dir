@@ -8,19 +8,21 @@ type ToolsData = { web_resources: Tool[]; internal_tools?: Tool[] };
 
 export default function ToolsPage() {
   const tools = data as ToolsData;
-  
+
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 grid gap-8">
       <div>
         <h1 className="text-3xl">Tools</h1>
-        <p className="text-muted-foreground">Useful web resources and tools for MIT Manipal students.</p>
+        <p className="text-muted-foreground">
+          Useful web resources and tools for MIT Manipal students.
+        </p>
       </div>
-      
+
       <div className="space-y-2" id={slugify("Web Resources")}>
         <h2 className="text-xl">Web Resources</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           {tools.web_resources.map((tool) => (
-            <Card 
+            <Card
               key={tool.name}
               className="glass hover:shadow-lg transition-colors relative group"
             >
@@ -39,9 +41,9 @@ export default function ToolsPage() {
                   />
                 </div>
               </CardHeader>
-              <a 
-                href={tool.url} 
-                target="_blank" 
+              <a
+                href={tool.url}
+                target="_blank"
                 rel="noreferrer"
                 className="absolute inset-0 z-0"
                 aria-label={`Open ${tool.name}`}
@@ -61,7 +63,7 @@ export default function ToolsPage() {
           <h2 className="text-xl">Internal Tools</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {tools.internal_tools.map((tool) => (
-              <Card 
+              <Card
                 key={tool.name}
                 className="glass hover:shadow-lg transition-colors relative group"
               >
@@ -80,7 +82,7 @@ export default function ToolsPage() {
                     />
                   </div>
                 </CardHeader>
-                <a 
+                <a
                   href={tool.url}
                   className="absolute inset-0 z-0"
                   aria-label={`Open ${tool.name}`}

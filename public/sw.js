@@ -36,15 +36,50 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+/*
+ * Network-first, but only for as long as the network deserves.
+ *
+ * Page HTML has to stay fresh: it references hashed chunk filenames, and a
+ * stale copy can point at chunks a later deploy has already removed. So the
+ * network still wins when it answers. What changed is that it no longer gets
+ * unlimited time to do so — previously a slow or half-open connection made
+ * every navigation hang on the request even when a perfectly good cached copy
+ * was sitting right there.
+ */
+const NETWORK_TIMEOUT_MS = 2500;
+
 async function networkFirstPage(request) {
   const cache = await caches.open(PAGE_CACHE);
-  try {
-    const response = await fetch(request);
+
+  const network = fetch(request).then((response) => {
     if (response.ok) cache.put(request, response.clone());
     return response;
+  });
+  // If the race below is won by the timeout, nothing else handles this
+  // rejection. Attaching a no-op keeps it from surfacing as unhandled.
+  network.catch(() => {});
+
+  const cached = await cache.match(request);
+  if (!cached) {
+    // Nothing to fall back to, so the network is the only option.
+    try {
+      return await network;
+    } catch {
+      return cache.match(OFFLINE_FALLBACK);
+    }
+  }
+
+  try {
+    return await Promise.race([
+      network,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("network timeout")), NETWORK_TIMEOUT_MS),
+      ),
+    ]);
   } catch {
-    const cached = await cache.match(request);
-    return cached || cache.match(OFFLINE_FALLBACK);
+    // Timed out or failed. Serve the cached page; the fetch above is still in
+    // flight and will refresh the cache for next time.
+    return cached;
   }
 }
 

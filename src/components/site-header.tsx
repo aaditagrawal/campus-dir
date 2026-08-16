@@ -126,7 +126,12 @@ export function SiteHeader() {
   }, []);
 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
-  const themeIcon = mounted && theme === "dark" ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />;
+  const themeIcon =
+    mounted && theme === "dark" ? (
+      <Sun className="size-[18px]" />
+    ) : (
+      <Moon className="size-[18px]" />
+    );
 
   return (
     <header className="sticky top-3 z-50 mt-3 px-3 sm:top-4 sm:mt-4">
@@ -135,8 +140,13 @@ export function SiteHeader() {
         className="relative mx-auto max-w-3xl rounded-[1.4rem] border border-border/70 bg-background/70 shadow-lg shadow-black/[0.04] backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
       >
         <div className="flex h-12 items-center justify-between pl-4 pr-1.5">
-          <Link href="/" className="text-sm font-semibold tracking-tight whitespace-nowrap" onClick={closeMenu}>
-            MIT Manipal<span className="hidden font-normal text-muted-foreground sm:inline"> Directory</span>
+          <Link
+            href="/"
+            className="text-sm font-semibold tracking-tight whitespace-nowrap"
+            onClick={closeMenu}
+          >
+            MIT Manipal
+            <span className="hidden font-normal text-muted-foreground sm:inline"> Directory</span>
           </Link>
 
           <nav className="hidden items-center md:flex" aria-label="Main">
@@ -161,7 +171,12 @@ export function SiteHeader() {
                 )}
               >
                 More
-                <ChevronDown className={cn("size-3.5 transition-transform duration-150", moreOpen && "rotate-180")} />
+                <ChevronDown
+                  className={cn(
+                    "size-3.5 transition-transform duration-150",
+                    moreOpen && "rotate-180",
+                  )}
+                />
               </button>
               {moreOpen && (
                 <div
@@ -224,7 +239,9 @@ export function SiteHeader() {
                   l.accent && "text-rose-600 dark:text-rose-400",
                 )}
               >
-                <l.icon className={cn("size-4", l.accent ? "text-rose-500" : "text-muted-foreground")} />
+                <l.icon
+                  className={cn("size-4", l.accent ? "text-rose-500" : "text-muted-foreground")}
+                />
                 {l.label}
               </Link>
             ))}
