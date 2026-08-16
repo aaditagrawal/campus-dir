@@ -1,5 +1,3 @@
-"use client";
-
 import data from "@/data/tools.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { slugify } from "@/lib/utils";

@@ -1,80 +1,112 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Menu, Utensils, Building2, Bus, ShieldAlert, Wrench, GraduationCap, Search, X, Settings, Star, MessageSquareWarning } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu";
-import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import Fuse from "fuse.js";
-import { getAllSearchItems, type SearchItem } from "@/lib/search";
+import {
+  Sun,
+  Moon,
+  Menu,
+  X,
+  Utensils,
+  Building2,
+  Bus,
+  ShieldAlert,
+  Wrench,
+  GraduationCap,
+  Search,
+  Settings,
+  Star,
+  MessageSquareWarning,
+  ChevronDown,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
-const fuseOptions = {
-  keys: [
-    { name: "title", weight: 0.5 },
-    { name: "subtitle", weight: 0.15 },
-    { name: "section", weight: 0.1 },
-    { name: "phones", weight: 0.15 },
-    { name: "notes", weight: 0.1 },
-  ],
-  includeScore: true,
-  threshold: 0.35,
-  ignoreLocation: true,
+const SearchDialog = dynamic(() => import("@/components/search-dialog"), { ssr: false });
+
+// Warm the search chunk (fuse.js + index) before the user actually opens it.
+const preloadSearch = () => {
+  import("@/components/search-dialog");
 };
+
+const primaryLinks = [
+  { href: "/academics", label: "Academics" },
+  { href: "/restaurants", label: "Restaurants" },
+  { href: "/hostels", label: "Hostels" },
+  { href: "/travel", label: "Travel" },
+  { href: "/emergency", label: "Emergency" },
+];
+
+const moreLinks = [
+  { href: "/services", label: "Services", icon: Wrench },
+  { href: "/tools", label: "Tools", icon: Settings },
+  { href: "/grievance", label: "Grievance Redressal", icon: MessageSquareWarning },
+  { href: "/favorites", label: "Favorites", icon: Star },
+];
+
+const mobileLinks = [
+  { href: "/academics", label: "Academics", icon: GraduationCap },
+  { href: "/restaurants", label: "Restaurants", icon: Utensils },
+  { href: "/hostels", label: "Hostels", icon: Building2 },
+  { href: "/travel", label: "Travel", icon: Bus },
+  { href: "/services", label: "Services", icon: Wrench },
+  { href: "/tools", label: "Tools", icon: Settings },
+  { href: "/grievance", label: "Grievance", icon: MessageSquareWarning },
+  { href: "/favorites", label: "Favorites", icon: Star },
+  { href: "/emergency", label: "Emergency", icon: ShieldAlert, accent: true },
+];
+
+/** Close on Escape or on pointerdown outside `ref` while `open`. */
+function useDismiss(open: boolean, onClose: () => void, ref: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose, ref]);
+}
+
+function IconButton(props: React.ComponentProps<"button">) {
+  const { className, ...rest } = props;
+  return (
+    <button
+      type="button"
+      className={cn(
+        "flex size-9 items-center justify-center rounded-full text-muted-foreground transition-[background-color,color,transform] duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
+        className,
+      )}
+      {...rest}
+    />
+  );
+}
 
 export function SiteHeader() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchItem[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const selectedItemRef = useRef<HTMLLIElement | null>(null);
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
 
-  const isMac = useMemo(() => navigator.platform.toUpperCase().includes("MAC"), []);
+  const closeSearch = useCallback(() => setSearchOpen(false), []);
+  const closeMore = useCallback(() => setMoreOpen(false), []);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
-  const items = useMemo(() => getAllSearchItems(), []);
-  const fuse = useMemo(() => new Fuse(items, fuseOptions), [items]);
-
-  const defaultSuggestions = useMemo(() => {
-    const pool = items.filter((i) => i.section !== "Pages");
-    const shuffled = pool.length > 8 ? pool.slice().sort(() => Math.random() - 0.5).slice(0, 8) : pool;
-    return shuffled;
-  }, [items]);
-
-  const performSearch = useCallback((searchQuery: string) => {
-    if (!searchQuery) {
-      setResults(defaultSuggestions);
-      return;
-    }
-    try {
-      const searchResults = fuse.search(searchQuery);
-      const r = searchResults.slice(0, 10).map((result) => result.item || result);
-      setResults(r);
-    } catch {
-      setResults([]);
-    }
-  }, [fuse, defaultSuggestions]);
-
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-    searchTimeoutRef.current = setTimeout(() => {
-      performSearch(query);
-    }, 75);
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [query, performSearch]);
+  useDismiss(moreOpen, closeMore, moreRef);
+  useDismiss(menuOpen, closeMenu, panelRef);
 
   useEffect(() => {
     const handler = () => setSearchOpen(true);
@@ -84,326 +116,131 @@ export function SiteHeader() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((isMac && e.metaKey && e.key.toLowerCase() === "k") || (!isMac && e.ctrlKey && e.key.toLowerCase() === "k")) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setSearchOpen((v) => !v);
-      }
-      if (e.key === "Escape" && searchOpen) {
-        e.preventDefault();
-        e.stopPropagation();
-        setSearchOpen(false);
       }
     };
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
-  }, [isMac, searchOpen]);
+  }, []);
 
-  useEffect(() => {
-    if (searchOpen) {
-      setTimeout(() => inputRef.current?.focus(), 0);
-    } else {
-      setQuery("");
-      setResults([]);
-    }
-  }, [searchOpen]);
-
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [results]);
-
-  useEffect(() => {
-    if (selectedItemRef.current) {
-      selectedItemRef.current.scrollIntoView({
-        block: "nearest",
-        behavior: "smooth"
-      });
-    }
-  }, [selectedIndex]);
-
-  const navigateToResult = (r: SearchItem) => {
-    setSearchOpen(false);
-    try {
-      if (!r || !r.href) {
-        console.error('Invalid search result:', r);
-        return;
-      }
-
-      if (r.href.startsWith("http")) {
-        window.location.href = r.href;
-      } else {
-        const url = new URL(r.href, window.location.origin);
-        if (url.hash) {
-          const elementId = url.hash.substring(1);
-          if (!elementId) {
-            console.error('Invalid hash in URL:', r.href);
-            return;
-          }
-
-          const element = document.getElementById(elementId);
-
-          if (element) {
-            const headerHeight = 56;
-            const viewportHeight = window.innerHeight;
-            const extraOffset = viewportHeight * 0.1;
-            const rect = element.getBoundingClientRect();
-            const absoluteTop = rect.top + window.scrollY;
-            window.scrollTo({
-              top: Math.max(0, absoluteTop - headerHeight - extraOffset),
-              behavior: 'smooth'
-            });
-            window.history.pushState(null, '', r.href);
-          } else {
-            window.location.assign(r.href);
-          }
-        } else {
-          window.location.assign(r.href);
-        }
-      }
-    } catch (error) {
-      console.error('Navigation error:', error, r);
-      if (r && r.href) {
-        window.location.href = r.href;
-      }
-    }
-  };
-
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && results.length > 0) {
-      e.preventDefault();
-      navigateToResult(results[selectedIndex]);
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev + 1) % results.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
-    }
-  };
+  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
+  const themeIcon = mounted && theme === "dark" ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />;
 
   return (
-    <header className="sticky top-0 z-50 w-full backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-background/80 border-b border-border">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="font-bold text-lg tracking-tight whitespace-nowrap">
-          MIT Manipal Directory
-        </Link>
+    <header className="sticky top-3 z-50 mt-3 px-3 sm:top-4 sm:mt-4">
+      <div
+        ref={panelRef}
+        className="relative mx-auto max-w-3xl rounded-[1.4rem] border border-border/70 bg-background/70 shadow-lg shadow-black/[0.04] backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
+      >
+        <div className="flex h-12 items-center justify-between pl-4 pr-1.5">
+          <Link href="/" className="text-sm font-semibold tracking-tight whitespace-nowrap" onClick={closeMenu}>
+            MIT Manipal<span className="hidden font-normal text-muted-foreground sm:inline"> Directory</span>
+          </Link>
 
-        <div className="hidden md:flex items-center gap-2">
-          <NavigationMenu viewport={false}>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/academics" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Academics</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/restaurants" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Restaurants</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/hostels" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Hostels</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/travel" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Travel</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/emergency" className="px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150">Emergency</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="px-3 py-2 rounded-md hover:bg-muted text-sm font-medium">
-                  More
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-44 gap-0.5 p-1.5">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link href="/services" className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150">
-                          <Wrench className="size-4 text-muted-foreground" />
-                          Services
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link href="/tools" className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150">
-                          <Settings className="size-4 text-muted-foreground" />
-                          Tools
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link href="/grievance" className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150">
-                          <MessageSquareWarning className="size-4 text-muted-foreground" />
-                          Grievance Redressal
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link href="/favorites" className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors duration-150">
-                          <Star className="size-4 text-muted-foreground" />
-                          Favorites
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-
-          <Button variant="ghost" size="icon" aria-label="Open search" onClick={() => setSearchOpen(true)}>
-            <Search className="size-5" />
-          </Button>
-
-          <Button variant="ghost" size="icon" aria-label="Toggle theme" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            {mounted && theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
-          </Button>
-        </div>
-
-        <div className="md:hidden flex items-center gap-1">
-          <Button variant="ghost" size="icon" aria-label="Open search" onClick={() => setSearchOpen(true)}>
-            <Search className="size-5" />
-          </Button>
-          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open navigation menu" aria-expanded={menuOpen}>
-                <Menu className="size-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="flex flex-col gap-1 p-0">
-              <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-              <SheetHeader className="p-4 pb-3 border-b">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold">Navigate</span>
-                  <Button variant="ghost" size="icon" aria-label="Toggle theme" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-                    {mounted && theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
-                  </Button>
+          <nav className="hidden items-center md:flex" aria-label="Main">
+            {primaryLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="rounded-full px-2.5 py-1.5 text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted/70 hover:text-foreground"
+              >
+                {l.label}
+              </Link>
+            ))}
+            <div ref={moreRef} className="relative">
+              <button
+                type="button"
+                aria-expanded={moreOpen}
+                aria-haspopup="menu"
+                onClick={() => setMoreOpen((v) => !v)}
+                className={cn(
+                  "flex items-center gap-1 rounded-full px-2.5 py-1.5 text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted/70 hover:text-foreground",
+                  moreOpen && "bg-muted/70 text-foreground",
+                )}
+              >
+                More
+                <ChevronDown className={cn("size-3.5 transition-transform duration-150", moreOpen && "rotate-180")} />
+              </button>
+              {moreOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-50 mt-2 w-52 origin-top-right rounded-xl border border-border/70 bg-popover/95 p-1.5 shadow-lg backdrop-blur-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150 ease-out"
+                >
+                  {moreLinks.map((l) => (
+                    <Link
+                      key={l.href}
+                      href={l.href}
+                      role="menuitem"
+                      onClick={closeMore}
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 hover:bg-muted/70"
+                    >
+                      <l.icon className="size-4 text-muted-foreground" />
+                      {l.label}
+                    </Link>
+                  ))}
                 </div>
-              </SheetHeader>
-              <nav className="px-2 py-2">
-                <SheetClose asChild>
-                  <Link href="/academics" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <GraduationCap className="size-4 text-muted-foreground" />
-                    <span className="text-base">Academics</span>
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/restaurants" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <Utensils className="size-4 text-muted-foreground" />
-                    <span className="text-base">Restaurants</span>
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/hostels" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <Building2 className="size-4 text-muted-foreground" />
-                    <span className="text-base">Hostels</span>
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/travel" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <Bus className="size-4 text-muted-foreground" />
-                    <span className="text-base">Travel</span>
-                  </Link>
-                </SheetClose>
-                <div className="my-1 mx-3 border-t border-border/50" />
-                <SheetClose asChild>
-                  <Link href="/emergency" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <ShieldAlert className="size-4 text-rose-400" />
-                    <span className="text-base">Emergency</span>
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/services" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <Wrench className="size-4 text-muted-foreground" />
-                    <span className="text-base">Services</span>
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/tools" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <Settings className="size-4 text-muted-foreground" />
-                    <span className="text-base">Tools</span>
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/grievance" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <MessageSquareWarning className="size-4 text-muted-foreground" />
-                    <span className="text-base">Grievance Redressal</span>
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/favorites" className="flex items-center gap-3 px-3 py-3.5 rounded-md hover:bg-muted focus:bg-muted transition-colors">
-                    <Star className="size-4 text-muted-foreground" />
-                    <span className="text-base">Favorites</span>
-                  </Link>
-                </SheetClose>
-              </nav>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
-
-      {searchOpen && (
-        <div className="fixed inset-0 z-[60] flex items-start justify-center p-4 bg-background/80 backdrop-blur-sm" role="dialog" aria-modal="true" style={{ paddingTop: 'calc(3.5rem + 1rem)' }}>
-          <div className="w-full max-w-xl rounded-lg border bg-background shadow-lg" style={{ marginTop: 0 }}>
-            <div className="flex items-center gap-2 px-3 py-2 border-b">
-              <Search className="size-4 text-muted-foreground" />
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleInputKeyDown}
-                placeholder="Search anything…"
-                className="w-full bg-transparent outline-none py-2 text-sm"
-                aria-label="Search"
-              />
-              <div className="flex items-center gap-2">
-                <kbd className="hidden sm:inline rounded bg-muted px-1.5 py-0.5 text-xs">Esc</kbd>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSearchOpen(false)}
-                  className="h-6 w-6"
-                  aria-label="Close search"
-                >
-                  <X className="size-4" />
-                </Button>
-              </div>
-            </div>
-            <ul className="max-h-[60vh] overflow-auto">
-              {results.length === 0 && (
-                <li className="px-4 py-3 text-sm text-muted-foreground">No results</li>
               )}
-              {results.map((r, idx) => (
-                <li
-                  key={`${r.href}-${idx}`}
-                  ref={idx === selectedIndex ? selectedItemRef : null}
-                  className={`px-4 py-3 cursor-pointer transition-colors ${
-                    idx === selectedIndex
-                      ? "bg-primary/10 border-l-2 border-primary"
-                      : "hover:bg-muted/60 border-l-2 border-transparent"
-                  }`}
-                  onClick={() => navigateToResult(r)}
-                  onMouseEnter={() => setSelectedIndex(idx)}
-                >
-                  <div className="text-sm">
-                    <span className="font-medium">{r.title}</span>
-                    {r.subtitle && <span className="text-muted-foreground"> • {r.subtitle}</span>}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{r.section}</div>
-                </li>
-              ))}
-            </ul>
+            </div>
+          </nav>
+
+          <div className="flex items-center gap-0.5">
+            <IconButton
+              aria-label="Open search"
+              onMouseEnter={preloadSearch}
+              onFocus={preloadSearch}
+              onTouchStart={preloadSearch}
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search className="size-[18px]" />
+            </IconButton>
+            <IconButton aria-label="Toggle theme" className="hidden md:flex" onClick={toggleTheme}>
+              {themeIcon}
+            </IconButton>
+            <IconButton
+              aria-label="Toggle navigation menu"
+              aria-expanded={menuOpen}
+              className="md:hidden"
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              {menuOpen ? <X className="size-[18px]" /> : <Menu className="size-[18px]" />}
+            </IconButton>
           </div>
         </div>
-      )}
+
+        {menuOpen && (
+          <nav
+            aria-label="Main"
+            className="grid origin-top grid-cols-2 gap-0.5 border-t border-border/60 p-2 animate-in fade-in-0 slide-in-from-top-1 duration-150 ease-out md:hidden"
+          >
+            {mobileLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={closeMenu}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors duration-150 hover:bg-muted/70 active:bg-muted",
+                  l.accent && "text-rose-600 dark:text-rose-400",
+                )}
+              >
+                <l.icon className={cn("size-4", l.accent ? "text-rose-500" : "text-muted-foreground")} />
+                {l.label}
+              </Link>
+            ))}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted/70 active:bg-muted"
+            >
+              {themeIcon}
+              Theme
+            </button>
+          </nav>
+        )}
+      </div>
+
+      {searchOpen && <SearchDialog onClose={closeSearch} />}
     </header>
   );
 }

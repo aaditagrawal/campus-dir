@@ -1,33 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Geist,
-  Geist_Mono,
-  Instrument_Serif,
-  Instrument_Sans,
-} from "next/font/google";
+import { Instrument_Serif, Instrument_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { FavoritesProvider } from "@/hooks/useFavorites";
 import { SiteHeader } from "@/components/site-header";
-import { PwaInstall } from "@/components/pwa-install";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+import { PwaInstallLoader } from "@/components/pwa-install-loader";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
   weight: "400",
-  style: ["normal", "italic"],
   subsets: ["latin"],
   display: "swap",
 });
@@ -79,13 +61,13 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${instrumentSans.variable} antialiased min-h-screen bg-background text-foreground`}
+        className={`${instrumentSerif.variable} ${instrumentSans.variable} antialiased min-h-screen bg-background text-foreground`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <FavoritesProvider>
             <SiteHeader />
             {children}
-            <PwaInstall />
+            <PwaInstallLoader />
             <footer className="py-8 text-center text-muted-foreground text-sm">
               <p>
                 Found something wrong or missing? Help improve this directory by

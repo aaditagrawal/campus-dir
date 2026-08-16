@@ -1,13 +1,13 @@
-"use client";
-
 import data from "@/data/travel.json";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Phone, Shuffle } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
-import { pickRandomAutoTel } from "@/lib/random-auto";
+import { RandomTelButton } from "@/components/contact-actions";
+import { getAutoPhoneOptions } from "@/lib/random-auto";
 import { slugify } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type Listing = { name: string; phones: string[]; notes?: string };
 
@@ -49,18 +49,13 @@ export default function AutoQuickCallPage() {
           next.
         </p>
         <div className="mt-6">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full gap-2 sm:w-auto"
-            onClick={() => {
-              const tel = pickRandomAutoTel();
-              if (tel) window.location.href = `tel:${tel}`;
-            }}
+          <RandomTelButton
+            options={getAutoPhoneOptions()}
+            className={cn(buttonVariants({ variant: "outline" }), "w-full gap-2 sm:w-auto")}
           >
             <Shuffle className="size-4" aria-hidden />
             Call Random Auto
-          </Button>
+          </RandomTelButton>
         </div>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
@@ -103,14 +98,11 @@ export default function AutoQuickCallPage() {
                   {renderNotesWithLinks(i.notes)}
                 </div>
               )}
-              <Button
-                className="w-full gap-2 h-11 text-base font-semibold"
-                onClick={() => {
-                  window.location.href = `tel:${i.phones?.[0]?.replace(/\s+/g, "") ?? ""}`;
-                }}
-              >
-                <Phone className="size-5" />
-                Call now
+              <Button asChild className="w-full gap-2 h-11 text-base font-semibold">
+                <a href={`tel:${i.phones?.[0]?.replace(/\s+/g, "") ?? ""}`}>
+                  <Phone className="size-5" />
+                  Call now
+                </a>
               </Button>
             </CardContent>
           </Card>

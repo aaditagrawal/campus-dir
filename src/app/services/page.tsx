@@ -1,19 +1,15 @@
-"use client";
-
 import data from "@/data/services.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { buildVCard, downloadVCardFile } from "@/lib/vcard";
+import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
 import { FavoriteButton } from "@/components/favorite-button";
-
+import { DownloadVCardButton } from "@/components/contact-actions";
 
 type Listing = { name: string; phones: string[]; notes?: string };
 type ServicesData = { laundry: Listing[]; xerox: Listing[] };
 
-export default function ServicesPage() {
-  const services = data as ServicesData;
-  const Section = ({ title, items }: { title: string; items: Listing[] }) => (
+function Section({ title, items }: { title: string; items: Listing[] }) {
+  return (
     <div className="space-y-2 scroll-mt-24" id={slugify(title)}>
       <h2 className="text-xl">{title}</h2>
       <div className="grid sm:grid-cols-2 gap-4">
@@ -45,15 +41,13 @@ export default function ServicesPage() {
               </div>
               {i.notes && <div className="text-muted-foreground">{i.notes}</div>}
               <div>
-                <Button
+                <DownloadVCardButton
                   variant="secondary"
-                  onClick={() => {
-                    const v = buildVCard({ name: i.name, phones: i.phones, org: "General Services" });
-                    downloadVCardFile(i.name, v);
-                  }}
+                  filename={i.name}
+                  vcard={buildVCard({ name: i.name, phones: i.phones, org: "General Services" })}
                 >
                   Download contact
-                </Button>
+                </DownloadVCardButton>
               </div>
             </CardContent>
           </Card>
@@ -61,6 +55,10 @@ export default function ServicesPage() {
       </div>
     </div>
   );
+}
+
+export default function ServicesPage() {
+  const services = data as ServicesData;
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 grid gap-8">

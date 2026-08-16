@@ -8,7 +8,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-instrument-sans);
   --font-serif: var(--font-instrument-serif);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -126,19 +126,11 @@
   body {
     @apply bg-background text-foreground;
     font-size: 16px;
-    background-image: radial-gradient(20rem 20rem at 10% 10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent), radial-gradient(28rem 28rem at 90% 20%, color-mix(in oklab, var(--accent) 16%, transparent), transparent), radial-gradient(22rem 22rem at 30% 90%, color-mix(in oklab, var(--chart-2) 14%, transparent), transparent);
-    background-attachment: fixed;
-    animation: bgShift 24s ease-in-out infinite alternate;
+    background-image: radial-gradient(64rem 32rem at 50% -8rem, color-mix(in oklab, var(--primary) 5%, transparent), transparent);
+    background-repeat: no-repeat;
   }
   .dark body {
-    background-image: 
-      radial-gradient(circle at 25% 25%, color-mix(in oklab, var(--background) 30%, transparent) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, color-mix(in oklab, var(--muted) 20%, transparent) 0%, transparent 40%),
-      radial-gradient(circle at 50% 10%, color-mix(in oklab, var(--border) 15%, transparent) 0%, transparent 35%),
-      conic-gradient(from 180deg at 50% 50%, color-mix(in oklab, var(--background) 70%, transparent) 0deg, color-mix(in oklab, var(--card) 80%, transparent) 120deg, color-mix(in oklab, var(--background) 70%, transparent) 240deg, color-mix(in oklab, var(--background) 70%, transparent) 360deg);
-    background-size: 100% 100%, 80% 80%, 60% 60%, 200% 200%;
-    background-position: 0% 0%, 100% 100%, 50% 50%, 50% 50%;
-    animation: darkBgShift 30s ease-in-out infinite alternate;
+    background-image: radial-gradient(64rem 32rem at 50% -8rem, color-mix(in oklab, var(--muted) 45%, transparent), transparent);
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-instrument-serif);
@@ -151,16 +143,6 @@
   h6 { font-size: 1rem; }
   p, span, div { font-size: 1rem; }
   small { font-size: 0.875rem; }
-}
-
-@keyframes bgShift {
-  0% { background-position: 10% 10%, 90% 20%, 30% 90%; }
-  100% { background-position: 20% 20%, 80% 15%, 35% 85%; }
-}
-
-@keyframes darkBgShift {
-  0% { background-position: 0% 0%, 100% 100%, 50% 50%, 50% 50%; }
-  100% { background-position: 10% 10%, 90% 90%, 60% 40%, 60% 50%; }
 }
 
 /* glass helper - more subtle */

@@ -1,13 +1,11 @@
-"use client";
-
 import data from "@/data/travel.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { buildVCard, downloadVCardFile } from "@/lib/vcard";
+import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
 import { Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
-
+import { DownloadVCardButton } from "@/components/contact-actions";
 
 type Listing = { name: string; phones: string[]; notes?: string };
 type TravelData = { autos: Listing[]; cabs: Listing[] };
@@ -16,7 +14,7 @@ function renderNotesWithLinks(notes: string) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = notes.split(urlRegex);
   return parts.map((part, i) =>
-    urlRegex.test(part) ? (
+    /^https?:\/\//.test(part) ? (
       <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
         {part}
       </a>
@@ -26,67 +24,56 @@ function renderNotesWithLinks(notes: string) {
   );
 }
 
+function ListingCard({ listing, sectionTitle }: { listing: Listing; sectionTitle: string }) {
+  return (
+    <Card id={slugify(listing.name)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle className="text-lg">{listing.name}</CardTitle>
+          <FavoriteButton
+            item={{
+              id: `travel-${slugify(sectionTitle)}-${slugify(listing.name)}`,
+              type: "travel",
+              name: listing.name,
+              href: `/travel#${slugify(listing.name)}`,
+              phones: listing.phones,
+              subtitle: sectionTitle,
+            }}
+            size="sm"
+          />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-2 items-center">
+          {listing.phones.map((p) => (
+            <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className="underline">
+              {p}
+            </a>
+          ))}
+        </div>
+        {listing.notes && <div className="text-sm text-muted-foreground leading-relaxed">{renderNotesWithLinks(listing.notes)}</div>}
+        <div className="flex gap-2 pt-2">
+          <Button asChild variant="secondary" size="sm" className="gap-2">
+            <a href={`tel:${listing.phones?.[0]?.replace(/\s+/g, "") ?? ""}`}>
+              <Phone className="size-4" />
+              Call Now
+            </a>
+          </Button>
+          <DownloadVCardButton
+            size="sm"
+            filename={listing.name}
+            vcard={buildVCard({ name: listing.name, phones: listing.phones, org: "Travel" })}
+          >
+            Download contact
+          </DownloadVCardButton>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function TravelPage() {
   const travel = data as TravelData;
-  const Section = ({ title, items }: { title: string; items: Listing[] }) => (
-    <div className="space-y-4 scroll-mt-24" id={slugify(title)}>
-      <h2 className="text-xl font-semibold">{title}</h2>
-      <div className="grid sm:grid-cols-2 gap-4">
-        {items.map((i) => (
-          <Card key={i.name} id={slugify(i.name)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-lg">{i.name}</CardTitle>
-                <FavoriteButton
-                  item={{
-                    id: `travel-${slugify(title)}-${slugify(i.name)}`,
-                    type: "travel",
-                    name: i.name,
-                    href: `/travel#${slugify(i.name)}`,
-                    phones: i.phones,
-                    subtitle: title,
-                  }}
-                  size="sm"
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-2 items-center">
-                {i.phones.map((p) => (
-                  <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className="underline">
-                    {p}
-                  </a>
-                ))}
-              </div>
-              {i.notes && <div className="text-sm text-muted-foreground leading-relaxed">{renderNotesWithLinks(i.notes)}</div>}
-              <div className="flex gap-2 pt-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    window.location.href = `tel:${i.phones?.[0]?.replace(/\s+/g, "") ?? ""}`;
-                  }}
-                  className="gap-2"
-                >
-                  <Phone className="size-4" />
-                  Call Now
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const v = buildVCard({ name: i.name, phones: i.phones, org: "Travel" });
-                    downloadVCardFile(i.name, v);
-                  }}
-                >
-                  Download contact
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8">
@@ -95,7 +82,14 @@ export default function TravelPage() {
         <p className="text-muted-foreground">Autos, cabs and taxi transport.</p>
       </div>
       <div className="space-y-8">
-        <Section title="Autos" items={travel.autos} />
+        <div className="space-y-4 scroll-mt-24" id={slugify("Autos")}>
+          <h2 className="text-xl font-semibold">Autos</h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {travel.autos.map((i) => (
+              <ListingCard key={i.name} listing={i} sectionTitle="Autos" />
+            ))}
+          </div>
+        </div>
         <div className="space-y-4 scroll-mt-24" id={slugify("Cabs & Taxis")}>
           <h2 className="text-xl font-semibold">Cabs & Taxis</h2>
           <div className="bg-muted/50 rounded-lg p-4">
@@ -136,56 +130,7 @@ export default function TravelPage() {
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {travel.cabs.map((i) => (
-              <Card key={i.name} id={slugify(i.name)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg">{i.name}</CardTitle>
-                    <FavoriteButton
-                      item={{
-                        id: `travel-cabs-taxis-${slugify(i.name)}`,
-                        type: "travel",
-                        name: i.name,
-                        href: `/travel#${slugify(i.name)}`,
-                        phones: i.phones,
-                        subtitle: "Cabs & Taxis",
-                      }}
-                      size="sm"
-                    />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-wrap gap-2 items-center">
-                    {i.phones.map((p) => (
-                      <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className="underline">
-                        {p}
-                      </a>
-                    ))}
-                  </div>
-                  {i.notes && <div className="text-sm text-muted-foreground leading-relaxed">{renderNotesWithLinks(i.notes)}</div>}
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => {
-                        window.location.href = `tel:${i.phones?.[0]?.replace(/\s+/g, "") ?? ""}`;
-                      }}
-                      className="gap-2"
-                    >
-                      <Phone className="size-4" />
-                      Call Now
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        const v = buildVCard({ name: i.name, phones: i.phones, org: "Travel" });
-                        downloadVCardFile(i.name, v);
-                      }}
-                    >
-                      Download contact
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <ListingCard key={i.name} listing={i} sectionTitle="Cabs & Taxis" />
             ))}
           </div>
         </div>
@@ -193,5 +138,3 @@ export default function TravelPage() {
     </main>
   );
 }
-
-

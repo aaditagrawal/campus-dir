@@ -1,12 +1,10 @@
-"use client";
-
 import data from "@/data/grievance.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { buildVCard, downloadVCardFile } from "@/lib/vcard";
+import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
 import { Mail, Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
+import { DownloadVCardButton } from "@/components/contact-actions";
 
 type Contact = {
   name?: string;
@@ -100,12 +98,12 @@ export default function GrievancePage() {
 
       <section className="space-y-4 mb-8" id={slugify("Grievance Categories")}>
         <h2 className="text-xl font-semibold">Who to Contact</h2>
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4 items-stretch">
           {categories.map((cat) => (
-            <Card key={cat.title} id={slugify(cat.title)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 flex flex-col">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between gap-2">
-                  <CardTitle className="text-lg">{cat.title}</CardTitle>
+            <Card key={cat.title} id={slugify(cat.title)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4">
+              <CardHeader className="pb-0">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-lg leading-snug">{cat.title}</CardTitle>
                   <FavoriteButton
                     item={{
                       id: `grievance-${slugify(cat.title)}`,
@@ -126,25 +124,23 @@ export default function GrievancePage() {
                   ))}
                 </div>
                 <div className="flex gap-2 mt-auto">
-                  <Button
+                  <DownloadVCardButton
                     size="sm"
-                    onClick={() => {
-                      const vcards = cat.contacts
-                        .map((c) =>
-                          buildVCard({
-                            name: contactLabel(c) || cat.title,
-                            emails: contactEmails(c),
-                            phones: c.phones,
-                            org: "MIT Manipal",
-                            title: c.role,
-                          })
-                        )
-                        .join("\n");
-                      downloadVCardFile(cat.title, vcards);
-                    }}
+                    filename={cat.title}
+                    vcard={cat.contacts
+                      .map((c) =>
+                        buildVCard({
+                          name: contactLabel(c) || cat.title,
+                          emails: contactEmails(c),
+                          phones: c.phones,
+                          org: "MIT Manipal",
+                          title: c.role,
+                        })
+                      )
+                      .join("\n")}
                   >
                     Download contact{cat.contacts.length > 1 ? "s" : ""}
-                  </Button>
+                  </DownloadVCardButton>
                 </div>
               </CardContent>
             </Card>
@@ -154,12 +150,12 @@ export default function GrievancePage() {
 
       <section className="space-y-4" id={slugify("Student Council")}>
         <h2 className="text-xl font-semibold">Student Council</h2>
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4 items-stretch">
           {studentCouncil.contacts.map((c) => (
-            <Card key={c.email} id={slugify(c.role || c.email)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between gap-2">
-                  <CardTitle className="text-lg">{c.role || c.name}</CardTitle>
+            <Card key={c.email} id={slugify(c.role || c.email)} className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4">
+              <CardHeader className="pb-0">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-lg leading-snug">{c.role || c.name}</CardTitle>
                   <FavoriteButton
                     item={{
                       id: `grievance-sc-${slugify(c.email)}`,
@@ -171,25 +167,25 @@ export default function GrievancePage() {
                   />
                 </div>
               </CardHeader>
-              <CardContent className="flex items-center justify-between gap-3">
+              <CardContent className="flex flex-1 flex-col gap-3">
                 <a href={`mailto:${c.email}`} className="inline-flex items-center gap-1.5 text-sm underline min-w-0 truncate">
                   <Mail className="size-3.5 shrink-0" />
                   {c.email}
                 </a>
-                <Button
-                  size="sm"
-                  className="shrink-0"
-                  onClick={() => {
-                    const v = buildVCard({
+                <div className="mt-auto flex">
+                  <DownloadVCardButton
+                    size="sm"
+                    className="shrink-0"
+                    filename={c.role || c.name || "Student Council"}
+                    vcard={buildVCard({
                       name: c.role || c.name || "Student Council",
                       email: c.email,
                       org: "MIT Student Council",
-                    });
-                    downloadVCardFile(c.role || c.name || "Student Council", v);
-                  }}
-                >
-                  Download contact
-                </Button>
+                    })}
+                  >
+                    Download contact
+                  </DownloadVCardButton>
+                </div>
               </CardContent>
             </Card>
           ))}

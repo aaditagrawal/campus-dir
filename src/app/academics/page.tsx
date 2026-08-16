@@ -1,11 +1,9 @@
-"use client";
-
-import { memo, ReactNode } from "react";
+import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { slugify } from "@/lib/utils";
 import { FavoriteButton } from "@/components/favorite-button";
 
-const AcademicCard = memo(function AcademicCard({ title, url, children }: { title: string; url: string; children: ReactNode }) {
+function AcademicCard({ title, url, children }: { title: string; url: string; children: ReactNode }) {
   return (
     <Card className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid scroll-mt-24 relative group" id={slugify(title)}>
       <CardHeader>
@@ -31,7 +29,7 @@ const AcademicCard = memo(function AcademicCard({ title, url, children }: { titl
       </CardContent>
     </Card>
   );
-});
+}
 
 export default function AcademicsPage() {
   return (
@@ -90,7 +88,7 @@ export default function AcademicsPage() {
           <AcademicCard title="Impartus" url="https://impartus.manipal.edu">
             Class recordings platform
             <br />
-            <span className="text-xs relative z-20">Alt: <a href="https://a.impartus.com" target="_blank" rel="noreferrer" className="underline hover:text-foreground" onClick={(e) => e.stopPropagation()}>a.impartus.com</a></span>
+            <span className="text-xs relative z-20">Alt: <a href="https://a.impartus.com" target="_blank" rel="noreferrer" className="underline hover:text-foreground">a.impartus.com</a></span>
           </AcademicCard>
         </div>
       </div>

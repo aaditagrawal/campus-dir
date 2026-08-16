@@ -1,13 +1,18 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { Download, Share, SquarePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+declare global {
+  interface Window {
+    __pwaInstallPrompt?: Event;
+  }
 }
 
 type PromptMode = "native" | "ios" | "safari-desktop";
@@ -86,7 +91,11 @@ export function PwaInstall() {
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
     window.addEventListener("appinstalled", onInstalled);
 
-    if (isIos()) show("ios");
+    if (window.__pwaInstallPrompt) {
+      deferredPrompt.current = window.__pwaInstallPrompt as BeforeInstallPromptEvent;
+      window.__pwaInstallPrompt = undefined;
+      show("native");
+    } else if (isIos()) show("ios");
     else if (isDesktopSafari()) show("safari-desktop");
 
     return () => {
@@ -133,11 +142,13 @@ export function PwaInstall() {
       </button>
 
       <div className="flex items-start gap-3">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element -- static export, image optimization is disabled */}
+        <img
           src="/icons/icon-192.png"
           alt=""
           width={44}
           height={44}
+          loading="lazy"
           className="mt-0.5 shrink-0 rounded-xl border"
         />
         <div className="min-w-0 pr-6">
