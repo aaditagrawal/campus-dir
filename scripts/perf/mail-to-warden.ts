@@ -19,7 +19,7 @@ const PURPOSE_TEMPLATES = [
   { label: "Academic purpose - Conference/competition/exam", text: "Academic conference." },
 ];
 
-/** The block with the most wardens — the worst case for the quadratic check. */
+/** The block with the most wardens - the worst case for the quadratic check. */
 const busiestBlock = hostelsData.reduce((worst, hostel) =>
   hostel.wardens.length > worst.wardens.length ? hostel : worst,
 );
@@ -114,7 +114,7 @@ speedup("per render", legacy, indexed);
 /* Where the win actually comes from                                           */
 /* -------------------------------------------------------------------------- */
 
-console.log("\nbreakdown — each piece of the render, in isolation");
+console.log("\nbreakdown - each piece of the render, in isolation");
 
 const start = new Date("2026-08-01");
 const end = new Date("2026-08-09");

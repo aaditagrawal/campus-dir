@@ -42,7 +42,7 @@ export default function AutoQuickCallPage() {
         </Link>
         <h1 className="text-3xl font-bold mt-4 mb-2">Rapid-call an auto</h1>
         <p className="text-muted-foreground">
-          Gate stands and drivers — tap to dial. If one line is busy, try the next.
+          Gate stands and drivers - tap to dial. If one line is busy, try the next.
         </p>
         <div className="mt-6">
           <RandomTelButton

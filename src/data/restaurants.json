@@ -17,7 +17,7 @@
     { "day": 5, "open": "12:00", "close": "00:30" },
     { "day": 6, "open": "12:00", "close": "00:30" }
   ] },
-  { "name": "MFC - Manipal Fried Chicken", "phones": ["+91 7338334970"], "deliveryFee": "—", "packagingFee": "—", "address": "CURRENTLY UNSERVICEABLE" },
+  { "name": "MFC - Manipal Fried Chicken", "phones": ["+91 7338334970"], "deliveryFee": "-", "packagingFee": "-", "address": "CURRENTLY UNSERVICEABLE" },
   { "name": "Hit&Run", "phones": ["+91 7406330088"], "deliveryFee": "₹0", "packagingFee": "₹10-50 (varies)", "address": "Near Block 19", "hours": [
     { "day": 0, "open": "11:30", "close": "02:00" },
     { "day": 1, "open": "11:30", "close": "02:00" },
@@ -27,7 +27,7 @@
     { "day": 5, "open": "11:30", "close": "02:00" },
     { "day": 6, "open": "11:30", "close": "02:00" }
   ] },
-  { "name": "Janani Mess", "phones": ["+91 8660138488"], "deliveryFee": "₹10", "packagingFee": "₹0", "address": "—", "hours": [
+  { "name": "Janani Mess", "phones": ["+91 8660138488"], "deliveryFee": "₹10", "packagingFee": "₹0", "address": "-", "hours": [
     { "day": 0, "open": "17:00", "close": "02:00" },
     { "day": 1, "open": "17:00", "close": "02:00" },
     { "day": 2, "open": "17:00", "close": "02:00" },
@@ -45,14 +45,14 @@
     { "day": 5, "open": "16:00", "close": "02:30" },
     { "day": 6, "open": "16:00", "close": "02:30" }
   ] },
-  { "name": "Kamath Cafe", "phones": ["+91 8217044886"], "deliveryFee": "—", "packagingFee": "—", "address": "Near SP" },
-  { "name": "Aditya Mess", "phones": ["+91 7483644586"], "deliveryFee": "—", "packagingFee": "—", "address": "Near Block 5", "menuUrl": "https://theindiankitchenmanipal.com/adithya-mess/" },
-  { "name": "Apoorva Mess", "phones": ["+91 9108888320"], "deliveryFee": "—", "packagingFee": "—", "address": "Near Block 8", "menuUrl": "https://theindiankitchenmanipal.com/apoorva-menu/" },
+  { "name": "Kamath Cafe", "phones": ["+91 8217044886"], "deliveryFee": "-", "packagingFee": "-", "address": "Near SP" },
+  { "name": "Aditya Mess", "phones": ["+91 7483644586"], "deliveryFee": "-", "packagingFee": "-", "address": "Near Block 5", "menuUrl": "https://theindiankitchenmanipal.com/adithya-mess/" },
+  { "name": "Apoorva Mess", "phones": ["+91 9108888320"], "deliveryFee": "-", "packagingFee": "-", "address": "Near Block 8", "menuUrl": "https://theindiankitchenmanipal.com/apoorva-menu/" },
   { "name": "Food Court 2 (The Indian Kitchen)", "phones": ["+91 8861953102"], "deliveryFee": "₹10", "packagingFee": "₹5", "address": "Near B16-20.", "menuUrl": "https://theindiankitchenmanipal.com/mit-food-court-2/" },
   { "name": "Poornima Canteen", "phones": ["+91 70906 41985"], "deliveryFee": "₹0", "packagingFee": "₹0", "address": "Near Block 9" },
-  { "name": "Nom Nom Cafe", "phones": ["+91 7619422026"], "deliveryFee": "—", "packagingFee": "—", "address": "Near Block 13" },
-  { "name": "Ashraya Mess", "phones": ["+91 6361201519"], "deliveryFee": "—", "packagingFee": "—", "address": "Near Block 1" },
-  { "name": "MIT Cafeteria", "phones": ["+91 99023 26913", "+91 6362811721"], "deliveryFee": "—", "packagingFee": "—", "address": "Second number is for delivery" },
+  { "name": "Nom Nom Cafe", "phones": ["+91 7619422026"], "deliveryFee": "-", "packagingFee": "-", "address": "Near Block 13" },
+  { "name": "Ashraya Mess", "phones": ["+91 6361201519"], "deliveryFee": "-", "packagingFee": "-", "address": "Near Block 1" },
+  { "name": "MIT Cafeteria", "phones": ["+91 99023 26913", "+91 6362811721"], "deliveryFee": "-", "packagingFee": "-", "address": "Second number is for delivery" },
   { "name": "The Kitchen", "phones": ["+91 8618109443"], "deliveryFee": "₹5", "packagingFee": "₹0", "address": "Student Plaza", "hours": [
     { "day": 0, "open": "09:00", "close": "23:50" },
     { "day": 1, "open": "09:00", "close": "23:50" },

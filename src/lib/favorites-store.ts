@@ -34,9 +34,9 @@ const entries = new Map<string, FavoriteItem>();
 
 type Listener = () => void;
 
-/** Listeners scoped to one favourite id — the `FavoriteButton` subscription. */
+/** Listeners scoped to one favourite id - the `FavoriteButton` subscription. */
 const listenersById = new Map<string, Set<Listener>>();
-/** Listeners that care about the collection as a whole — list and count. */
+/** Listeners that care about the collection as a whole - list and count. */
 const collectionListeners = new Set<Listener>();
 
 const EMPTY: readonly FavoriteItem[] = Object.freeze([]);
@@ -68,7 +68,7 @@ export function getServerFavorites(): readonly FavoriteItem[] {
 /**
  * `"pending"` until `localStorage` has been read. Collapsing "is it saved" and
  * "do we know yet" into one primitive lets a button hold a single subscription
- * and lets React bail out of the re-render whenever the value is unchanged —
+ * and lets React bail out of the re-render whenever the value is unchanged -
  * which is every toggle except the button's own.
  */
 export type FavoriteStatus = "pending" | "saved" | "unsaved";
@@ -187,8 +187,8 @@ const VALID_TYPES: ReadonlySet<string> = new Set<FavoriteType>([
 ]);
 
 /**
- * Anything that would make a consumer throw later — a missing id, an href the
- * favourites page would try to route on, a type with no section — is dropped
+ * Anything that would make a consumer throw later - a missing id, an href the
+ * favourites page would try to route on, a type with no section - is dropped
  * here instead. Stored data outlives the schema that wrote it.
  */
 function isValidItem(value: unknown): value is FavoriteItem {
@@ -310,7 +310,7 @@ function flushPersist(): void {
 
   // Read-modify-write, not a blind overwrite. Another tab may have flushed
   // since our last read and had its `storage` event queued behind this
-  // callback — writing our own snapshot would drop whatever it saved. Reading
+  // callback - writing our own snapshot would drop whatever it saved. Reading
   // and writing in one synchronous turn is atomic enough: browsers serialize
   // localStorage access per origin.
   const before = signature();

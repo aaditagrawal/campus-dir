@@ -17,7 +17,7 @@ import { useMemo, useState } from "react";
 
 /**
  * Also fixes the section order. Any type missing from this list is simply not
- * rendered — previously an unlisted type (`grievance`) crashed the page.
+ * rendered - previously an unlisted type (`grievance`) crashed the page.
  */
 const SECTIONS: ReadonlyArray<{ type: FavoriteType; label: string }> = [
   { type: "restaurant", label: "Restaurants" },

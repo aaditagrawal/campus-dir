@@ -186,7 +186,7 @@
  *
  * A backdrop-filter is one of the most expensive things a page can ask for: the
  * element has to sample and blur everything behind it, and it redoes that work
- * whenever its backdrop changes — which includes every scroll frame, since the
+ * whenever its backdrop changes - which includes every scroll frame, since the
  * card moves over a fixed background. There are 17 to 25 of these per page
  * (25 on /emergency), so the cost is paid many times over.
  *

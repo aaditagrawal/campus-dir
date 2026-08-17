@@ -647,7 +647,7 @@ When creating an issue, please include:
 
 - **Unverified information** - Don't add contacts you haven't confirmed
 - **Personal phone numbers** - Only add official business contacts
-- **Incomplete data** - Use "—" for unknown information, don't leave blank
+- **Incomplete data** - Use "-" for unknown information, don't leave blank
 - **Outdated information** - Remove closed businesses rather than leaving them
 - **Inconsistent formatting** - Follow the established JSON structure
 

@@ -106,7 +106,7 @@ const rawHours: RawHours[] = restaurantsData.map(
 /* Equivalence at every minute of the week                                     */
 /* -------------------------------------------------------------------------- */
 
-console.log("restaurant hours equivalence — 10,080 minutes x 15 restaurants");
+console.log("restaurant hours equivalence - 10,080 minutes x 15 restaurants");
 
 let compared = 0;
 let mismatches = 0;
@@ -141,7 +141,7 @@ if (mismatches > 0) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Scheduler safety — nothing changes before the next scheduled wake           */
+/* Scheduler safety - nothing changes before the next scheduled wake           */
 /* -------------------------------------------------------------------------- */
 
 console.log("\nrefresh scheduling");

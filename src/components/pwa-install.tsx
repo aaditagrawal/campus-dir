@@ -146,7 +146,7 @@ export function PwaInstall() {
         <div className="min-w-0 pr-6">
           <p className="font-medium leading-tight">Install Campus Directory</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Get the app on your {mode === "ios" ? "home screen" : "device"} — fast, full-screen, and
+            Get the app on your {mode === "ios" ? "home screen" : "device"} - fast, full-screen, and
             it works offline.
           </p>
         </div>

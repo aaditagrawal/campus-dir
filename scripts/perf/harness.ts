@@ -42,7 +42,7 @@ export function assertEquivalent<T>(
     process.exitCode = 1;
     return;
   }
-  console.log(`  ok  ${label} — ${corpus.length} inputs agree`);
+  console.log(`  ok  ${label} - ${corpus.length} inputs agree`);
 }
 
 /** Median ops/sec over `rounds` timed passes, after a warmup pass. */

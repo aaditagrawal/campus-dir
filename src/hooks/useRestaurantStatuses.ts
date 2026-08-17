@@ -12,12 +12,12 @@ import {
  * Live open/closed state for every restaurant.
  *
  * The previous implementation computed this once inside a `useMemo(..., [])`,
- * so a tab left open showed whatever was true when it mounted — a restaurant
+ * so a tab left open showed whatever was true when it mounted - a restaurant
  * that closed at 23:00 stayed "Open" indefinitely. It also ran during the
  * static export, baking the build machine's clock into the prerendered HTML.
  *
- * Statuses are now unknown on the server — no badge, so hydration cannot
- * disagree — and resolved after mount. Refreshes are scheduled for the exact
+ * Statuses are now unknown on the server - no badge, so hydration cannot
+ * disagree - and resolved after mount. Refreshes are scheduled for the exact
  * next instant at which some restaurant opens or closes, so the page sleeps
  * between transitions instead of polling.
  */
@@ -95,7 +95,7 @@ function subscribe(listener: () => void): () => void {
     // goes stale the moment a restaurant opens or closes. Navigating away and
     // back would then render that stale badge for one frame before the
     // resubscribe corrected it. Drop back to "unknown", which renders no badge
-    // at all — the same thing the server renders.
+    // at all - the same thing the server renders.
     snapshot = UNKNOWN_STATUSES;
   };
 }

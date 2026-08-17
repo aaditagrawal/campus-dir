@@ -7,7 +7,7 @@ import { getAllSearchItems, type SearchItem } from "@/lib/search";
  * no matter how specific the query is. Typing is exactly the workload that
  * punishes that: a full scan per character.
  *
- * Almost every real query here is a prefix of something — a restaurant name, a
+ * Almost every real query here is a prefix of something - a restaurant name, a
  * warden, a block, a phone number. Those resolve out of an inverted index in
  * time proportional to the number of matches rather than the size of the
  * corpus. MiniSearch stays for the queries the index cannot answer (typos,
@@ -85,7 +85,7 @@ function isAllDigits(term: string): boolean {
 
 /**
  * Phone numbers are indexed as one unbroken digit run, but they are *displayed*
- * grouped — "+91 70906 41985". Someone copying that gets three numeric terms,
+ * grouped - "+91 70906 41985". Someone copying that gets three numeric terms,
  * none of which is a prefix of the indexed token. Fusing adjacent numeric terms
  * makes the copied form match; non-numeric terms are left alone, so "taco 779"
  * still searches for a name and a number separately.
@@ -179,7 +179,7 @@ function build(): Index {
   return { items, tokens, postings };
 }
 
-/** Built on first use — opening the dialog, not loading the page. */
+/** Built on first use - opening the dialog, not loading the page. */
 function getIndex(): Index {
   if (index === null) index = build();
   return index;
@@ -208,7 +208,7 @@ const coverage = new Map<number, number>();
 const termBest = new Map<number, number>();
 
 /**
- * Score of a term that landed exactly on a title's leading token — the best a
+ * Score of a term that landed exactly on a title's leading token - the best a
  * single term can do. Dividing by this turns a raw score into a 0..1
  * confidence that does not depend on how many terms were typed.
  */
@@ -284,7 +284,7 @@ function searchIndexed(query: string, terms: string[]): Scored[] {
 type FuzzyDocument = {
   id: number;
   title: string;
-  /** Letters/digits only — catches "ApoorvaMess" / "LibraryPortal" style typos. */
+  /** Letters/digits only - catches "ApoorvaMess" / "LibraryPortal" style typos. */
   titleCompact: string;
   subtitle: string;
   section: string;
@@ -308,8 +308,8 @@ const FUZZY_BOOST = {
  * Edit-distance budget relative to term length.
  *
  * Tuned against the old Fuse threshold (0.35) on the typo probe set in
- * scripts/perf/search.ts — one dropped or transposed character in a typical
- * name — without turning one- and two-letter stems into matches against half
+ * scripts/perf/search.ts - one dropped or transposed character in a typical
+ * name - without turning one- and two-letter stems into matches against half
  * the corpus.
  */
 const FUZZY_TERM = (term: string): number | false => {
@@ -321,7 +321,7 @@ const FUZZY_TERM = (term: string): number | false => {
 let fuzzy: FuzzyEngine | null = null;
 let fuzzyLoad: Promise<void> | null = null;
 
-/** Same idea as mit-courses-data `compactSearchText` — spaces/punctuation out. */
+/** Same idea as mit-courses-data `compactSearchText` - spaces/punctuation out. */
 function compactSearchText(text: string): string {
   let out = "";
   for (let i = 0; i < text.length; i++) {
@@ -403,7 +403,7 @@ export function loadFuzzyEngine(): Promise<void> {
       .catch((error) => {
         // A dropped connection or a stale chunk hash should not disable typo
         // tolerance until the page is reloaded. Forget the failed attempt so
-        // the next dialog open retries, and resolve rather than reject —
+        // the next dialog open retries, and resolve rather than reject -
         // search still works, it just falls back to exact prefixes.
         console.error("Failed to load the fuzzy search engine:", error);
         fuzzyLoad = null;
@@ -416,7 +416,7 @@ export function isFuzzyEngineReady(): boolean {
   return fuzzy !== null;
 }
 
-/** Direct fuzzy results — used by the search perf harness, not the UI. */
+/** Direct fuzzy results - used by the search perf harness, not the UI. */
 export function searchFuzzyOnly(query: string): SearchItem[] {
   if (fuzzy === null) return [];
   const trimmed = query.trim();
@@ -473,8 +473,8 @@ export function searchDirectory(query: string): SearchItem[] {
   const confidence = scored.length === 0 ? 0 : scored[0].score / (MAX_SCORE_PER_TERM * termCount);
   if (confidence >= CONFIDENCE_FLOOR) return results;
 
-  // Fuzzy leads in this regime — it is the more trustworthy signal once the
-  // index has admitted it is guessing — but the weak indexed hits are kept
+  // Fuzzy leads in this regime - it is the more trustworthy signal once the
+  // index has admitted it is guessing - but the weak indexed hits are kept
   // behind it rather than discarded.
   const merged: SearchItem[] = [];
   const seen = new Set<string>();
@@ -498,7 +498,7 @@ export function searchDirectory(query: string): SearchItem[] {
 /* -------------------------------------------------------------------------- */
 
 /**
- * `sort(() => Math.random() - 0.5)` is not a shuffle — the comparator is not a
+ * `sort(() => Math.random() - 0.5)` is not a shuffle - the comparator is not a
  * consistent ordering, so the result is biased and the sort's behaviour is
  * implementation defined. A partial Fisher-Yates draws `count` items uniformly
  * in O(count) rather than sorting the whole pool.

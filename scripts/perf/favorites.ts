@@ -57,7 +57,7 @@ const item = (n: number): Item => ({
 });
 
 /* -------------------------------------------------------------------------- */
-/* Legacy model — favourites as an array in React state                        */
+/* Legacy model - favourites as an array in React state                        */
 /* -------------------------------------------------------------------------- */
 
 class LegacyFavorites {
@@ -80,7 +80,7 @@ class LegacyFavorites {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Equivalence — replay the same op sequence through both                      */
+/* Equivalence - replay the same op sequence through both                      */
 /* -------------------------------------------------------------------------- */
 
 console.log("favorites equivalence");
@@ -129,7 +129,7 @@ assertEquivalent(
 );
 
 /* -------------------------------------------------------------------------- */
-/* Cross-tab race — this tab has an unwritten toggle when another tab flushes  */
+/* Cross-tab race - this tab has an unwritten toggle when another tab flushes  */
 /* -------------------------------------------------------------------------- */
 
 console.log("\ncross-tab merge");
@@ -194,7 +194,7 @@ store.clearAll();
 await settle();
 
 /* -------------------------------------------------------------------------- */
-/* Write coalescing — counted, not asserted by comment                        */
+/* Write coalescing - counted, not asserted by comment                        */
 /* -------------------------------------------------------------------------- */
 
 console.log("\nlocalStorage writes for a burst of 20 toggles");
@@ -218,7 +218,7 @@ store.clearAll();
 await settle();
 
 /* -------------------------------------------------------------------------- */
-/* Membership — one call per rendered card                                     */
+/* Membership - one call per rendered card                                     */
 /* -------------------------------------------------------------------------- */
 
 const SAVED = 100;
@@ -232,7 +232,7 @@ for (let n = 0; n < SAVED; n++) {
 // for a linear scan: it walks the whole array before returning false.
 const probes = Array.from({ length: 256 }, (_, i) => item(SAVED + i).id);
 
-console.log(`\nmembership check — ${SAVED} saved favourites, misses (worst case for a scan)`);
+console.log(`\nmembership check - ${SAVED} saved favourites, misses (worst case for a scan)`);
 let cursor = 0;
 const legacyMembership = bench("array .some()", 2_000_000, () => {
   legacy.isFavorite(probes[cursor++ & 255]);
@@ -243,7 +243,7 @@ const storeMembership = bench("Map.has()", 2_000_000, () => {
 });
 speedup("membership", legacyMembership, storeMembership);
 
-console.log("\ntoggle — the click path");
+console.log("\ntoggle - the click path");
 cursor = 0;
 const legacyToggle = bench("filter / spread copy", 500_000, () => {
   legacy.toggle(item(cursor++ & 255));
@@ -255,7 +255,7 @@ const storeToggle = bench("Map set / delete", 500_000, () => {
 speedup("toggle", legacyToggle, storeToggle);
 
 /* -------------------------------------------------------------------------- */
-/* Render fan-out — what a toggle actually costs the page                      */
+/* Render fan-out - what a toggle actually costs the page                      */
 /* -------------------------------------------------------------------------- */
 
 console.log("\ncomponents re-rendered by one toggle");
@@ -283,5 +283,5 @@ for (const cards of [12, 30, 64, 120]) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Persistence — writes per burst of toggles                                   */
+/* Persistence - writes per burst of toggles                                   */
 /* -------------------------------------------------------------------------- */

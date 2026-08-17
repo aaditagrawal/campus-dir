@@ -97,7 +97,7 @@ export default function Home() {
           MIT Manipal Directory
         </h1>
         <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground text-balance md:text-lg">
-          Restaurants, hostels, travel, and emergency contacts — in one place.
+          Restaurants, hostels, travel, and emergency contacts - in one place.
         </p>
         <div className="mx-auto mt-7 max-w-sm">
           <SearchLauncher />

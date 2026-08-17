@@ -97,8 +97,8 @@ assertEquivalent("fuzz corpus", fuzzed, slugifyLegacy, slugify);
 
 // The cold corpus must be larger than SLUG_CACHE_LIMIT (2048) *and* actually
 // distinct, or some share of the run turns into cache hits and flatters the
-// result. The raw fuzz corpus is not distinct — this seed produces 184 copies
-// of the empty string alone — so pull unique entries until there are 4096.
+// result. The raw fuzz corpus is not distinct - this seed produces 184 copies
+// of the empty string alone - so pull unique entries until there are 4096.
 const coldCorpus: string[] = [];
 {
   const seen = new Set<string>();
@@ -113,7 +113,7 @@ const coldCorpus: string[] = [];
   }
 }
 
-console.log("\nslugify throughput — cold (4096 distinct inputs against a 2048-entry cache)");
+console.log("\nslugify throughput - cold (4096 distinct inputs against a 2048-entry cache)");
 let cursor = 0;
 const legacyCold = bench("legacy regex chain", 200_000, () => {
   slugifyLegacy(coldCorpus[cursor++ % coldCorpus.length]);
@@ -130,7 +130,7 @@ const scanOnly = bench("slugifyUncached (scan only)", 200_000, () => {
 });
 speedup("cold slugify, cache overhead excluded", legacyCold, scanOnly);
 
-console.log("\nslugify throughput — hot (render path: same names, every frame)");
+console.log("\nslugify throughput - hot (render path: same names, every frame)");
 const hotCorpus = Array.from(new Set(realStrings)).slice(0, 256);
 console.log(`  corpus: ${hotCorpus.length} distinct strings`);
 cursor = 0;

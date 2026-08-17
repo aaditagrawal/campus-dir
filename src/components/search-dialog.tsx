@@ -15,8 +15,8 @@ import { type SearchItem } from "@/lib/search";
 const SUGGESTION_COUNT = 8;
 
 /**
- * Memoized so moving the highlight — which every mouse move over the list
- * does — re-renders the two rows whose selection changed, not all ten.
+ * Memoized so moving the highlight - which every mouse move over the list
+ * does - re-renders the two rows whose selection changed, not all ten.
  */
 const SearchResultRow = memo(function SearchResultRow({
   item,
@@ -88,7 +88,7 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
     };
   }, [query, performSearch]);
 
-  // Fuzzy only covers what the index cannot — typos and transpositions — so it
+  // Fuzzy only covers what the index cannot - typos and transpositions - so it
   // is fetched alongside the first keystrokes rather than shipped with every page.
   useEffect(() => {
     if (fuzzyReady) return;

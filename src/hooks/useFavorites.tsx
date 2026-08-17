@@ -23,7 +23,7 @@ export type { FavoriteItem, FavoriteStatus, FavoriteType } from "@/lib/favorites
  * Status of one favourite.
  *
  * Subscribes to that id alone, so toggling a different card does not wake this
- * component — the pages render dozens of these.
+ * component - the pages render dozens of these.
  */
 export function useFavoriteStatus(id: string): FavoriteStatus {
   const subscribe = useCallback((onChange: () => void) => subscribeToId(id, onChange), [id]);

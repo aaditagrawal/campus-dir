@@ -31,7 +31,7 @@ function isWhitespace(code: number): boolean {
  * Emits the slug in a single scan.
  *
  * Runs of separators (whitespace and hyphens) collapse to one hyphen. A leading
- * or trailing run collapses only when it contains a literal hyphen — pure
+ * or trailing run collapses only when it contains a literal hyphen - pure
  * whitespace at the edges is trimmed away instead.
  *
  * `foldCase` maps A-Z to a-z inline. It is off for input that has already been
@@ -67,8 +67,8 @@ function buildSlug(input: string, foldCase: boolean): string {
     } else if (isWhitespace(code)) {
       inSeparator = true;
     }
-    // Everything else — punctuation, combining marks, undecomposable
-    // symbols — is dropped, matching the previous `[^a-z0-9\s-]` filter.
+    // Everything else - punctuation, combining marks, undecomposable
+    // symbols - is dropped, matching the previous `[^a-z0-9\s-]` filter.
   }
 
   if (inSeparator && separatorHasHyphen) out += "-";

@@ -2,9 +2,9 @@ import restaurantsData from "@/data/restaurants.json";
 import { slugify } from "@/lib/utils";
 
 /**
- * Opening hours are static, so everything derivable from them — parsed
+ * Opening hours are static, so everything derivable from them - parsed
  * minutes, day buckets, display labels, the alphabetical order, the instants
- * at which any restaurant's status changes — is built once when this module
+ * at which any restaurant's status changes - is built once when this module
  * loads. What is left at render time is a bucket lookup and a walk of the two
  * windows that can possibly be active.
  */
@@ -36,7 +36,7 @@ export type Restaurant = {
   menuUrl?: string;
   /** Seven buckets indexed by `Date#getDay`, so no filtering at render time. */
   byDay: ReadonlyArray<readonly OpeningWindow[]>;
-  /** First window in source order — the display fallback when today has none. */
+  /** First window in source order - the display fallback when today has none. */
   firstWindow: OpeningWindow | null;
 };
 
@@ -44,7 +44,7 @@ export type Restaurant = {
 export type OpenStatus = { open: boolean; range: string } | null;
 
 /* -------------------------------------------------------------------------- */
-/* Index construction — runs once, at module load                             */
+/* Index construction - runs once, at module load                             */
 /* -------------------------------------------------------------------------- */
 
 const NO_WINDOWS: readonly OpeningWindow[] = Object.freeze([]);
@@ -137,7 +137,7 @@ export function resolveStatus(restaurant: Restaurant, day: number, minutes: numb
 }
 
 /* -------------------------------------------------------------------------- */
-/* Orderings — precomputed, because the data never changes                    */
+/* Orderings - precomputed, because the data never changes                    */
 /* -------------------------------------------------------------------------- */
 
 // One shared collator. `String#localeCompare` builds one per call, which is
@@ -168,7 +168,7 @@ export function byOpenFirst(statuses: ReadonlyArray<OpenStatus>): readonly Resta
 }
 
 /* -------------------------------------------------------------------------- */
-/* Boundaries — the only instants at which any status can change              */
+/* Boundaries - the only instants at which any status can change              */
 /* -------------------------------------------------------------------------- */
 
 /**

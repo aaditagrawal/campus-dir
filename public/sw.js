@@ -42,7 +42,7 @@ self.addEventListener("activate", (event) => {
  * Page HTML has to stay fresh: it references hashed chunk filenames, and a
  * stale copy can point at chunks a later deploy has already removed. So the
  * network still wins when it answers. What changed is that it no longer gets
- * unlimited time to do so — previously a slow or half-open connection made
+ * unlimited time to do so - previously a slow or half-open connection made
  * every navigation hang on the request even when a perfectly good cached copy
  * was sitting right there.
  */

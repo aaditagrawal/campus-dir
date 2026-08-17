@@ -22,7 +22,7 @@ const fuzzySearch = (query: string): SearchItem[] => searchFuzzyOnly(query);
 console.log(`corpus: ${items.length} entries`);
 
 /* -------------------------------------------------------------------------- */
-/* Recall — does typing a thing's name find that thing?                        */
+/* Recall - does typing a thing's name find that thing?                        */
 /* -------------------------------------------------------------------------- */
 
 type Probe = { query: string; target: SearchItem };
@@ -72,16 +72,16 @@ function measureRecall(label: string, set: Probe[], search: (query: string) => S
   );
 }
 
-console.log(`\nrecall — typing an entry's name (${probes.length} queries)`);
+console.log(`\nrecall - typing an entry's name (${probes.length} queries)`);
 measureRecall("minisearch", probes, fuzzySearch);
 measureRecall("inverted index", probes, searchDirectory);
 
-console.log(`\nrecall — typing a phone number (${phoneProbes.length} queries)`);
+console.log(`\nrecall - typing a phone number (${phoneProbes.length} queries)`);
 measureRecall("minisearch", phoneProbes, fuzzySearch);
 measureRecall("inverted index", phoneProbes, searchDirectory);
 
 /* -------------------------------------------------------------------------- */
-/* Typos — what the fuzzy fallback is actually for                             */
+/* Typos - what the fuzzy fallback is actually for                             */
 /* -------------------------------------------------------------------------- */
 
 const typoRandom = makeRandom(0x7900);
@@ -104,7 +104,7 @@ for (const item of items) {
   });
 }
 
-console.log(`\nrecall — misspelled names (${typoProbes.length} queries)`);
+console.log(`\nrecall - misspelled names (${typoProbes.length} queries)`);
 measureRecall("minisearch", typoProbes, fuzzySearch);
 // searchDirectory already has fuzzy loaded; isolate the index by measuring
 // fuzzy-only above and index+fallback below.
@@ -128,22 +128,22 @@ for (const item of items) {
 // Ranges in warden subtitles use en dashes: "B01–B20", "1101–1241".
 const dashRangeProbes: Probe[] = [];
 for (const item of items) {
-  for (const match of (item.subtitle ?? "").matchAll(/([A-Za-z0-9]+)[–—]([A-Za-z0-9]+)/g)) {
+  for (const match of (item.subtitle ?? "").matchAll(/([A-Za-z0-9]+)[–-]([A-Za-z0-9]+)/g)) {
     dashRangeProbes.push({ query: match[1], target: item });
     dashRangeProbes.push({ query: match[2], target: item });
   }
 }
 
-console.log(`\nrecall — phone numbers copied as displayed (${groupedPhoneProbes.length} queries)`);
+console.log(`\nrecall - phone numbers copied as displayed (${groupedPhoneProbes.length} queries)`);
 measureRecall("minisearch", groupedPhoneProbes, fuzzySearch);
 measureRecall("inverted index", groupedPhoneProbes, searchDirectory);
 
-console.log(`\nrecall — either end of an en-dash range (${dashRangeProbes.length} queries)`);
+console.log(`\nrecall - either end of an en-dash range (${dashRangeProbes.length} queries)`);
 measureRecall("minisearch", dashRangeProbes, fuzzySearch);
 measureRecall("inverted index", dashRangeProbes, searchDirectory);
 
 /* -------------------------------------------------------------------------- */
-/* Throughput — one keystroke                                                  */
+/* Throughput - one keystroke                                                  */
 /* -------------------------------------------------------------------------- */
 
 const keystrokes = probes.map((probe) => probe.query);
@@ -172,10 +172,10 @@ const indexShort = bench("inverted index + fallback", 3_000, () => {
 speedup("short query", fuzzyShort, indexShort);
 
 /* -------------------------------------------------------------------------- */
-/* Suggestion shuffle — bias, not just speed                                   */
+/* Suggestion shuffle - bias, not just speed                                   */
 /* -------------------------------------------------------------------------- */
 
-console.log("\ndefault suggestions — is the shuffle actually uniform?");
+console.log("\ndefault suggestions - is the shuffle actually uniform?");
 
 const pool = Array.from({ length: 32 }, (_, i) => i);
 const TRIALS = 200_000;
