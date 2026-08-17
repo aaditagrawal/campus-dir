@@ -15,6 +15,23 @@ const MS_PER_MINUTE = 60_000;
 
 type RawWindow = { day: number; open: string; close: string };
 
+/**
+ * The shape `restaurants.json` is expected to hold. Declaring it here checks the
+ * data against the contract at build time instead of asserting it away per
+ * field, which is what hid missing keys from the compiler before.
+ */
+type RawRestaurant = {
+  name: string;
+  phones: string[];
+  address?: string;
+  deliveryFee?: string;
+  packagingFee?: string;
+  menuUrl?: string;
+  hours?: RawWindow[];
+};
+
+const RAW_RESTAURANTS: readonly RawRestaurant[] = restaurantsData;
+
 export type OpeningWindow = {
   /** Minutes past midnight. */
   open: number;
@@ -69,8 +86,8 @@ function formatTime12h(totalMinutes: number): string {
   return `${hours}:${minutes < 10 ? `0${minutes}` : minutes} ${suffix}`;
 }
 
-function buildRestaurant(raw: (typeof restaurantsData)[number], index: number): Restaurant {
-  const rawHours = (raw as { hours?: RawWindow[] }).hours ?? [];
+function buildRestaurant(raw: RawRestaurant, index: number): Restaurant {
+  const rawHours = raw.hours ?? [];
 
   const byDay: OpeningWindow[][] = [[], [], [], [], [], [], []];
   let firstWindow: OpeningWindow | null = null;
@@ -93,16 +110,16 @@ function buildRestaurant(raw: (typeof restaurantsData)[number], index: number): 
     name: raw.name,
     slug: slugify(raw.name),
     phones: raw.phones,
-    address: (raw as { address?: string }).address,
-    deliveryFee: (raw as { deliveryFee?: string }).deliveryFee,
-    packagingFee: (raw as { packagingFee?: string }).packagingFee,
-    menuUrl: (raw as { menuUrl?: string }).menuUrl,
+    address: raw.address,
+    deliveryFee: raw.deliveryFee,
+    packagingFee: raw.packagingFee,
+    menuUrl: raw.menuUrl,
     byDay: byDay.map((windows) => (windows.length === 0 ? NO_WINDOWS : windows)),
     firstWindow,
   };
 }
 
-export const RESTAURANTS: readonly Restaurant[] = restaurantsData.map(buildRestaurant);
+export const RESTAURANTS: readonly Restaurant[] = RAW_RESTAURANTS.map(buildRestaurant);
 
 /* -------------------------------------------------------------------------- */
 /* Status resolution                                                          */

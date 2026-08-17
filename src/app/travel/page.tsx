@@ -86,7 +86,7 @@ function ListingCard({ listing, sectionTitle }: { listing: Listing; sectionTitle
 }
 
 export default function TravelPage() {
-  const travel = data as TravelData;
+  const travel: TravelData = data;
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8">

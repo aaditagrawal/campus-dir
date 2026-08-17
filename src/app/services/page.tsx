@@ -58,7 +58,7 @@ function Section({ title, items }: { title: string; items: Listing[] }) {
 }
 
 export default function ServicesPage() {
-  const services = data as ServicesData;
+  const services: ServicesData = data;
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 grid gap-8">

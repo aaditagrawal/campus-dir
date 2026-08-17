@@ -1,5 +1,18 @@
 {
   "ignorePatterns": [
+    ".agent/**",
+    ".agents/**",
+    ".claude/**",
+    ".codex/**",
+    ".continue/**",
+    ".cursor/**",
+    ".gemini/**",
+    ".opencode/**",
+    ".pi/**",
+    ".roo/**",
+    ".superset/**",
+    ".windsurf/**",
+    "tools/oxlint/anti-slop/**",
     "**/*.min.css",
     "**/*.min.js",
     "**/data/**",

@@ -186,30 +186,74 @@ const VALID_TYPES: ReadonlySet<string> = new Set<FavoriteType>([
   "grievance",
 ]);
 
+function isFavoriteType(value: string): value is FavoriteType {
+  return VALID_TYPES.has(value);
+}
+
+/** Everything `JSON.parse` can hand back, which is all the reader may assume. */
+type JsonValue = string | number | boolean | null | JsonValue[] | JsonRecord;
+type JsonRecord = { readonly [key: string]: JsonValue };
+
+function isJsonRecord(value: JsonValue): value is JsonRecord {
+  return value !== null && !Array.isArray(value) && value instanceof Object;
+}
+
 /**
- * Anything that would make a consumer throw later - a missing id, an href the
- * favourites page would try to route on, a type with no section - is dropped
- * here instead. Stored data outlives the schema that wrote it.
+ * Reads a decoded JSON field that has to be text already.
+ *
+ * `String` hands a primitive string straight back, so a value that survives the
+ * round trip unchanged was text to begin with, while a number, boolean, `null`
+ * or object all produce something different and are rejected. Coercing instead
+ * of rejecting would let `{}` through as the id `"[object Object]"`.
  */
-function isValidItem(value: unknown): value is FavoriteItem {
-  if (!value || typeof value !== "object") return false;
-  const item = value as Partial<FavoriteItem>;
-  return (
-    typeof item.id === "string" &&
-    item.id.length > 0 &&
-    typeof item.name === "string" &&
-    typeof item.href === "string" &&
-    typeof item.type === "string" &&
-    VALID_TYPES.has(item.type)
-  );
+function readText(value: JsonValue): string | null {
+  const text = String(value);
+  return text === value ? text : null;
+}
+
+/**
+ * Decodes one stored entry, or `null` when it no longer matches what this
+ * module writes. Anything that would make a consumer throw later - a missing
+ * id, an href the favourites page would try to route on, a type with no
+ * section - is dropped here instead. Stored data outlives the schema that
+ * wrote it.
+ */
+function decodeFavorite(raw: JsonValue): FavoriteItem | null {
+  if (!isJsonRecord(raw)) return null;
+
+  const id = readText(raw.id);
+  const name = readText(raw.name);
+  const href = readText(raw.href);
+  const type = readText(raw.type);
+  if (id === null || name === null || href === null || type === null) return null;
+  if (id.length === 0 || !isFavoriteType(type)) return null;
+
+  const item: FavoriteItem = { id, type, name, href };
+
+  const subtitle = readText(raw.subtitle);
+  if (subtitle !== null) item.subtitle = subtitle;
+
+  const rawPhones = raw.phones;
+  if (Array.isArray(rawPhones)) {
+    const phones = rawPhones.map(readText).filter((phone) => phone !== null);
+    if (phones.length > 0) item.phones = phones;
+  }
+
+  return item;
 }
 
 function readStorage(): FavoriteItem[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return [];
-    const parsed: unknown = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed.filter(isValidItem) : [];
+    const parsed: JsonValue = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    const items: FavoriteItem[] = [];
+    for (const candidate of parsed) {
+      const item = decodeFavorite(candidate);
+      if (item !== null) items.push(item);
+    }
+    return items;
   } catch (error) {
     console.error("Failed to load favorites:", error);
     return [];
@@ -222,7 +266,7 @@ function readStorage(): FavoriteItem[] {
  * cannot mismatch.
  */
 function hydrate(): void {
-  if (hydrated || typeof window === "undefined") return;
+  if (hydrated || !("window" in globalThis)) return;
   hydrated = true;
 
   for (const item of readStorage()) entries.set(item.id, item);
@@ -294,9 +338,9 @@ function mergeRemote(): void {
  * keeps a burst of toggles at a single serialization.
  */
 function schedulePersist(): void {
-  if (typeof window === "undefined" || persistHandle !== null) return;
+  if (!("window" in globalThis) || persistHandle !== null) return;
 
-  if (typeof requestIdleCallback === "function") {
+  if ("requestIdleCallback" in globalThis) {
     persistHandle = requestIdleCallback(flushPersist, { timeout: 500 });
   } else {
     persistHandle = window.setTimeout(flushPersist, 150);

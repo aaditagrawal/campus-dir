@@ -62,7 +62,8 @@ function useDismiss(open: boolean, onClose: () => void, ref: React.RefObject<HTM
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+      const target = e.target;
+      if (ref.current && target instanceof Node && !ref.current.contains(target)) onClose();
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -110,8 +111,8 @@ export function SiteHeader() {
 
   useEffect(() => {
     const handler = () => setSearchOpen(true);
-    window.addEventListener("open-global-search", handler as EventListener);
-    return () => window.removeEventListener("open-global-search", handler as EventListener);
+    window.addEventListener("open-global-search", handler);
+    return () => window.removeEventListener("open-global-search", handler);
   }, []);
 
   useEffect(() => {

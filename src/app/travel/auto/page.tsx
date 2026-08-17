@@ -10,6 +10,9 @@ import { slugify } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 type Listing = { name: string; phones: string[]; notes?: string };
+type TravelData = { autos: Listing[]; cabs: Listing[] };
+
+const travel: TravelData = data;
 
 function renderNotesWithLinks(notes: string) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -32,7 +35,7 @@ function renderNotesWithLinks(notes: string) {
 }
 
 export default function AutoQuickCallPage() {
-  const autos = (data as { autos: Listing[] }).autos;
+  const autos = travel.autos;
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8">

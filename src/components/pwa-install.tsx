@@ -11,7 +11,18 @@ interface BeforeInstallPromptEvent extends Event {
 
 declare global {
   interface Window {
-    __pwaInstallPrompt?: Event;
+    /** Stashed by `PwaInstallLoader` so the lazily loaded banner can still use it. */
+    __pwaInstallPrompt?: BeforeInstallPromptEvent;
+  }
+
+  /** Chromium-only, so it is absent from the DOM lib. */
+  interface WindowEventMap {
+    beforeinstallprompt: BeforeInstallPromptEvent;
+  }
+
+  /** Legacy WebKit flag, set when the page was launched from the home screen. */
+  interface Navigator {
+    standalone?: boolean;
   }
 }
 
@@ -24,8 +35,7 @@ const SHOW_DELAY_MS = 2500;
 
 function isStandalone() {
   return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+    window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true
   );
 }
 
@@ -69,9 +79,9 @@ export function PwaInstall() {
       }, SHOW_DELAY_MS);
     };
 
-    const onBeforeInstallPrompt = (event: Event) => {
+    const onBeforeInstallPrompt = (event: BeforeInstallPromptEvent) => {
       event.preventDefault();
-      deferredPrompt.current = event as BeforeInstallPromptEvent;
+      deferredPrompt.current = event;
       if (timer) clearTimeout(timer);
       show("native");
     };
@@ -84,7 +94,7 @@ export function PwaInstall() {
     window.addEventListener("appinstalled", onInstalled);
 
     if (window.__pwaInstallPrompt) {
-      deferredPrompt.current = window.__pwaInstallPrompt as BeforeInstallPromptEvent;
+      deferredPrompt.current = window.__pwaInstallPrompt;
       window.__pwaInstallPrompt = undefined;
       show("native");
     } else if (isIos()) show("ios");

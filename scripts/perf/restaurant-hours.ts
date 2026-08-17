@@ -20,7 +20,11 @@ import {
 } from "../../src/lib/restaurant-hours";
 import { bench, speedup } from "./harness";
 
-type RawHours = Array<{ day: number; open: string; close: string }> | undefined;
+type RawWindow = { day: number; open: string; close: string };
+type RawHours = RawWindow[] | undefined;
+
+/** The slice of `restaurants.json` this comparison reads, checked at build time. */
+const RAW_RESTAURANTS: ReadonlyArray<{ name: string; hours?: RawWindow[] }> = restaurantsData;
 
 /* -------------------------------------------------------------------------- */
 /* The implementation that shipped before this change                          */
@@ -98,9 +102,7 @@ function legacyDisplayRange(hours: RawHours, day: number, minutesNow: number) {
   return `${legacyFormatTime12h(h.open)}–${legacyFormatTime12h(h.close)}`;
 }
 
-const rawHours: RawHours[] = restaurantsData.map(
-  (r) => (r as { hours?: RawHours }).hours as RawHours,
-);
+const rawHours: RawHours[] = RAW_RESTAURANTS.map((r) => r.hours);
 
 /* -------------------------------------------------------------------------- */
 /* Equivalence at every minute of the week                                     */

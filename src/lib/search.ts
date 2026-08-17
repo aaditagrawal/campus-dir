@@ -60,7 +60,8 @@ type EmergencyItem = {
 type Warden = {
   name: string;
   designation?: string;
-  officePhone?: string;
+  /** `null` in the source data when the warden has no office line. */
+  officePhone?: string | null;
   mobiles?: string[];
   email?: string;
 };
@@ -89,6 +90,37 @@ type AcademicSection = {
   items: AcademicItem[];
 };
 
+type GrievanceContact = {
+  name?: string;
+  role?: string;
+  email: string;
+  emails?: string[];
+  phones?: string[];
+  notes?: string;
+};
+
+type GrievanceData = {
+  categories: Array<{
+    title: string;
+    description: string;
+    contacts: GrievanceContact[];
+  }>;
+  studentCouncil: { name: string; contacts: Array<{ role?: string; email: string }> };
+};
+
+/**
+ * The JSON modules are checked against their declared shapes once, here, so
+ * every consumer below reads typed data instead of asserting it back into
+ * shape at the point of use.
+ */
+const RESTAURANTS: readonly Restaurant[] = restaurants;
+const SERVICES: ServicesData = services;
+const TRAVEL: TravelData = travel;
+const EMERGENCIES: readonly EmergencyItem[] = emergencies;
+const HOSTELS: readonly Hostel[] = hostels;
+const ACADEMICS: readonly AcademicSection[] = academics;
+const GRIEVANCE: GrievanceData = grievance;
+
 let cachedItems: SearchItem[] | null = null;
 
 export function getAllSearchItems(): SearchItem[] {
@@ -116,7 +148,7 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Restaurants
-  for (const r of restaurants as Restaurant[]) {
+  for (const r of RESTAURANTS) {
     if (r && r.name) {
       items.push({
         title: r.name,
@@ -136,10 +168,9 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Services
-  const svc = services as ServicesData;
   const svcSections: Array<[string, ServiceItem[]]> = [
-    ["Laundry Services", svc.laundry ?? []],
-    ["Xerox & Printing", svc.xerox ?? []],
+    ["Laundry Services", SERVICES.laundry ?? []],
+    ["Xerox & Printing", SERVICES.xerox ?? []],
   ];
   for (const [svcTitle, list] of svcSections) {
     if (svcTitle && Array.isArray(list)) {
@@ -159,10 +190,9 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Travel
-  const trv = travel as TravelData;
   const trvSections: Array<[string, TravelItem[]]> = [
-    ["Autos", trv.autos ?? []],
-    ["Cabs & Taxis", trv.cabs ?? []],
+    ["Autos", TRAVEL.autos ?? []],
+    ["Cabs & Taxis", TRAVEL.cabs ?? []],
   ];
   for (const [cat, list] of trvSections) {
     if (cat && Array.isArray(list)) {
@@ -182,7 +212,7 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Emergency
-  for (const e of emergencies as EmergencyItem[]) {
+  for (const e of EMERGENCIES) {
     if (e && e.name) {
       items.push({
         title: e.name,
@@ -196,7 +226,7 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Hostels (blocks and wardens)
-  for (const h of hostels as Hostel[]) {
+  for (const h of HOSTELS) {
     if (h && h.block) {
       items.push({
         title: h.block,
@@ -237,7 +267,7 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Academics
-  for (const section of academics as AcademicSection[]) {
+  for (const section of ACADEMICS) {
     if (section && section.section && Array.isArray(section.items)) {
       // Index the section header
       items.push({
@@ -262,22 +292,7 @@ export function getAllSearchItems(): SearchItem[] {
   }
 
   // Grievance Redressal
-  for (const cat of (
-    grievance as {
-      categories: Array<{
-        title: string;
-        description: string;
-        contacts: Array<{
-          name?: string;
-          role?: string;
-          email: string;
-          emails?: string[];
-          phones?: string[];
-          notes?: string;
-        }>;
-      }>;
-    }
-  ).categories) {
+  for (const cat of GRIEVANCE.categories) {
     if (cat && cat.title) {
       for (const c of cat.contacts) {
         const emails = [c.email, ...(c.emails ?? [])].filter(Boolean);
@@ -292,11 +307,7 @@ export function getAllSearchItems(): SearchItem[] {
       }
     }
   }
-  const sc = (
-    grievance as {
-      studentCouncil: { name: string; contacts: Array<{ role?: string; email: string }> };
-    }
-  ).studentCouncil;
+  const sc = GRIEVANCE.studentCouncil;
   if (sc) {
     items.push({
       title: sc.name,

@@ -7,7 +7,7 @@ type Tool = { name: string; url: string; description: string };
 type ToolsData = { web_resources: Tool[]; internal_tools?: Tool[] };
 
 export default function ToolsPage() {
-  const tools = data as ToolsData;
+  const tools: ToolsData = data;
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 grid gap-8">
