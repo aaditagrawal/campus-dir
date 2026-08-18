@@ -92,7 +92,7 @@ function EmergencyContactCard({
 }
 
 export default function EmergencyPage() {
-  const entries = data as Emergency[];
+  const entries: Emergency[] = data;
   const manipalHelplines: Emergency[] = [
     { name: "Student Health Clinic", phones: ["0820-2922057"] },
     { name: "KMC Ambulance", phones: ["0820-2922761"] },

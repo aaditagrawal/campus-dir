@@ -18,7 +18,8 @@ type Hostel = {
   wardens: {
     name: string;
     designation?: string;
-    officePhone?: string;
+    /** `null` in the source data when the warden has no office line. */
+    officePhone?: string | null;
     mobiles?: string[];
     email?: string;
   }[];
@@ -51,7 +52,7 @@ function wardenPrimaryPhone(w: Hostel["wardens"][number]): string | null {
 export default function HostelsPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
 
-  const hostels = data as Hostel[];
+  const hostels: Hostel[] = data;
 
   const sortedHostels = useMemo(() => {
     if (!sortOrder) return hostels;

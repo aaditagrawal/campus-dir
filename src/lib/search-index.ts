@@ -436,10 +436,10 @@ export function searchFuzzyOnly(query: string): SearchItem[] {
  * Ordinary browsing skips this entirely and stays fully lazy.
  */
 export function prefetchFuzzyEngineWhenCached(): void {
-  if (typeof navigator === "undefined" || !navigator.serviceWorker?.controller) return;
+  if (!("navigator" in globalThis) || !navigator.serviceWorker?.controller) return;
 
   const warm = () => void loadFuzzyEngine();
-  if (typeof requestIdleCallback === "function") requestIdleCallback(warm, { timeout: 10_000 });
+  if ("requestIdleCallback" in globalThis) requestIdleCallback(warm, { timeout: 10_000 });
   else setTimeout(warm, 3_000);
 }
 

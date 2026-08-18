@@ -10,7 +10,7 @@ export function PwaInstallLoader() {
   useEffect(() => {
     // Chrome can fire beforeinstallprompt before the deferred chunk loads;
     // stash it so PwaInstall can pick it up on mount.
-    const stash = (e: Event) => {
+    const stash = (e: WindowEventMap["beforeinstallprompt"]) => {
       e.preventDefault();
       window.__pwaInstallPrompt = e;
     };

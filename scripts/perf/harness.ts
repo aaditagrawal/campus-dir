@@ -18,11 +18,11 @@ export function makeRandom(seed: number) {
   };
 }
 
-export function assertEquivalent<T>(
+export function assertEquivalent<T, R>(
   label: string,
   corpus: T[],
-  a: (value: T) => unknown,
-  b: (value: T) => unknown,
+  a: (value: T) => R,
+  b: (value: T) => R,
 ): void {
   let mismatches = 0;
   for (const value of corpus) {

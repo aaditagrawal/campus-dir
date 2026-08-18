@@ -18,7 +18,7 @@ export function buildVCard({
   title,
 }: VCardInput) {
   const allEmails = [...new Set([...(email ? [email] : []), ...emails].filter(Boolean))];
-  const lines = [
+  const lines: Array<string | undefined> = [
     "BEGIN:VCARD",
     "VERSION:3.0",
     `FN:${name}`,
@@ -28,8 +28,8 @@ export function buildVCard({
     ...allEmails.map((e) => `EMAIL;TYPE=INTERNET:${e}`),
     address ? `ADR;TYPE=WORK:;;${address}` : undefined,
     "END:VCARD",
-  ].filter(Boolean) as string[];
-  return lines.join("\n");
+  ];
+  return lines.filter((line) => line !== undefined).join("\n");
 }
 
 export function downloadVCardFile(baseName: string, vcardContent: string) {

@@ -1,0 +1,5 @@
+{
+  "name": "anti-slop-oxlint-plugin",
+  "private": true,
+  "type": "module"
+}

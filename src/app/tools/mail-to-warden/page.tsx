@@ -58,6 +58,9 @@ const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
 type Hostel = (typeof hostelsData)[number];
 
+/** Display-ready `To`/`Cc` lines for the mail preview. */
+type MailRecipients = { to: string[]; cc: string[] };
+
 /**
  * The form re-renders on every keystroke in any of its fourteen fields, so
  * anything derived from the static hostel data is built once here rather than
@@ -218,9 +221,9 @@ Purpose: ${purposeText || "[NOT FILLED]"}
     }
   };
 
-  const recipients = useMemo(() => {
+  const recipients = useMemo((): MailRecipients => {
     if (!selectedHostel || selectedWardenSet.size === 0) {
-      return { to: [] as string[], cc: [] as string[] };
+      return { to: [], cc: [] };
     }
 
     return {
@@ -645,7 +648,7 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                         value={shareableLink}
                         readOnly
                         className="font-mono text-xs bg-white dark:bg-gray-800"
-                        onClick={(e) => (e.target as HTMLInputElement).select()}
+                        onClick={(e) => e.currentTarget.select()}
                       />
                       <Button onClick={copyShareableLink} size="sm" variant="default">
                         {linkCopied ? "Copied!" : "Copy"}

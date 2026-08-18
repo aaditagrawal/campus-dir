@@ -7,36 +7,43 @@
  */
 import { assertEquivalent, bench, makeRandom, speedup } from "./harness";
 
-// The store reads `window`/`localStorage` when it hydrates. Stub enough of both
-// to exercise the real module rather than a copy of it.
+/** The only field the store reads off a DOM event, so the only one stubbed. */
+type StubEvent = { key: string | null };
+type StubListener = (event: StubEvent) => void;
+
+const STORAGE_KEY = "mit-directory-favorites";
+
 const storage = new Map<string, string>();
-const listeners = new Map<string, Array<(event: unknown) => void>>();
-const on = (type: string, handler: (event: unknown) => void) => {
+const listeners = new Map<string, StubListener[]>();
+const on = (type: string, handler: StubListener) => {
   const existing = listeners.get(type);
   if (existing) existing.push(handler);
   else listeners.set(type, [handler]);
 };
-const emit = (type: string, event: unknown) => {
+const emit = (type: string, event: StubEvent) => {
   for (const handler of listeners.get(type) ?? []) handler(event);
 };
 
-const globals = globalThis as unknown as Record<string, unknown>;
+// The store reads `window`/`localStorage` when it hydrates. Stub enough of both
+// to exercise the real module rather than a copy of it.
 let writeCount = 0;
-globals.localStorage = {
-  getItem: (key: string) => storage.get(key) ?? null,
-  setItem: (key: string, value: string) => {
-    writeCount++;
-    storage.set(key, value);
+Object.assign(globalThis, {
+  localStorage: {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      writeCount++;
+      storage.set(key, value);
+    },
   },
-};
-globals.window = {
-  addEventListener: on,
-  setTimeout: (fn: () => void) => setTimeout(fn, 0),
-};
-globals.document = {
-  addEventListener: on,
-  visibilityState: "visible",
-};
+  window: {
+    addEventListener: on,
+    setTimeout: (fn: () => void) => setTimeout(fn, 0),
+  },
+  document: {
+    addEventListener: on,
+    visibilityState: "visible",
+  },
+});
 
 /** Lets a scheduled idle/timeout persist actually fire. */
 const settle = () => new Promise((resolve) => setTimeout(resolve, 5));
@@ -48,6 +55,12 @@ const store = await import("../../src/lib/favorites-store");
 store.subscribeToCollection(() => {})();
 
 type Item = { id: string; type: "restaurant"; name: string; href: string };
+
+/** Ids in the persisted payload, sorted, as the ids this script wrote. */
+function storedIds(): string[] {
+  const stored: Item[] = JSON.parse(storage.get(STORAGE_KEY) ?? "[]");
+  return stored.map((fav) => fav.id).sort();
+}
 
 const item = (n: number): Item => ({
   id: `restaurant-item-${n}`,
@@ -139,8 +152,8 @@ store.toggleFavorite(item(900));
 
 // Meanwhile another tab flushes its own toggle, replacing the stored snapshot
 // and firing a storage event here.
-storage.set("mit-directory-favorites", JSON.stringify([item(901)]));
-emit("storage", { key: "mit-directory-favorites" });
+storage.set(STORAGE_KEY, JSON.stringify([item(901)]));
+emit("storage", { key: STORAGE_KEY });
 
 assertEquivalent(
   "an incoming snapshot does not drop this tab's unwritten toggle",
@@ -159,7 +172,7 @@ assertEquivalent(
   "the deferred write persists the merged result",
   [0],
   () => [item(900).id, item(901).id].sort(),
-  () => (JSON.parse(storage.get("mit-directory-favorites")!) as Item[]).map((fav) => fav.id).sort(),
+  storedIds,
 );
 
 store.clearAll();
@@ -167,7 +180,7 @@ await settle();
 
 // Both tabs' deferred writes land before either storage event is delivered.
 // A blind overwrite here loses whichever tab wrote first.
-storage.set("mit-directory-favorites", JSON.stringify([item(910)]));
+storage.set(STORAGE_KEY, JSON.stringify([item(910)]));
 store.toggleFavorite(item(911));
 await settle();
 
@@ -175,10 +188,10 @@ assertEquivalent(
   "a deferred write merges with a flush that landed first",
   [0],
   () => [item(910).id, item(911).id].sort(),
-  () => (JSON.parse(storage.get("mit-directory-favorites")!) as Item[]).map((fav) => fav.id).sort(),
+  storedIds,
 );
 
-emit("storage", { key: "mit-directory-favorites" });
+emit("storage", { key: STORAGE_KEY });
 assertEquivalent(
   "the late storage event leaves both tabs' items in place",
   [0],

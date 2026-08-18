@@ -5,16 +5,8 @@
  * bun run scripts/perf/slugify.ts
  */
 import { slugify, slugifyUncached } from "../../src/lib/utils";
+import { getAllSearchItems } from "../../src/lib/search";
 import { assertEquivalent, bench, makeRandom, speedup } from "./harness";
-
-import restaurants from "../../src/data/restaurants.json";
-import hostels from "../../src/data/hostels.json";
-import emergency from "../../src/data/emergency.json";
-import academics from "../../src/data/academics.json";
-import travel from "../../src/data/travel.json";
-import services from "../../src/data/services.json";
-import grievance from "../../src/data/grievance.json";
-import tools from "../../src/data/tools.json";
 
 /** The implementation that shipped before this change, kept verbatim. */
 function slugifyLegacy(input: string): string {
@@ -28,19 +20,21 @@ function slugifyLegacy(input: string): string {
     .replace(/-+/g, "-");
 }
 
-/** Every string reachable in the directory data, so real inputs are covered. */
-function collectStrings(node: unknown, into: string[]): string[] {
-  if (typeof node === "string") into.push(node);
-  else if (Array.isArray(node)) for (const child of node) collectStrings(child, into);
-  else if (node && typeof node === "object") {
-    for (const child of Object.values(node)) collectStrings(child, into);
-  }
-  return into;
-}
-
-const realStrings = collectStrings(
-  [restaurants, hostels, emergency, academics, travel, services, grievance, tools],
-  [],
+/**
+ * Every user-visible string the directory index carries, taken from the typed
+ * index rather than a walk over raw JSON. These are the names `slugify` is
+ * actually called on, plus the surrounding copy, so real inputs are covered.
+ */
+const realStrings = getAllSearchItems().flatMap((entry) =>
+  [
+    entry.title,
+    entry.subtitle,
+    entry.section,
+    entry.href,
+    entry.address,
+    entry.notes,
+    ...(entry.phones ?? []),
+  ].filter((value) => value !== undefined),
 );
 
 const edgeCases = [
