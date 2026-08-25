@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { Download, Share, SquarePlus, X } from "lucide-react";
+import * as stylex from "@stylexjs/stylex";
 import { Button } from "@/components/ui/button";
+import { breakpoints, colors, motion, preferences, radii } from "@/styles/constants.stylex";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,16 +13,12 @@ interface BeforeInstallPromptEvent extends Event {
 
 declare global {
   interface Window {
-    /** Stashed by `PwaInstallLoader` so the lazily loaded banner can still use it. */
+    /** Stashed by PwaInstallLoader so the lazily loaded banner can still use it. */
     __pwaInstallPrompt?: BeforeInstallPromptEvent;
   }
-
-  /** Chromium-only, so it is absent from the DOM lib. */
   interface WindowEventMap {
     beforeinstallprompt: BeforeInstallPromptEvent;
   }
-
-  /** Legacy WebKit flag, set when the page was launched from the home screen. */
   interface Navigator {
     standalone?: boolean;
   }
@@ -30,7 +28,7 @@ type PromptMode = "native" | "ios" | "safari-desktop";
 
 const DISMISSED_KEY = "pwa-install-dismissed-at";
 const INSTALLED_KEY = "pwa-installed";
-const DISMISS_COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+const DISMISS_COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000;
 const SHOW_DELAY_MS = 2500;
 
 function isStandalone() {
@@ -55,6 +53,115 @@ function wasRecentlyDismissed() {
   return Date.now() - at < DISMISS_COOLDOWN_MS;
 }
 
+const installPromptIn = stylex.keyframes({
+  from: { opacity: 0, transform: "translateY(1.5rem) scale(0.98)" },
+  to: { opacity: 1, transform: "translateY(0) scale(1)" },
+});
+const fadeIn = stylex.keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
+
+const styles = stylex.create({
+  dialog: {
+    position: "fixed",
+    left: {
+      default: "0.75rem",
+      [breakpoints.sm]: "auto",
+    },
+    right: {
+      default: "0.75rem",
+      [breakpoints.sm]: "1.25rem",
+    },
+    bottom: {
+      default: "0.75rem",
+      [breakpoints.sm]: "1.25rem",
+    },
+    zIndex: 50,
+    width: {
+      default: "auto",
+      [breakpoints.sm]: "24rem",
+    },
+    maxWidth: "28rem",
+    marginInline: "auto",
+    borderRadius: "1rem",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: `color-mix(in oklab, ${colors.card} 85%, transparent)`,
+    color: colors.cardForeground,
+    padding: "1rem",
+    boxShadow: "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+    backdropFilter: "blur(24px)",
+    animationName: { default: installPromptIn, [preferences.reducedMotion]: fadeIn },
+    animationDuration: "240ms",
+    animationTimingFunction: motion.out,
+  },
+  dismiss: {
+    position: "absolute",
+    top: "0.75rem",
+    right: "0.75rem",
+    borderWidth: 0,
+    borderRadius: radii.md,
+    backgroundColor: {
+      default: "transparent",
+      ":hover": colors.accent,
+    },
+    padding: "0.25rem",
+    color: {
+      default: colors.mutedForeground,
+      ":hover": colors.foreground,
+    },
+    cursor: "pointer",
+    transitionProperty: "color, background-color",
+    transitionDuration: motion.fast,
+  },
+  icon16: { width: "1rem", height: "1rem", flexShrink: 0 },
+  top: { display: "flex", alignItems: "flex-start", gap: "0.75rem" },
+  appIcon: {
+    flexShrink: 0,
+    marginTop: "0.125rem",
+    borderRadius: radii.xl,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: colors.border,
+  },
+  copy: { minWidth: 0, paddingRight: "1.5rem" },
+  title: { fontWeight: 500, lineHeight: 1.25 },
+  description: {
+    marginTop: "0.25rem",
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  actions: { display: "flex", gap: "0.5rem", marginTop: "0.75rem" },
+  grow: { flex: 1 },
+  instructions: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    marginTop: "0.75rem",
+    borderRadius: radii.xl,
+    backgroundColor: `color-mix(in oklab, ${colors.muted} 60%, transparent)`,
+    padding: "0.75rem",
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  step: { display: "flex", alignItems: "center", gap: "0.5rem" },
+  number: {
+    display: "flex",
+    width: "1.25rem",
+    height: "1.25rem",
+    flexShrink: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "9999px",
+    backgroundColor: colors.primary,
+    color: colors.primaryForeground,
+    fontSize: "0.6875rem",
+    fontWeight: 600,
+  },
+  medium: { fontWeight: 500 },
+  instructionButton: { width: "100%", marginTop: "0.25rem" },
+});
+
 export function PwaInstall() {
   const [mode, setMode] = React.useState<PromptMode | null>(null);
   const [visible, setVisible] = React.useState(false);
@@ -67,9 +174,7 @@ export function PwaInstall() {
   }, []);
 
   React.useEffect(() => {
-    if (isStandalone() || localStorage.getItem(INSTALLED_KEY) || wasRecentlyDismissed()) {
-      return;
-    }
+    if (isStandalone() || localStorage.getItem(INSTALLED_KEY) || wasRecentlyDismissed()) return;
 
     let timer: ReturnType<typeof setTimeout> | undefined;
     const show = (nextMode: PromptMode) => {
@@ -78,7 +183,6 @@ export function PwaInstall() {
         setVisible(true);
       }, SHOW_DELAY_MS);
     };
-
     const onBeforeInstallPrompt = (event: BeforeInstallPromptEvent) => {
       event.preventDefault();
       deferredPrompt.current = event;
@@ -129,21 +233,17 @@ export function PwaInstall() {
   if (!visible || !mode) return null;
 
   return (
-    <dialog
-      open
-      aria-label="Install Campus Directory"
-      className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-2xl border bg-card/85 p-4 shadow-2xl backdrop-blur-xl sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-96 animate-in fade-in slide-in-from-bottom-6 duration-500"
-    >
+    <dialog open aria-label="Install Campus Directory" {...stylex.props(styles.dialog)}>
       <button
         type="button"
         onClick={dismiss}
         aria-label="Dismiss install prompt"
-        className="absolute top-3 right-3 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        {...stylex.props(styles.dismiss)}
       >
-        <X className="size-4" />
+        <X {...stylex.props(styles.icon16)} />
       </button>
 
-      <div className="flex items-start gap-3">
+      <div {...stylex.props(styles.top)}>
         {/* eslint-disable-next-line @next/next/no-img-element -- static export, image optimization is disabled */}
         <img
           src="/icons/icon-192.png"
@@ -151,11 +251,11 @@ export function PwaInstall() {
           width={44}
           height={44}
           loading="lazy"
-          className="mt-0.5 shrink-0 rounded-xl border"
+          {...stylex.props(styles.appIcon)}
         />
-        <div className="min-w-0 pr-6">
-          <p className="font-medium leading-tight">Install Campus Directory</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <div {...stylex.props(styles.copy)}>
+          <p {...stylex.props(styles.title)}>Install Campus Directory</p>
+          <p {...stylex.props(styles.description)}>
             Get the app on your {mode === "ios" ? "home screen" : "device"} - fast, full-screen, and
             it works offline.
           </p>
@@ -163,9 +263,9 @@ export function PwaInstall() {
       </div>
 
       {mode === "native" && (
-        <div className="mt-3 flex gap-2">
-          <Button size="sm" className="flex-1" onClick={install}>
-            <Download /> Install app
+        <div {...stylex.props(styles.actions)}>
+          <Button size="sm" xstyle={styles.grow} onClick={install}>
+            <Download {...stylex.props(styles.icon16)} /> Install app
           </Button>
           <Button size="sm" variant="ghost" onClick={dismiss}>
             Not now
@@ -174,41 +274,33 @@ export function PwaInstall() {
       )}
 
       {mode === "ios" && (
-        <div className="mt-3 space-y-2 rounded-xl bg-muted/60 p-3 text-sm">
-          <p className="flex items-center gap-2">
-            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-              1
-            </span>
-            Tap the <Share className="size-4 shrink-0" aria-hidden /> Share button in Safari
+        <div {...stylex.props(styles.instructions)}>
+          <p {...stylex.props(styles.step)}>
+            <span {...stylex.props(styles.number)}>1</span>
+            Tap the <Share aria-hidden {...stylex.props(styles.icon16)} /> Share button in Safari
           </p>
-          <p className="flex items-center gap-2">
-            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-              2
-            </span>
-            Choose <SquarePlus className="size-4 shrink-0" aria-hidden />
-            <span className="font-medium">Add to Home Screen</span>
+          <p {...stylex.props(styles.step)}>
+            <span {...stylex.props(styles.number)}>2</span>
+            Choose <SquarePlus aria-hidden {...stylex.props(styles.icon16)} />
+            <span {...stylex.props(styles.medium)}>Add to Home Screen</span>
           </p>
-          <Button size="sm" variant="secondary" className="mt-1 w-full" onClick={dismiss}>
+          <Button size="sm" variant="secondary" xstyle={styles.instructionButton} onClick={dismiss}>
             Got it
           </Button>
         </div>
       )}
 
       {mode === "safari-desktop" && (
-        <div className="mt-3 space-y-2 rounded-xl bg-muted/60 p-3 text-sm">
-          <p className="flex items-center gap-2">
-            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-              1
-            </span>
-            Open the <span className="font-medium">File</span> menu in Safari
+        <div {...stylex.props(styles.instructions)}>
+          <p {...stylex.props(styles.step)}>
+            <span {...stylex.props(styles.number)}>1</span>
+            Open the <span {...stylex.props(styles.medium)}>File</span> menu in Safari
           </p>
-          <p className="flex items-center gap-2">
-            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-              2
-            </span>
-            Choose <span className="font-medium">Add to Dock…</span>
+          <p {...stylex.props(styles.step)}>
+            <span {...stylex.props(styles.number)}>2</span>
+            Choose <span {...stylex.props(styles.medium)}>Add to Dock…</span>
           </p>
-          <Button size="sm" variant="secondary" className="mt-1 w-full" onClick={dismiss}>
+          <Button size="sm" variant="secondary" xstyle={styles.instructionButton} onClick={dismiss}>
             Got it
           </Button>
         </div>

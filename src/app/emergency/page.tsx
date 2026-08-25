@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import data from "@/data/emergency.json";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,8 @@ import { slugify } from "@/lib/utils";
 import { Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
 import { DownloadVCardButton } from "@/components/contact-actions";
+import { colors } from "@/styles/constants.stylex";
+import { shared } from "@/styles/shared";
 
 type Emergency = {
   name: string;
@@ -14,6 +17,43 @@ type Emergency = {
   notes?: string;
   accent?: string;
 };
+
+const styles = stylex.create({
+  card: { height: "100%", gap: "1rem" },
+  header: { paddingBottom: 0 },
+  row: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+  },
+  cardTitle: { fontSize: "1.125rem", lineHeight: 1.375 },
+  content: { display: "flex", flex: 1, flexDirection: "column", gap: "0.75rem" },
+  phones: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" },
+  link: { textDecorationLine: "underline" },
+  details: { color: colors.mutedForeground, fontSize: "0.875rem", lineHeight: "1.25rem" },
+  notes: { lineHeight: 1.625, whiteSpace: "pre-line" },
+  footer: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "0.5rem",
+    marginTop: "auto",
+  },
+  button: { width: "100%" },
+  icon: { width: "1rem", height: "1rem" },
+  source: {
+    marginTop: "1rem",
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+  },
+  sourceLink: {
+    color: { default: colors.mutedForeground, ":hover": colors.blue },
+    textDecorationLine: "underline",
+    transitionProperty: "color",
+    transitionDuration: "150ms",
+  },
+});
 
 function EmergencyContactCard({
   entry,
@@ -31,11 +71,11 @@ function EmergencyContactCard({
   return (
     <Card
       id={slugify(entry.name)}
-      className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24 h-full gap-4"
+      xstyle={[shared.glass, shared.cardHover, shared.scrollTarget, styles.card]}
     >
-      <CardHeader className="pb-0">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-lg leading-snug">{entry.name}</CardTitle>
+      <CardHeader xstyle={styles.header}>
+        <div {...stylex.props(styles.row)}>
+          <CardTitle xstyle={styles.cardTitle}>{entry.name}</CardTitle>
           <FavoriteButton
             item={{
               id: favoriteId,
@@ -49,33 +89,29 @@ function EmergencyContactCard({
           />
         </div>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-3">
-        <div className="flex flex-wrap gap-2 items-center">
-          {entry.phones.map((p) => (
-            <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className="underline">
-              {p}
+      <CardContent xstyle={styles.content}>
+        <div {...stylex.props(styles.phones)}>
+          {entry.phones.map((phone) => (
+            <a key={phone} href={`tel:${phone.replace(/\s+/g, "")}`} {...stylex.props(styles.link)}>
+              {phone}
             </a>
           ))}
         </div>
-        {entry.address ? (
-          <div className="text-sm text-muted-foreground">{entry.address}</div>
-        ) : null}
+        {entry.address ? <div {...stylex.props(styles.details)}>{entry.address}</div> : null}
         {entry.notes ? (
-          <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-            {entry.notes}
-          </div>
+          <div {...stylex.props(styles.details, styles.notes)}>{entry.notes}</div>
         ) : null}
       </CardContent>
-      <CardFooter className="mt-auto grid grid-cols-2 gap-2">
-        <Button asChild variant="secondary" size="sm" className="w-full gap-2">
-          <a href={`tel:${entry.phones?.[0]?.replace(/\s+/g, "") ?? ""}`}>
-            <Phone className="size-4" />
+      <CardFooter xstyle={styles.footer}>
+        <Button asChild variant="secondary" size="sm" xstyle={styles.button}>
+          <a href={`tel:${entry.phones[0]?.replace(/\s+/g, "") ?? ""}`}>
+            <Phone {...stylex.props(styles.icon)} />
             Call Now
           </a>
         </Button>
         <DownloadVCardButton
           size="sm"
-          className="w-full"
+          xstyle={styles.button}
           filename={entry.name}
           vcard={buildVCard({
             name: entry.name,
@@ -107,12 +143,10 @@ export default function EmergencyPage() {
     { name: "Anti-Ragging", phones: ["1800 425 6090"] },
     { name: "Campus Patrol", phones: ["99456 70913", "96321 01004"] },
   ];
-
   const suicidePrevention: Emergency[] = [
     { name: "Aasra 24x7 Helpline", phones: ["91-22-27546669"] },
     { name: "Spandana (24-hour)", phones: ["65000111", "65000222"] },
   ];
-
   const indiaHelplines: Emergency[] = [
     { name: "Police Control Room", phones: ["100"] },
     { name: "Fire", phones: ["101"] },
@@ -126,38 +160,41 @@ export default function EmergencyPage() {
   ];
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Emergency Services</h1>
-        <p className="text-muted-foreground">
+    <main {...stylex.props(shared.page)}>
+      <div {...stylex.props(shared.pageHeader)}>
+        <h1 {...stylex.props(shared.heading1, shared.heading1Strong)}>Emergency Services</h1>
+        <p {...stylex.props(shared.mutedText)}>
           Health and safety contacts. In emergencies, call the ambulance first.
         </p>
       </div>
 
-      <section className="space-y-4 mb-8" id={slugify("Emergency Contacts")}>
-        <h2 className="text-xl font-semibold">Emergency Contacts</h2>
-        <div className="grid sm:grid-cols-2 gap-4 items-stretch">
-          {entries.map((e) => (
+      <section
+        {...stylex.props(shared.section, shared.sectionBottom)}
+        id={slugify("Emergency Contacts")}
+      >
+        <h2 {...stylex.props(shared.heading2, shared.heading2Strong)}>Emergency Contacts</h2>
+        <div {...stylex.props(shared.grid2, shared.stretch)}>
+          {entries.map((entry) => (
             <EmergencyContactCard
-              key={e.name}
-              entry={e}
-              favoriteId={`emergency-${slugify(e.name)}`}
-              href={`/emergency#${slugify(e.name)}`}
+              key={entry.name}
+              entry={entry}
+              favoriteId={`emergency-${slugify(entry.name)}`}
+              href={`/emergency#${slugify(entry.name)}`}
               org="Emergency"
             />
           ))}
         </div>
       </section>
 
-      <section className="space-y-4 mb-8" id={slugify("In Manipal")}>
-        <h2 className="text-xl font-semibold">In Manipal</h2>
-        <div className="grid sm:grid-cols-2 gap-4 items-stretch">
-          {manipalHelplines.map((e) => (
+      <section {...stylex.props(shared.section, shared.sectionBottom)} id={slugify("In Manipal")}>
+        <h2 {...stylex.props(shared.heading2, shared.heading2Strong)}>In Manipal</h2>
+        <div {...stylex.props(shared.grid2, shared.stretch)}>
+          {manipalHelplines.map((entry) => (
             <EmergencyContactCard
-              key={`manipal-${e.name}`}
-              entry={e}
-              favoriteId={`emergency-manipal-${slugify(e.name)}`}
-              href={`/emergency#${slugify(e.name)}`}
+              key={`manipal-${entry.name}`}
+              entry={entry}
+              favoriteId={`emergency-manipal-${slugify(entry.name)}`}
+              href={`/emergency#${slugify(entry.name)}`}
               subtitle="Manipal Helpline"
               org="Helpline"
             />
@@ -165,15 +202,20 @@ export default function EmergencyPage() {
         </div>
       </section>
 
-      <section className="space-y-4 mb-8" id={slugify("Suicide Prevention Helplines in India")}>
-        <h2 className="text-xl font-semibold">Suicide Prevention Helplines in India</h2>
-        <div className="grid sm:grid-cols-2 gap-4 items-stretch">
-          {suicidePrevention.map((e) => (
+      <section
+        {...stylex.props(shared.section, shared.sectionBottom)}
+        id={slugify("Suicide Prevention Helplines in India")}
+      >
+        <h2 {...stylex.props(shared.heading2, shared.heading2Strong)}>
+          Suicide Prevention Helplines in India
+        </h2>
+        <div {...stylex.props(shared.grid2, shared.stretch)}>
+          {suicidePrevention.map((entry) => (
             <EmergencyContactCard
-              key={`sp-${e.name}`}
-              entry={e}
-              favoriteId={`emergency-suicide-${slugify(e.name)}`}
-              href={`/emergency#${slugify(e.name)}`}
+              key={`sp-${entry.name}`}
+              entry={entry}
+              favoriteId={`emergency-suicide-${slugify(entry.name)}`}
+              href={`/emergency#${slugify(entry.name)}`}
               subtitle="Suicide Prevention"
               org="Helpline"
             />
@@ -181,24 +223,24 @@ export default function EmergencyPage() {
         </div>
       </section>
 
-      <section className="space-y-4" id={slugify("Helplines Across India")}>
-        <h2 className="text-xl font-semibold">Helplines Across India</h2>
-        <div className="grid sm:grid-cols-2 gap-4 items-stretch">
-          {indiaHelplines.map((e) => (
+      <section {...stylex.props(shared.section)} id={slugify("Helplines Across India")}>
+        <h2 {...stylex.props(shared.heading2, shared.heading2Strong)}>Helplines Across India</h2>
+        <div {...stylex.props(shared.grid2, shared.stretch)}>
+          {indiaHelplines.map((entry) => (
             <EmergencyContactCard
-              key={`india-${e.name}`}
-              entry={e}
-              favoriteId={`emergency-india-${slugify(e.name)}`}
-              href={`/emergency#${slugify(e.name)}`}
+              key={`india-${entry.name}`}
+              entry={entry}
+              favoriteId={`emergency-india-${slugify(entry.name)}`}
+              href={`/emergency#${slugify(entry.name)}`}
               subtitle="India Helpline"
               org="Helpline"
             />
           ))}
         </div>
-        <p className="text-xs text-muted-foreground mt-4">
+        <p {...stylex.props(styles.source)}>
           Source:{" "}
           <a
-            className="underline hover:text-blue-600 transition-colors"
+            {...stylex.props(styles.sourceLink)}
             href="https://ssc.manipal.edu/resources.aspx"
             target="_blank"
             rel="noreferrer"

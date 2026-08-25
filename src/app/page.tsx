@@ -13,16 +13,212 @@ import {
   ChevronRight,
   Shuffle,
 } from "lucide-react";
+import * as stylex from "@stylexjs/stylex";
 import { FavoritesTileLabel, SearchLauncher } from "@/components/home-client";
 import { RandomTelButton } from "@/components/contact-actions";
 import { getAutoPhoneOptions } from "@/lib/random-auto";
 import { slugify } from "@/lib/utils";
+import { breakpoints, colors, fonts, motion } from "@/styles/constants.stylex";
 
-const quickActionRow =
-  "group flex w-full items-center gap-4 px-4 py-3.5 text-left transition-colors duration-150 hover:bg-muted/50 active:bg-muted/70 outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset sm:px-5";
-
-const sectionLabel =
-  "mb-3 px-1 font-sans text-xs font-medium uppercase tracking-widest text-muted-foreground";
+const styles = stylex.create({
+  page: {
+    maxWidth: "48rem",
+    marginInline: "auto",
+    paddingInline: "1.25rem",
+    paddingTop: { default: "3.5rem", [breakpoints.md]: "6rem" },
+    paddingBottom: "6rem",
+  },
+  hero: { textAlign: "center" },
+  title: {
+    fontFamily: fonts.serif,
+    fontSize: {
+      default: "2.25rem",
+      [breakpoints.sm]: "3rem",
+      [breakpoints.md]: "3.75rem",
+    },
+    lineHeight: 1,
+    letterSpacing: "-0.025em",
+    textWrap: "balance",
+  },
+  subtitle: {
+    maxWidth: "28rem",
+    marginInline: "auto",
+    marginTop: "0.75rem",
+    color: colors.mutedForeground,
+    fontSize: { default: "1rem", [breakpoints.md]: "1.125rem" },
+    lineHeight: { default: "1.5rem", [breakpoints.md]: "1.75rem" },
+    textWrap: "balance",
+  },
+  searchWrap: { maxWidth: "24rem", marginInline: "auto", marginTop: "1.75rem" },
+  quickSection: { marginTop: "3.5rem" },
+  browseSection: { marginTop: "3rem" },
+  sectionLabel: {
+    marginBottom: "0.75rem",
+    paddingInline: "0.25rem",
+    color: colors.mutedForeground,
+    fontFamily: fonts.sans,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+    fontWeight: 500,
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
+  },
+  quickList: {
+    overflow: "hidden",
+    borderRadius: "1rem",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: `color-mix(in oklab, ${colors.border} 60%, transparent)`,
+    backgroundColor: `color-mix(in oklab, ${colors.card} 40%, transparent)`,
+  },
+  quickAction: {
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    gap: "1rem",
+    borderWidth: 0,
+    backgroundColor: {
+      default: "transparent",
+      ":hover": `color-mix(in oklab, ${colors.muted} 50%, transparent)`,
+      ":active": `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
+    },
+    paddingInline: { default: "1rem", [breakpoints.sm]: "1.25rem" },
+    paddingBlock: "0.875rem",
+    color: colors.foreground,
+    textAlign: "left",
+    textDecorationLine: "none",
+    outline: "none",
+    cursor: "pointer",
+    transitionProperty: "background-color",
+    transitionDuration: motion.fast,
+    boxShadow: {
+      default: "none",
+      ":focus-visible": `inset 0 0 0 2px color-mix(in oklab, ${colors.ring} 50%, transparent)`,
+    },
+  },
+  quickDivider: {
+    borderTopWidth: "1px",
+    borderTopStyle: "solid",
+    borderTopColor: `color-mix(in oklab, ${colors.border} 60%, transparent)`,
+  },
+  quickIconWrap: {
+    display: "flex",
+    width: "2.25rem",
+    height: "2.25rem",
+    flexShrink: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "0.5rem",
+    backgroundColor: `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
+    color: {
+      default: colors.mutedForeground,
+      [stylex.when.ancestor(":hover")]: colors.foreground,
+    },
+    transitionProperty: "color",
+    transitionDuration: motion.fast,
+  },
+  icon16: { width: "1rem", height: "1rem" },
+  icon20: { width: "1.25rem", height: "1.25rem" },
+  quickCopy: { minWidth: 0, flex: 1 },
+  quickTitle: {
+    display: "block",
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    fontWeight: 500,
+    letterSpacing: "-0.025em",
+  },
+  quickDescription: {
+    display: "block",
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  chevron: {
+    width: "1rem",
+    height: "1rem",
+    flexShrink: 0,
+    color: `color-mix(in oklab, ${colors.mutedForeground} 60%, transparent)`,
+    transform: {
+      default: "translateX(0)",
+      [stylex.when.ancestor(":hover")]: "translateX(0.125rem)",
+    },
+    transitionProperty: "transform",
+    transitionDuration: motion.fast,
+  },
+  browseGrid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "repeat(2, minmax(0, 1fr))",
+      [breakpoints.md]: "repeat(3, minmax(0, 1fr))",
+    },
+    gap: "0.5rem",
+  },
+  tile: {
+    borderRadius: "0.75rem",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: {
+      default: `color-mix(in oklab, ${colors.border} 50%, transparent)`,
+      ":hover": colors.border,
+    },
+    backgroundColor: {
+      default: `color-mix(in oklab, ${colors.card} 40%, transparent)`,
+      ":hover": `color-mix(in oklab, ${colors.card} 80%, transparent)`,
+      ":active": colors.card,
+    },
+    padding: "1rem",
+    color: colors.foreground,
+    textDecorationLine: "none",
+    outline: "none",
+    transitionProperty: "background-color, border-color",
+    transitionDuration: motion.fast,
+    boxShadow: {
+      default: "none",
+      ":focus-visible": `0 0 0 2px color-mix(in oklab, ${colors.ring} 50%, transparent)`,
+    },
+  },
+  tileIcon: {
+    color: {
+      default: colors.mutedForeground,
+      [stylex.when.ancestor(":hover")]: colors.foreground,
+    },
+    transitionProperty: "color",
+    transitionDuration: motion.fast,
+  },
+  tileTitle: {
+    display: "block",
+    marginTop: "0.75rem",
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    fontWeight: 500,
+    letterSpacing: "-0.025em",
+  },
+  tileDescription: {
+    display: "block",
+    marginTop: "0.125rem",
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+  },
+  emergencyTile: {
+    gridColumn: { default: "span 2 / span 2", [breakpoints.md]: "span 1 / span 1" },
+    borderColor: {
+      default: "oklch(0.645 0.246 16.439 / 20%)",
+      ":hover": "oklch(0.645 0.246 16.439 / 40%)",
+    },
+    backgroundColor: {
+      default: "oklch(0.645 0.246 16.439 / 4%)",
+      ":hover": "oklch(0.645 0.246 16.439 / 8%)",
+    },
+    boxShadow: {
+      default: "none",
+      ":focus-visible": "0 0 0 2px oklch(0.645 0.246 16.439 / 40%)",
+    },
+  },
+  emergencyText: { color: colors.rose },
+  emergencyTitle: { color: colors.rose },
+  emergencyDescription: { color: "oklch(0.645 0.246 16.439 / 70%)" },
+});
 
 function QuickActionBody({
   icon,
@@ -35,23 +231,15 @@ function QuickActionBody({
 }) {
   return (
     <>
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted/70 text-muted-foreground transition-colors duration-150 group-hover:text-foreground">
-        {icon}
+      <span {...stylex.props(styles.quickIconWrap)}>{icon}</span>
+      <span {...stylex.props(styles.quickCopy)}>
+        <span {...stylex.props(styles.quickTitle)}>{title}</span>
+        <span {...stylex.props(styles.quickDescription)}>{description}</span>
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-sm font-medium tracking-tight">{title}</span>
-        <span className="block text-sm text-muted-foreground">{description}</span>
-      </span>
-      <ChevronRight
-        className="size-4 shrink-0 text-muted-foreground/60 transition-transform duration-150 group-hover:translate-x-0.5"
-        aria-hidden
-      />
+      <ChevronRight {...stylex.props(styles.chevron)} aria-hidden />
     </>
   );
 }
-
-const browseTile =
-  "group rounded-xl border border-border/50 bg-card/40 p-4 outline-none transition-colors duration-150 hover:border-border hover:bg-card/80 active:bg-card focus-visible:ring-2 focus-visible:ring-ring/50";
 
 function TileBody({
   icon,
@@ -66,23 +254,9 @@ function TileBody({
 }) {
   return (
     <>
-      <span
-        className={
-          accent
-            ? "text-rose-500"
-            : "text-muted-foreground transition-colors duration-150 group-hover:text-foreground"
-        }
-      >
-        {icon}
-      </span>
-      <span
-        className={`mt-3 block text-sm font-medium tracking-tight ${accent ? "text-rose-600 dark:text-rose-400" : ""}`}
-      >
-        {title}
-      </span>
-      <span
-        className={`mt-0.5 block text-xs ${accent ? "text-rose-500/70" : "text-muted-foreground"}`}
-      >
+      <span {...stylex.props(accent ? styles.emergencyText : styles.tileIcon)}>{icon}</span>
+      <span {...stylex.props(styles.tileTitle, accent && styles.emergencyTitle)}>{title}</span>
+      <span {...stylex.props(styles.tileDescription, accent && styles.emergencyDescription)}>
         {description}
       </span>
     </>
@@ -91,43 +265,47 @@ function TileBody({
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-3xl px-5 pt-14 pb-24 md:pt-24">
-      <section className="text-center">
-        <h1 className="font-serif text-4xl tracking-tight text-balance sm:text-5xl md:text-6xl">
-          MIT Manipal Directory
-        </h1>
-        <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground text-balance md:text-lg">
+    <main {...stylex.props(styles.page)}>
+      <section {...stylex.props(styles.hero)}>
+        <h1 {...stylex.props(styles.title)}>MIT Manipal Directory</h1>
+        <p {...stylex.props(styles.subtitle)}>
           Restaurants, hostels, travel, and emergency contacts - in one place.
         </p>
-        <div className="mx-auto mt-7 max-w-sm">
+        <div {...stylex.props(styles.searchWrap)}>
           <SearchLauncher />
         </div>
       </section>
 
-      <section className="mt-14" aria-label="Quick actions">
-        <h2 className={sectionLabel}>Quick actions</h2>
-        <div className="divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 bg-card/40">
+      <section {...stylex.props(styles.quickSection)} aria-label="Quick actions">
+        <h2 {...stylex.props(styles.sectionLabel)}>Quick actions</h2>
+        <div {...stylex.props(styles.quickList)}>
           <RandomTelButton
             options={getAutoPhoneOptions()}
-            className={quickActionRow}
+            xstyle={[stylex.defaultMarker(), styles.quickAction]}
             aria-label="Call a random auto from the directory"
           >
             <QuickActionBody
-              icon={<Shuffle className="size-4" aria-hidden />}
+              icon={<Shuffle {...stylex.props(styles.icon16)} aria-hidden />}
               title="Call a random auto"
               description="Opens your dialer with a stand or driver number"
             />
           </RandomTelButton>
-          <Link href="/travel/auto" className={quickActionRow}>
+          <Link
+            href="/travel/auto"
+            {...stylex.props(stylex.defaultMarker(), styles.quickAction, styles.quickDivider)}
+          >
             <QuickActionBody
-              icon={<Car className="size-4" aria-hidden />}
+              icon={<Car {...stylex.props(styles.icon16)} aria-hidden />}
               title="Get a taxi or auto"
               description="Gate stands, cabs & airport rates"
             />
           </Link>
-          <Link href="/tools/mail-to-warden" className={quickActionRow}>
+          <Link
+            href="/tools/mail-to-warden"
+            {...stylex.props(stylex.defaultMarker(), styles.quickAction, styles.quickDivider)}
+          >
             <QuickActionBody
-              icon={<Mail className="size-4" aria-hidden />}
+              icon={<Mail {...stylex.props(styles.icon16)} aria-hidden />}
               title="Mail to warden"
               description="Generate leave request emails"
             />
@@ -135,72 +313,72 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-12" aria-label="Browse">
-        <h2 className={sectionLabel}>Browse</h2>
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-          <Link href="/academics" className={browseTile}>
+      <section {...stylex.props(styles.browseSection)} aria-label="Browse">
+        <h2 {...stylex.props(styles.sectionLabel)}>Browse</h2>
+        <div {...stylex.props(styles.browseGrid)}>
+          <Link href="/academics" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
             <TileBody
-              icon={<GraduationCap className="size-5" />}
+              icon={<GraduationCap {...stylex.props(styles.icon20)} />}
               title="Academics"
               description="Systems & portals"
             />
           </Link>
-          <Link href="/restaurants" className={browseTile}>
+          <Link href="/restaurants" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
             <TileBody
-              icon={<Utensils className="size-5" />}
+              icon={<Utensils {...stylex.props(styles.icon20)} />}
               title="Restaurants"
               description="Menus & delivery"
             />
           </Link>
-          <Link href="/hostels" className={browseTile}>
+          <Link href="/hostels" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
             <TileBody
-              icon={<Building className="size-5" />}
+              icon={<Building {...stylex.props(styles.icon20)} />}
               title="Hostels"
               description="Wardens & contacts"
             />
           </Link>
-          <Link href={`/travel#${slugify("Cabs & Taxis")}`} className={browseTile}>
+          <Link
+            href={`/travel#${slugify("Cabs & Taxis")}`}
+            {...stylex.props(stylex.defaultMarker(), styles.tile)}
+          >
             <TileBody
-              icon={<Car className="size-5" />}
+              icon={<Car {...stylex.props(styles.icon20)} />}
               title="Travel"
               description="Autos, cabs & taxis"
             />
           </Link>
-          <Link href="/services" className={browseTile}>
+          <Link href="/services" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
             <TileBody
-              icon={<Wrench className="size-5" />}
+              icon={<Wrench {...stylex.props(styles.icon20)} />}
               title="Services"
               description="Laundry & xerox"
             />
           </Link>
-          <Link href="/tools" className={browseTile}>
+          <Link href="/tools" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
             <TileBody
-              icon={<Settings className="size-5" />}
+              icon={<Settings {...stylex.props(styles.icon20)} />}
               title="Tools"
               description="Maps & resources"
             />
           </Link>
-          <Link href="/grievance" className={browseTile}>
+          <Link href="/grievance" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
             <TileBody
-              icon={<MessageSquareWarning className="size-5" />}
+              icon={<MessageSquareWarning {...stylex.props(styles.icon20)} />}
               title="Grievance Redressal"
               description="Complaints & contacts"
             />
           </Link>
-          <Link href="/favorites" className={browseTile}>
+          <Link href="/favorites" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
             <TileBody
-              icon={<Star className="size-5" />}
+              icon={<Star {...stylex.props(styles.icon20)} />}
               title="Favorites"
               description={<FavoritesTileLabel />}
             />
           </Link>
-          <Link
-            href="/emergency"
-            className="group col-span-2 rounded-xl border border-rose-500/20 bg-rose-500/[0.04] p-4 outline-none transition-colors duration-150 hover:border-rose-500/40 hover:bg-rose-500/[0.08] focus-visible:ring-2 focus-visible:ring-rose-500/40 md:col-span-1"
-          >
+          <Link href="/emergency" {...stylex.props(styles.tile, styles.emergencyTile)}>
             <TileBody
               accent
-              icon={<Siren className="size-5" />}
+              icon={<Siren {...stylex.props(styles.icon20)} />}
               title="Emergency"
               description="Clinic, ambulance & security"
             />

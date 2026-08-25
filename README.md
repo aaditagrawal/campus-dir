@@ -36,7 +36,7 @@ Open http://localhost:3000.
 ```
 src/
   app/           Page routes (academics, restaurants, hostels, travel, services, emergency, grievance, tools, favorites)
-  components/    UI components (site-header, favorite-button, shadcn/ui primitives)
+  components/    UI components (site-header, favorite-button, StyleX-based primitives)
   data/          JSON files with all the directory content
   lib/           Utilities (search indexing, vCard generation, slugify)
   hooks/         React hooks (favorites)
@@ -46,7 +46,7 @@ All directory content lives in `src/data/*.json`. To update a phone number, rest
 
 ## Tech
 
-Next.js 15 (App Router, static export), React 19, TypeScript, Tailwind CSS 4, Radix UI, Fuse.js for search.
+Next.js 16 (App Router, static export), React 19, TypeScript, StyleX, Radix UI, and MiniSearch.
 
 ## Contributing
 

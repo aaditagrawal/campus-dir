@@ -1,5 +1,7 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
 import { Button } from "@/components/ui/button";
 import { downloadVCardFile } from "@/lib/vcard";
 
@@ -21,12 +23,13 @@ export function DownloadVCardButton({
   );
 }
 
-type RandomTelButtonProps = React.ComponentProps<"button"> & {
+type RandomTelButtonProps = Omit<React.ComponentProps<"button">, "className" | "style"> & {
   // One phone list per listing: a random listing is picked, then a random phone.
   options: string[][];
+  xstyle?: StyleXStyles;
 };
 
-export function RandomTelButton({ options, children, ...props }: RandomTelButtonProps) {
+export function RandomTelButton({ options, children, xstyle, ...props }: RandomTelButtonProps) {
   const handleClick = () => {
     const pools = options.filter((phones) => phones.length > 0);
     if (pools.length === 0) return;
@@ -35,7 +38,7 @@ export function RandomTelButton({ options, children, ...props }: RandomTelButton
     window.location.href = `tel:${phone.replace(/\s+/g, "")}`;
   };
   return (
-    <button type="button" onClick={handleClick} {...props}>
+    <button type="button" onClick={handleClick} {...stylex.props(xstyle)} {...props}>
       {children}
     </button>
   );

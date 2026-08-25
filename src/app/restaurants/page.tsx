@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition, memo } from "react";
+import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,106 +17,177 @@ import {
 import { useRestaurantStatuses } from "@/hooks/useRestaurantStatuses";
 import { ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, Clock, Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
+import { breakpoints, colors, fonts } from "@/styles/constants.stylex";
+import { shared } from "@/styles/shared";
 
-function downloadRestaurantVcf(r: Restaurant) {
-  const v = buildVCard({ name: r.name, org: r.name, phones: r.phones, address: r.address });
-  downloadVCardFile(r.name, v);
+function downloadRestaurantVcf(restaurant: Restaurant) {
+  const vcard = buildVCard({
+    name: restaurant.name,
+    org: restaurant.name,
+    phones: restaurant.phones,
+    address: restaurant.address,
+  });
+  downloadVCardFile(restaurant.name, vcard);
 }
 
+const styles = stylex.create({
+  page: { paddingBlock: { default: "2rem", [breakpoints.md]: "3rem" } },
+  pageHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: "1.5rem",
+  },
+  title: {
+    fontFamily: fonts.serif,
+    fontSize: { default: "1.5rem", [breakpoints.md]: "1.875rem" },
+    lineHeight: { default: "2rem", [breakpoints.md]: "2.25rem" },
+  },
+  subtitle: {
+    marginTop: "0.25rem",
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  sortButton: { height: "2rem", gap: "0.375rem", fontSize: "0.75rem" },
+  icon14: { width: "0.875rem", height: "0.875rem" },
+  columns: {
+    columnCount: { default: 1, [breakpoints.sm]: 2 },
+    columnGap: "0.75rem",
+  },
+  card: { marginBottom: "0.75rem", breakInside: "avoid", scrollMarginTop: "6rem" },
+  cardHeader: { paddingBottom: "0.5rem" },
+  row: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+  },
+  grow: { flex: 1, minWidth: 0 },
+  cardTitle: { fontSize: "1.125rem" },
+  statusRow: { display: "flex", alignItems: "center", gap: "0.25rem" },
+  open: { borderColor: "oklch(0.723 0.219 149.579 / 50%)", color: "oklch(0.627 0.194 149.214)" },
+  closed: { borderColor: "oklch(0.712 0.194 13.428 / 50%)", color: colors.rose },
+  hours: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.25rem",
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+  },
+  clockIcon: { width: "0.75rem", height: "0.75rem" },
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    paddingTop: 0,
+  },
+  phones: {
+    display: "flex",
+    flexWrap: "wrap",
+    columnGap: "0.75rem",
+    rowGap: "0.25rem",
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  phoneLink: {
+    color: { default: colors.mutedForeground, ":hover": colors.foreground },
+    textUnderlineOffset: "2px",
+    textDecorationLine: { default: "none", ":hover": "underline" },
+  },
+  fees: { color: colors.mutedForeground, fontSize: "0.75rem", lineHeight: "1rem" },
+  actions: { display: "flex", flexWrap: "wrap", gap: "0.5rem", paddingTop: "0.25rem" },
+  actionButton: { height: "2rem" },
+});
+
 const RestaurantCard = memo(function RestaurantCard({
-  r,
+  restaurant,
   status,
 }: {
-  r: Restaurant;
+  restaurant: Restaurant;
   status: OpenStatus;
 }) {
   return (
-    <Card id={r.slug} className="glass mb-3 break-inside-avoid scroll-mt-24">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-lg">{r.name}</CardTitle>
+    <Card id={restaurant.slug} xstyle={[shared.glass, styles.card]}>
+      <CardHeader xstyle={styles.cardHeader}>
+        <div {...stylex.props(styles.row)}>
+          <div {...stylex.props(styles.grow)}>
+            <CardTitle xstyle={styles.cardTitle}>{restaurant.name}</CardTitle>
           </div>
-          <div className="flex items-center gap-1">
+          <div {...stylex.props(styles.statusRow)}>
             {status && (
-              <Badge
-                variant="outline"
-                className={
-                  status.open
-                    ? "border-green-500/50 text-green-600 dark:text-green-400"
-                    : "border-rose-400/50 text-rose-500"
-                }
-              >
+              <Badge variant="outline" xstyle={status.open ? styles.open : styles.closed}>
                 {status.open ? "Open" : "Closed"}
               </Badge>
             )}
             <FavoriteButton
               item={{
-                id: `restaurant-${r.slug}`,
+                id: `restaurant-${restaurant.slug}`,
                 type: "restaurant",
-                name: r.name,
-                href: `/restaurants#${r.slug}`,
-                phones: r.phones,
-                subtitle: r.address,
+                name: restaurant.name,
+                href: `/restaurants#${restaurant.slug}`,
+                phones: restaurant.phones,
+                subtitle: restaurant.address,
               }}
               size="sm"
             />
           </div>
         </div>
         {status && (
-          <div className="text-xs text-muted-foreground flex items-center gap-1">
-            <Clock className="size-3" />
+          <div {...stylex.props(styles.hours)}>
+            <Clock {...stylex.props(styles.clockIcon)} />
             {status.range}
           </div>
         )}
       </CardHeader>
-      <CardContent className="space-y-2 pt-0">
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
-          {r.phones?.map((p) => (
+      <CardContent xstyle={styles.content}>
+        <div {...stylex.props(styles.phones)}>
+          {restaurant.phones?.map((phone) => (
             <a
-              key={p}
-              href={`tel:${p.replace(/\s+/g, "")}`}
-              className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+              key={phone}
+              href={`tel:${phone.replace(/\s+/g, "")}`}
+              {...stylex.props(styles.phoneLink)}
             >
-              {p}
+              {phone}
             </a>
           ))}
         </div>
-        {(r.deliveryFee || r.packagingFee) && (
-          <div className="text-xs text-muted-foreground">
-            {r.deliveryFee && <span>Delivery: {r.deliveryFee}</span>}
-            {r.deliveryFee && r.packagingFee && <span> · </span>}
-            {r.packagingFee && <span>Packaging: {r.packagingFee}</span>}
+        {(restaurant.deliveryFee || restaurant.packagingFee) && (
+          <div {...stylex.props(styles.fees)}>
+            {restaurant.deliveryFee && <span>Delivery: {restaurant.deliveryFee}</span>}
+            {restaurant.deliveryFee && restaurant.packagingFee && <span> · </span>}
+            {restaurant.packagingFee && <span>Packaging: {restaurant.packagingFee}</span>}
           </div>
         )}
-        <div className="flex gap-2 flex-wrap pt-1">
+        <div {...stylex.props(styles.actions)}>
           <Button
             variant="secondary"
             size="sm"
             onClick={() => {
-              window.location.href = `tel:${r.phones?.[0]?.replace(/\s+/g, "") ?? ""}`;
+              window.location.href = `tel:${restaurant.phones?.[0]?.replace(/\s+/g, "") ?? ""}`;
             }}
-            className="gap-1.5 h-8"
+            xstyle={styles.actionButton}
           >
-            <Phone className="size-3.5" />
+            <Phone {...stylex.props(styles.icon14)} />
             Call
           </Button>
           <Button
             size="sm"
             variant="outline"
-            onClick={() => downloadRestaurantVcf(r)}
-            className="h-8"
+            onClick={() => downloadRestaurantVcf(restaurant)}
+            xstyle={styles.actionButton}
           >
             Save Contact
           </Button>
-          {r.menuUrl && (
+          {restaurant.menuUrl && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => window.open(r.menuUrl, "_blank")}
-              className="gap-1.5 h-8"
+              onClick={() => window.open(restaurant.menuUrl, "_blank")}
+              xstyle={styles.actionButton}
             >
-              <ExternalLink className="size-3.5" />
+              <ExternalLink {...stylex.props(styles.icon14)} />
               Menu
             </Button>
           )}
@@ -129,10 +201,6 @@ export default function RestaurantsPage() {
   const [sortOrder, setSortOrder] = useState<"alpha-asc" | "alpha-desc" | "open-now" | null>(null);
   const [, startTransition] = useTransition();
   const statuses = useRestaurantStatuses();
-
-  // Both alphabetical orders were computed when the module loaded; only
-  // open-first depends on the clock, and it is a stable partition of the
-  // alphabetical order rather than another comparator sort.
   const sortedRestaurants = useMemo(() => {
     switch (sortOrder) {
       case "alpha-asc":
@@ -158,17 +226,17 @@ export default function RestaurantsPage() {
   };
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8 md:py-12">
-      <div className="flex items-center justify-between mb-6">
+    <main {...stylex.props(shared.page, styles.page)}>
+      <div {...stylex.props(styles.pageHeader)}>
         <div>
-          <h1 className="text-2xl md:text-3xl font-serif">Restaurants</h1>
-          <p className="text-sm text-muted-foreground mt-1">Call or save contacts</p>
+          <h1 {...stylex.props(styles.title)}>Restaurants</h1>
+          <p {...stylex.props(styles.subtitle)}>Call or save contacts</p>
         </div>
-        <Button variant="outline" size="sm" onClick={toggleSort} className="gap-1.5 h-8 text-xs">
-          {sortOrder === "alpha-asc" && <ArrowUp className="size-3.5" />}
-          {sortOrder === "alpha-desc" && <ArrowDown className="size-3.5" />}
-          {sortOrder === "open-now" && <Clock className="size-3.5" />}
-          {sortOrder === null && <ArrowUpDown className="size-3.5" />}
+        <Button variant="outline" size="sm" onClick={toggleSort} xstyle={styles.sortButton}>
+          {sortOrder === "alpha-asc" && <ArrowUp {...stylex.props(styles.icon14)} />}
+          {sortOrder === "alpha-desc" && <ArrowDown {...stylex.props(styles.icon14)} />}
+          {sortOrder === "open-now" && <Clock {...stylex.props(styles.icon14)} />}
+          {sortOrder === null && <ArrowUpDown {...stylex.props(styles.icon14)} />}
           {sortOrder === "alpha-asc"
             ? "A-Z"
             : sortOrder === "alpha-desc"
@@ -178,9 +246,13 @@ export default function RestaurantsPage() {
                 : "Sort"}
         </Button>
       </div>
-      <div className="columns-1 sm:columns-2 gap-3">
-        {sortedRestaurants.map((r) => (
-          <RestaurantCard key={r.name} r={r} status={statuses[r.index]} />
+      <div {...stylex.props(styles.columns)}>
+        {sortedRestaurants.map((restaurant) => (
+          <RestaurantCard
+            key={restaurant.name}
+            restaurant={restaurant}
+            status={statuses[restaurant.index]}
+          />
         ))}
       </div>
     </main>

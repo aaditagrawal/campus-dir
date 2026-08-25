@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import hostelsData from "@/data/hostels.json";
 import { useSearchParams } from "next/navigation";
+import { breakpoints, colors, fonts, motion, radii } from "@/styles/constants.stylex";
+import { shared } from "@/styles/shared";
 
 interface FormData {
   studentName: string;
@@ -73,6 +76,125 @@ const BLOCKS: readonly string[] = hostelsData.map((hostel) => hostel.block);
 const PURPOSE_TEXT_BY_LABEL = new Map(
   PURPOSE_TEMPLATES.map((purpose) => [purpose.label, purpose.text]),
 );
+
+const styles = stylex.create({
+  sharedNotice: {
+    marginBottom: "1.5rem",
+    borderColor: `color-mix(in oklab, ${colors.blue} 34%, ${colors.border})`,
+    backgroundColor: `color-mix(in oklab, ${colors.blue} 8%, ${colors.card})`,
+  },
+  noticeContent: { padding: "1.5rem" },
+  noticeTitle: {
+    marginBottom: "0.5rem",
+    fontFamily: fonts.serif,
+    fontSize: "1.125rem",
+    lineHeight: "1.75rem",
+    fontWeight: 600,
+  },
+  pageHeader: { marginBottom: "2rem" },
+  formStack: { display: "grid", gap: "2rem" },
+  cardHeader: { paddingBottom: "1rem" },
+  cardContent: { display: "grid", gap: "1.5rem" },
+  gridTwo: {
+    display: "grid",
+    gap: "1.5rem",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.sm]: "repeat(2, minmax(0, 1fr))",
+    },
+  },
+  gridThree: {
+    display: "grid",
+    gap: "1.5rem",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.sm]: "repeat(3, minmax(0, 1fr))",
+    },
+  },
+  fieldLabel: { display: "block", marginBottom: "0.5rem" },
+  fieldLabelLarge: { display: "block", marginBottom: "0.75rem" },
+  formControl: {
+    display: "flex",
+    width: "100%",
+    minWidth: 0,
+    height: "2.25rem",
+    borderRadius: radii.md,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: { default: colors.input, ":focus-visible": colors.ring },
+    backgroundColor: "transparent",
+    paddingInline: "0.75rem",
+    paddingBlock: "0.25rem",
+    color: colors.foreground,
+    fontFamily: fonts.sans,
+    fontSize: { default: "1rem", [breakpoints.md]: "0.875rem" },
+    lineHeight: { default: "1.5rem", [breakpoints.md]: "1.25rem" },
+    outline: "none",
+    boxShadow: {
+      default: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      ":focus-visible": `0 0 0 3px color-mix(in oklab, ${colors.ring} 50%, transparent)`,
+    },
+    transitionProperty: "color, border-color, box-shadow",
+    transitionDuration: motion.fast,
+  },
+  textarea: {
+    minHeight: "6.25rem",
+    height: "auto",
+    resize: "vertical",
+    padding: "0.75rem",
+  },
+  tallInput: { height: "2.75rem" },
+  wardenList: { display: "grid", gap: "0.75rem" },
+  warden: { display: "flex", alignItems: "center", gap: "0.75rem" },
+  checkbox: {
+    width: "1rem",
+    height: "1rem",
+    borderRadius: radii.sm,
+    accentColor: colors.primary,
+  },
+  helperTop: { marginTop: "0.75rem" },
+  inset: { padding: "1rem", borderRadius: radii.md, backgroundColor: colors.muted },
+  insetSmall: { marginTop: "0.5rem", padding: "0.75rem" },
+  actions: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "1rem",
+  },
+  alert: {
+    padding: "1rem",
+    borderRadius: radii.lg,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: `color-mix(in oklab, ${colors.rose} 42%, ${colors.border})`,
+    backgroundColor: `color-mix(in oklab, ${colors.rose} 10%, ${colors.card})`,
+  },
+  alertTitle: { marginBottom: "0.5rem", fontWeight: 500 },
+  previewBody: {
+    whiteSpace: "pre-wrap",
+    overflowWrap: "anywhere",
+    fontFamily: fonts.mono,
+    fontSize: "0.875rem",
+    lineHeight: 1.625,
+  },
+  shareBox: {
+    padding: "1rem",
+    borderRadius: radii.md,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: `color-mix(in oklab, ${colors.blue} 34%, ${colors.border})`,
+    backgroundColor: `color-mix(in oklab, ${colors.blue} 8%, ${colors.card})`,
+  },
+  shareTitle: { marginBottom: "0.5rem", fontWeight: 500 },
+  shareDescription: { marginBottom: "0.75rem" },
+  shareRow: { display: "flex", alignItems: "center", gap: "0.5rem" },
+  shareInput: {
+    minWidth: 0,
+    backgroundColor: colors.background,
+    fontFamily: fonts.mono,
+    fontSize: "0.75rem",
+  },
+});
 
 /**
  * `toLocaleDateString` builds a formatter on every call. One shared instance
@@ -255,14 +377,14 @@ Purpose: ${purposeText || "[NOT FILLED]"}
   }, [formData]);
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8">
+    <main {...stylex.props(shared.page, shared.pageNarrow)}>
       {isSharedLink && (
-        <Card className="mb-6 border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
-          <CardContent className="p-6">
-            <h2 className="text-lg font-semibold mb-2">
+        <Card xstyle={styles.sharedNotice}>
+          <CardContent xstyle={styles.noticeContent}>
+            <h2 {...stylex.props(styles.noticeTitle)}>
               Parent/Guardian: Leave Request Ready to Send
             </h2>
-            <p className="text-sm text-muted-foreground mb-0">
+            <p {...stylex.props(shared.textSm, shared.mutedText)}>
               Your ward has prepared a leave request for hostel warden approval. Please review all
               the details below, make any necessary corrections, scroll down to preview the email,
               and click &quot;Send Email to Warden&quot; to send it from your email account.
@@ -271,22 +393,22 @@ Purpose: ${purposeText || "[NOT FILLED]"}
         </Card>
       )}
 
-      <div className="mb-8">
-        <h1 className="text-3xl">Generate Mail to Warden</h1>
-        <p className="text-muted-foreground">
+      <div {...stylex.props(styles.pageHeader)}>
+        <h1 {...stylex.props(shared.heading1)}>Generate Mail to Warden</h1>
+        <p {...stylex.props(shared.mutedText)}>
           Generate a formal leave request email for your hostel warden.
         </p>
       </div>
 
-      <div className="grid gap-8">
+      <div {...stylex.props(styles.formStack)}>
         <Card>
-          <CardHeader className="pb-4">
+          <CardHeader xstyle={styles.cardHeader}>
             <CardTitle>Student Information</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-6">
-            <div className="grid sm:grid-cols-2 gap-6">
+          <CardContent xstyle={styles.cardContent}>
+            <div {...stylex.props(styles.gridTwo)}>
               <div>
-                <Label htmlFor="studentName" className="mb-2 block">
+                <Label htmlFor="studentName" xstyle={styles.fieldLabel}>
                   Student Name
                 </Label>
                 <Input
@@ -297,7 +419,7 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                 />
               </div>
               <div>
-                <Label htmlFor="registrationNumber" className="mb-2 block">
+                <Label htmlFor="registrationNumber" xstyle={styles.fieldLabel}>
                   Registration Number
                 </Label>
                 <Input
@@ -309,14 +431,14 @@ Purpose: ${purposeText || "[NOT FILLED]"}
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-6">
+            <div {...stylex.props(styles.gridThree)}>
               <div>
-                <Label htmlFor="semester" className="mb-2 block">
+                <Label htmlFor="semester" xstyle={styles.fieldLabel}>
                   Semester
                 </Label>
                 <select
                   id="semester"
-                  className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                  {...stylex.props(styles.formControl)}
                   value={formData.semester}
                   onChange={(e) => handleInputChange("semester", e.target.value)}
                 >
@@ -329,7 +451,7 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                 </select>
               </div>
               <div>
-                <Label htmlFor="branch" className="mb-2 block">
+                <Label htmlFor="branch" xstyle={styles.fieldLabel}>
                   Branch
                 </Label>
                 <Input
@@ -340,7 +462,7 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                 />
               </div>
               <div>
-                <Label htmlFor="contactNumber" className="mb-2 block">
+                <Label htmlFor="contactNumber" xstyle={styles.fieldLabel}>
                   Contact Number
                 </Label>
                 <Input
@@ -355,18 +477,18 @@ Purpose: ${purposeText || "[NOT FILLED]"}
         </Card>
 
         <Card>
-          <CardHeader className="pb-4">
+          <CardHeader xstyle={styles.cardHeader}>
             <CardTitle>Hostel Information</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-6">
-            <div className="grid sm:grid-cols-2 gap-6">
+          <CardContent xstyle={styles.cardContent}>
+            <div {...stylex.props(styles.gridTwo)}>
               <div>
-                <Label htmlFor="block" className="mb-2 block">
+                <Label htmlFor="block" xstyle={styles.fieldLabel}>
                   Block
                 </Label>
                 <select
                   id="block"
-                  className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                  {...stylex.props(styles.formControl)}
                   value={formData.block}
                   onChange={(e) => {
                     handleInputChange("block", e.target.value);
@@ -382,7 +504,7 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                 </select>
               </div>
               <div>
-                <Label htmlFor="roomNumber" className="mb-2 block">
+                <Label htmlFor="roomNumber" xstyle={styles.fieldLabel}>
                   Room Number
                 </Label>
                 <Input
@@ -396,12 +518,12 @@ Purpose: ${purposeText || "[NOT FILLED]"}
 
             {selectedHostel && (
               <div>
-                <Label className="mb-3 block">Select Warden(s)</Label>
-                <div className="space-y-3">
+                <Label xstyle={styles.fieldLabelLarge}>Select Warden(s)</Label>
+                <div {...stylex.props(styles.wardenList)}>
                   {selectedHostel.wardens.map((warden, wardenIndex) => {
                     const wardenId = `warden-${wardenIndex}`;
                     return (
-                      <div key={warden.name} className="flex items-center space-x-3">
+                      <div key={warden.name} {...stylex.props(styles.warden)}>
                         <input
                           id={wardenId}
                           type="checkbox"
@@ -412,17 +534,19 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                             else updated.delete(warden.name);
                             handleInputChange("selectedWardens", Array.from(updated));
                           }}
-                          className="rounded"
+                          {...stylex.props(styles.checkbox)}
                         />
                         <div>
                           <label htmlFor={wardenId}>{warden.name}</label>
-                          <p className="text-sm text-muted-foreground">{warden.designation}</p>
+                          <p {...stylex.props(shared.textSm, shared.mutedText)}>
+                            {warden.designation}
+                          </p>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-                <p className="text-sm text-muted-foreground mt-3">
+                <p {...stylex.props(shared.textSm, shared.mutedText, styles.helperTop)}>
                   CC will be sent to: {selectedHostel.email}
                 </p>
               </div>
@@ -431,13 +555,13 @@ Purpose: ${purposeText || "[NOT FILLED]"}
         </Card>
 
         <Card>
-          <CardHeader className="pb-4">
+          <CardHeader xstyle={styles.cardHeader}>
             <CardTitle>Leave Details</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-6">
-            <div className="grid sm:grid-cols-2 gap-6">
+          <CardContent xstyle={styles.cardContent}>
+            <div {...stylex.props(styles.gridTwo)}>
               <div>
-                <Label htmlFor="startDate" className="mb-2 block">
+                <Label htmlFor="startDate" xstyle={styles.fieldLabel}>
                   Start Date
                 </Label>
                 <Input
@@ -445,11 +569,11 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                   type="date"
                   value={formData.startDate}
                   onChange={(e) => handleInputChange("startDate", e.target.value)}
-                  className="h-11"
+                  xstyle={styles.tallInput}
                 />
               </div>
               <div>
-                <Label htmlFor="endDate" className="mb-2 block">
+                <Label htmlFor="endDate" xstyle={styles.fieldLabel}>
                   End Date
                 </Label>
                 <Input
@@ -458,19 +582,19 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                   value={formData.endDate}
                   min={formData.startDate || undefined}
                   onChange={(e) => handleInputChange("endDate", e.target.value)}
-                  className="h-11"
+                  xstyle={styles.tallInput}
                 />
               </div>
             </div>
 
             {formData.startDate && formData.endDate && (
-              <div className="p-4 bg-muted rounded-md">
-                <p className="text-sm font-medium">Duration: {durationText}</p>
+              <div {...stylex.props(styles.inset)}>
+                <p {...stylex.props(shared.textSm)}>Duration: {durationText}</p>
               </div>
             )}
 
             <div>
-              <Label htmlFor="placeOfVisit" className="mb-2 block">
+              <Label htmlFor="placeOfVisit" xstyle={styles.fieldLabel}>
                 Place of Visit
               </Label>
               <Input
@@ -482,12 +606,12 @@ Purpose: ${purposeText || "[NOT FILLED]"}
             </div>
 
             <div>
-              <Label htmlFor="address" className="mb-2 block">
+              <Label htmlFor="address" xstyle={styles.fieldLabel}>
                 Detailed Address
               </Label>
               <textarea
                 id="address"
-                className="w-full p-3 border rounded-md min-h-[100px]"
+                {...stylex.props(styles.formControl, styles.textarea)}
                 value={formData.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
                 placeholder="Enter the complete address where you will be staying"
@@ -495,12 +619,12 @@ Purpose: ${purposeText || "[NOT FILLED]"}
             </div>
 
             <div>
-              <Label htmlFor="purpose" className="mb-2 block">
+              <Label htmlFor="purpose" xstyle={styles.fieldLabel}>
                 Purpose
               </Label>
               <select
                 id="purpose"
-                className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                {...stylex.props(styles.formControl)}
                 value={formData.purpose}
                 onChange={(e) => handleInputChange("purpose", e.target.value)}
               >
@@ -514,20 +638,22 @@ Purpose: ${purposeText || "[NOT FILLED]"}
               </select>
 
               {formData.purpose && formData.purpose !== "custom" && (
-                <div className="mt-2 p-3 bg-muted rounded-md">
-                  <p className="text-sm">{PURPOSE_TEXT_BY_LABEL.get(formData.purpose)}</p>
+                <div {...stylex.props(styles.inset, styles.insetSmall)}>
+                  <p {...stylex.props(shared.textSm)}>
+                    {PURPOSE_TEXT_BY_LABEL.get(formData.purpose)}
+                  </p>
                 </div>
               )}
             </div>
 
             {formData.purpose === "custom" && (
               <div>
-                <Label htmlFor="customPurpose" className="mb-2 block">
+                <Label htmlFor="customPurpose" xstyle={styles.fieldLabel}>
                   Custom Purpose
                 </Label>
                 <textarea
                   id="customPurpose"
-                  className="w-full p-3 border rounded-md min-h-[100px]"
+                  {...stylex.props(styles.formControl, styles.textarea)}
                   value={formData.customPurpose}
                   onChange={(e) => handleInputChange("customPurpose", e.target.value)}
                   placeholder="Enter custom purpose details"
@@ -538,13 +664,13 @@ Purpose: ${purposeText || "[NOT FILLED]"}
         </Card>
 
         <Card>
-          <CardHeader className="pb-4">
+          <CardHeader xstyle={styles.cardHeader}>
             <CardTitle>Parent Information</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-6">
-            <div className="grid sm:grid-cols-2 gap-6">
+          <CardContent xstyle={styles.cardContent}>
+            <div {...stylex.props(styles.gridTwo)}>
               <div>
-                <Label htmlFor="parentName" className="mb-2 block">
+                <Label htmlFor="parentName" xstyle={styles.fieldLabel}>
                   Parent Name
                 </Label>
                 <Input
@@ -555,7 +681,7 @@ Purpose: ${purposeText || "[NOT FILLED]"}
                 />
               </div>
               <div>
-                <Label htmlFor="parentContact" className="mb-2 block">
+                <Label htmlFor="parentContact" xstyle={styles.fieldLabel}>
                   Parent Contact
                 </Label>
                 <Input
@@ -569,7 +695,7 @@ Purpose: ${purposeText || "[NOT FILLED]"}
           </CardContent>
         </Card>
 
-        <div className="flex gap-4 justify-center flex-wrap">
+        <div {...stylex.props(styles.actions)}>
           <Button onClick={generateMail} variant="outline" size="lg">
             Preview Mail
           </Button>
@@ -589,65 +715,63 @@ Purpose: ${purposeText || "[NOT FILLED]"}
 
         {mailPreview && (
           <Card>
-            <CardHeader className="pb-6">
+            <CardHeader>
               <CardTitle>Mail Preview</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent xstyle={styles.cardContent}>
               {missingFields.length > 0 && (
-                <div className="glass border border-rose-200/50 bg-rose-50/20 rounded-lg p-4">
-                  <p className="text-sm font-medium text-white mb-2">
+                <div role="alert" {...stylex.props(styles.alert)}>
+                  <p {...stylex.props(shared.textSm, styles.alertTitle)}>
                     Please fill in the following required fields:
                   </p>
-                  <p className="text-sm text-white">{missingFields.join(", ")}</p>
+                  <p {...stylex.props(shared.textSm)}>{missingFields.join(", ")}</p>
                 </div>
               )}
 
               {recipients.to.length > 0 && (
                 <div>
-                  <Label className="mb-3 block">To</Label>
-                  <div className="p-4 bg-muted rounded-md">
-                    <p className="text-sm">{recipients.to.join(", ")}</p>
+                  <Label xstyle={styles.fieldLabelLarge}>To</Label>
+                  <div {...stylex.props(styles.inset)}>
+                    <p {...stylex.props(shared.textSm)}>{recipients.to.join(", ")}</p>
                   </div>
                 </div>
               )}
 
               {recipients.cc.length > 0 && (
                 <div>
-                  <Label className="mb-3 block">CC</Label>
-                  <div className="p-4 bg-muted rounded-md">
-                    <p className="text-sm">{recipients.cc.join(", ")}</p>
+                  <Label xstyle={styles.fieldLabelLarge}>CC</Label>
+                  <div {...stylex.props(styles.inset)}>
+                    <p {...stylex.props(shared.textSm)}>{recipients.cc.join(", ")}</p>
                   </div>
                 </div>
               )}
 
               <div>
-                <Label className="mb-3 block">Subject</Label>
-                <div className="p-4 bg-muted rounded-md">{mailPreview.subject}</div>
+                <Label xstyle={styles.fieldLabelLarge}>Subject</Label>
+                <div {...stylex.props(styles.inset)}>{mailPreview.subject}</div>
               </div>
               <div>
-                <Label className="mb-3 block">Body</Label>
-                <pre className="p-4 bg-muted rounded-md whitespace-pre-wrap text-sm leading-relaxed">
-                  {mailPreview.body}
-                </pre>
+                <Label xstyle={styles.fieldLabelLarge}>Body</Label>
+                <pre {...stylex.props(styles.inset, styles.previewBody)}>{mailPreview.body}</pre>
               </div>
 
               {shareableLink && !isSharedLink && (
                 <div>
-                  <Label className="mb-3 block">Shareable Link for Parents</Label>
-                  <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-md border border-blue-200">
-                    <p className="text-sm font-medium mb-2">
+                  <Label xstyle={styles.fieldLabelLarge}>Shareable Link for Parents</Label>
+                  <div {...stylex.props(styles.shareBox)}>
+                    <p {...stylex.props(shared.textSm, styles.shareTitle)}>
                       Share this link with your parents via WhatsApp, SMS, or email
                     </p>
-                    <p className="text-xs text-muted-foreground mb-3">
+                    <p {...stylex.props(shared.textXs, shared.mutedText, styles.shareDescription)}>
                       When they click this link, they&apos;ll see this page with all the information
                       pre-filled. They can review everything and click &quot;Send Mail&quot; to send
                       the leave request from their email.
                     </p>
-                    <div className="flex gap-2 items-center">
+                    <div {...stylex.props(styles.shareRow)}>
                       <Input
                         value={shareableLink}
                         readOnly
-                        className="font-mono text-xs bg-white dark:bg-gray-800"
+                        xstyle={styles.shareInput}
                         onClick={(e) => e.currentTarget.select()}
                       />
                       <Button onClick={copyShareableLink} size="sm" variant="default">
@@ -669,10 +793,10 @@ export default function MailToWardenPage() {
   return (
     <Suspense
       fallback={
-        <main className="max-w-4xl mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl">Generate Mail to Warden</h1>
-            <p className="text-muted-foreground">Loading...</p>
+        <main {...stylex.props(shared.page, shared.pageNarrow)}>
+          <div {...stylex.props(styles.pageHeader)}>
+            <h1 {...stylex.props(shared.heading1)}>Generate Mail to Warden</h1>
+            <p {...stylex.props(shared.mutedText)}>Loading...</p>
           </div>
         </main>
       }

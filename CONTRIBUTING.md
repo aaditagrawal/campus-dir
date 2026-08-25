@@ -370,24 +370,35 @@ export function RestaurantCard({ restaurant, onContactClick }: RestaurantCardPro
 
 #### **Styling Guidelines**
 
-- **Tailwind CSS** for all styling
-- **Consistent spacing** using Tailwind's spacing scale
+- **StyleX** for component and page styling
+- **Shared tokens** from `src/styles/constants.stylex.ts`
+- **Shared layout patterns** from `src/styles/shared.ts`
 - **Responsive design** - Mobile-first approach
 - **Accessibility** - Proper ARIA labels and semantic HTML
 
 ```tsx
+import * as stylex from "@stylexjs/stylex";
+import { colors, radii } from "@/styles/constants.stylex";
+
+const styles = stylex.create({
+  button: {
+    paddingInline: "1rem",
+    paddingBlock: "0.5rem",
+    borderRadius: radii.md,
+    backgroundColor: { default: colors.primary, ":hover": colors.accent },
+    color: colors.primaryForeground,
+  },
+});
+
 // Good
-<button
-  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
-  aria-label="Download contact"
->
+<button {...stylex.props(styles.button)} aria-label="Download contact">
   Download Contact
-</button>
+</button>;
 ```
 
 ### 🔍 Search System
 
-The search functionality is powered by Fuse.js and located in `src/lib/search.ts`:
+The search functionality is powered by MiniSearch and located in `src/lib/search-index.ts`:
 
 **Key Features:**
 
@@ -426,18 +437,17 @@ The project uses Radix UI primitives for accessibility:
 
 ### 📱 Responsive Design
 
-**Breakpoints:**
+**Breakpoints** (`src/styles/constants.stylex.ts`):
 
 - **Mobile**: Default (< 640px)
-- **Tablet**: `sm:` (640px+)
-- **Desktop**: `md:` (768px+)
-- **Large**: `lg:` (1024px+)
+- **Tablet**: `breakpoints.sm` (640px+)
+- **Desktop**: `breakpoints.md` (768px+)
 
 **Grid Systems:**
 
-- **Restaurants**: `columns-1 sm:columns-2` for masonry layout
-- **Hostels**: `grid sm:grid-cols-2` for card grid
-- **Services**: `grid sm:grid-cols-2` for uniform cards
+- **Restaurants**: One column by default, two-column masonry from `breakpoints.sm`
+- **Hostels**: One column by default, two-column grid from `breakpoints.sm`
+- **Services**: One column by default, two-column grid from `breakpoints.sm`
 
 ## 🛠️ Tools Section
 
@@ -474,12 +484,19 @@ To create a new internal tool:
 // src/app/tools/your-tool/page.tsx
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
+import { shared } from "@/styles/shared";
+
+const styles = stylex.create({
+  header: { marginBottom: "2rem" },
+});
+
 export default function YourToolPage() {
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl">Your Tool Name</h1>
-        <p className="text-muted-foreground">Tool description</p>
+    <main {...stylex.props(shared.page, shared.pageNarrow)}>
+      <div {...stylex.props(styles.header)}>
+        <h1 {...stylex.props(shared.heading1)}>Your Tool Name</h1>
+        <p {...stylex.props(shared.mutedText)}>Tool description</p>
       </div>
       {/* Tool content */}
     </main>
@@ -511,7 +528,7 @@ The existing mail-to-warden tool demonstrates best practices:
 - **Form handling** with React state
 - **Data integration** with hostels.json
 - **Mail generation** and opening mail clients
-- **Responsive design** with Tailwind CSS
+- **Responsive design** with shared StyleX breakpoints
 - **TypeScript types** for form data
 - **Validation** and user feedback
 
@@ -522,6 +539,9 @@ The existing mail-to-warden tool demonstrates best practices:
 ```bash
 # Run Oxlint
 bun run lint
+
+# Reject Tailwind regressions and verify StyleX-only source styling
+bun run check:styles
 
 # Type checking (automatic with TypeScript)
 bun run build

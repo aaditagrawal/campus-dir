@@ -1,96 +1,102 @@
+import * as stylex from "@stylexjs/stylex";
 import data from "@/data/tools.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { slugify } from "@/lib/utils";
 import { FavoriteButton } from "@/components/favorite-button";
+import { colors } from "@/styles/constants.stylex";
+import { shared } from "@/styles/shared";
 
 type Tool = { name: string; url: string; description: string };
 type ToolsData = { web_resources: Tool[]; internal_tools?: Tool[] };
 
+const styles = stylex.create({
+  card: { position: "relative" },
+  row: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+  },
+  overlay: { position: "absolute", inset: 0, zIndex: 0 },
+  content: {
+    position: "relative",
+    zIndex: 10,
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  url: {
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+    overflowWrap: "anywhere",
+  },
+});
+
+function ToolCard({ tool, internal = false }: { tool: Tool; internal?: boolean }) {
+  return (
+    <Card xstyle={[shared.glass, shared.cardHover, styles.card]}>
+      <CardHeader>
+        <div {...stylex.props(styles.row)}>
+          <CardTitle>{tool.name}</CardTitle>
+          <FavoriteButton
+            item={{
+              id: `tool-${internal ? "internal" : "web"}-${slugify(tool.name)}`,
+              type: "tool",
+              name: tool.name,
+              href: tool.url,
+              subtitle: tool.description,
+            }}
+            size="sm"
+          />
+        </div>
+      </CardHeader>
+      <a
+        href={tool.url}
+        target={internal ? undefined : "_blank"}
+        rel={internal ? undefined : "noreferrer"}
+        {...stylex.props(styles.overlay)}
+        aria-label={`Open ${tool.name}`}
+      />
+      <CardContent xstyle={styles.content}>
+        {tool.description}
+        {!internal && (
+          <>
+            <br />
+            <span {...stylex.props(styles.url)}>{tool.url}</span>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function ToolsPage() {
   const tools: ToolsData = data;
-
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8 grid gap-8">
+    <main {...stylex.props(shared.page, shared.pageGrid)}>
       <div>
-        <h1 className="text-3xl">Tools</h1>
-        <p className="text-muted-foreground">
+        <h1 {...stylex.props(shared.heading1)}>Tools</h1>
+        <p {...stylex.props(shared.mutedText)}>
           Useful web resources and tools for MIT Manipal students.
         </p>
       </div>
 
-      <div className="space-y-2" id={slugify("Web Resources")}>
-        <h2 className="text-xl">Web Resources</h2>
-        <div className="grid sm:grid-cols-2 gap-4">
+      <div {...stylex.props(shared.sectionCompact)} id={slugify("Web Resources")}>
+        <h2 {...stylex.props(shared.heading2)}>Web Resources</h2>
+        <div {...stylex.props(shared.grid2)}>
           {tools.web_resources.map((tool) => (
-            <Card
-              key={tool.name}
-              className="glass hover:shadow-lg transition-colors relative group"
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle>{tool.name}</CardTitle>
-                  <FavoriteButton
-                    item={{
-                      id: `tool-web-${slugify(tool.name)}`,
-                      type: "tool",
-                      name: tool.name,
-                      href: tool.url,
-                      subtitle: tool.description,
-                    }}
-                    size="sm"
-                  />
-                </div>
-              </CardHeader>
-              <a
-                href={tool.url}
-                target="_blank"
-                rel="noreferrer"
-                className="absolute inset-0 z-0"
-                aria-label={`Open ${tool.name}`}
-              />
-              <CardContent className="text-sm text-muted-foreground relative z-10">
-                {tool.description}
-                <br />
-                <span className="text-xs text-gray-500 break-all">{tool.url}</span>
-              </CardContent>
-            </Card>
+            <ToolCard key={tool.name} tool={tool} />
           ))}
         </div>
       </div>
 
       {tools.internal_tools && tools.internal_tools.length > 0 && (
-        <div className="space-y-2" id={slugify("Internal Tools")}>
-          <h2 className="text-xl">Internal Tools</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+        <div {...stylex.props(shared.sectionCompact)} id={slugify("Internal Tools")}>
+          <h2 {...stylex.props(shared.heading2)}>Internal Tools</h2>
+          <div {...stylex.props(shared.grid2)}>
             {tools.internal_tools.map((tool) => (
-              <Card
-                key={tool.name}
-                className="glass hover:shadow-lg transition-colors relative group"
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle>{tool.name}</CardTitle>
-                    <FavoriteButton
-                      item={{
-                        id: `tool-internal-${slugify(tool.name)}`,
-                        type: "tool",
-                        name: tool.name,
-                        href: tool.url,
-                        subtitle: tool.description,
-                      }}
-                      size="sm"
-                    />
-                  </div>
-                </CardHeader>
-                <a
-                  href={tool.url}
-                  className="absolute inset-0 z-0"
-                  aria-label={`Open ${tool.name}`}
-                />
-                <CardContent className="text-sm text-muted-foreground relative z-10">
-                  {tool.description}
-                </CardContent>
-              </Card>
+              <ToolCard key={tool.name} tool={tool} internal />
             ))}
           </div>
         </div>
