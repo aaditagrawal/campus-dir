@@ -25,6 +25,10 @@ const styles = stylex.create({
   header: {
     display: "grid",
     gridAutoRows: "min-content",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      ':has([data-slot="card-action"])': "minmax(0, 1fr) auto",
+    },
     gridTemplateRows: "auto auto",
     alignItems: "start",
     gap: "0.375rem",

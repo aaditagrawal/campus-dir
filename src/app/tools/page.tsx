@@ -17,14 +17,13 @@ const styles = stylex.create({
     justifyContent: "space-between",
     gap: "0.5rem",
   },
-  overlay: { position: "absolute", inset: 0, zIndex: 0 },
+  overlay: { position: "absolute", inset: 0, zIndex: 1 },
   content: {
-    position: "relative",
-    zIndex: 10,
     color: colors.mutedForeground,
     fontSize: "0.875rem",
     lineHeight: "1.25rem",
   },
+  favorite: { position: "relative", zIndex: 2 },
   url: {
     color: colors.mutedForeground,
     fontSize: "0.75rem",
@@ -48,6 +47,7 @@ function ToolCard({ tool, internal = false }: { tool: Tool; internal?: boolean }
               subtitle: tool.description,
             }}
             size="sm"
+            xstyle={styles.favorite}
           />
         </div>
       </CardHeader>

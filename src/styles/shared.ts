@@ -196,10 +196,4 @@ export const shared = stylex.create({
   breakAll: {
     overflowWrap: "anywhere",
   },
-  hiddenMobile: {
-    display: {
-      default: "none",
-      [breakpoints.sm]: "initial",
-    },
-  },
 });

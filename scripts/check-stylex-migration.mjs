@@ -13,6 +13,10 @@ const forbiddenDependencies = [
   "tailwindcss",
   "tw-animate-css",
 ];
+const forbiddenSourceReference =
+  /(?:@tailwindcss\/|\btailwind(?:css)?\b|\btwMerge\b|\bclsx\b|class-variance-authority|tailwind-merge|tw-animate-css)/i;
+const allowedNextFontClassName =
+  "className={`${instrumentSerif.variable} ${instrumentSans.variable}`}";
 
 const failures = [];
 
@@ -47,14 +51,16 @@ for (const [index, file] of files.entries()) {
   const relative = path.relative(root, file);
   const source = sources[index];
 
-  if (/\b(?:tailwind|twMerge|clsx|class-variance-authority|tw-animate)\b/i.test(source)) {
+  if (forbiddenSourceReference.test(source)) {
     failures.push(`${relative}: references the removed Tailwind utility stack`);
   }
   if (/@(?:apply|config|custom-variant|plugin|theme|utility|variant)\b/.test(source)) {
     failures.push(`${relative}: contains a Tailwind directive`);
   }
-  if (/className\s*=\s*["']/.test(source)) {
-    failures.push(`${relative}: contains a string className; use StyleX instead`);
+  const sourceWithoutNextFontHook =
+    relative === "src/app/layout.tsx" ? source.replace(allowedNextFontClassName, "") : source;
+  if (/className\s*=/.test(sourceWithoutNextFontHook)) {
+    failures.push(`${relative}: assigns className directly; use StyleX instead`);
   }
 }
 

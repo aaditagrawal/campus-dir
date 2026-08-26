@@ -281,7 +281,7 @@ bun dev  # or npm run dev
 
 ### 🏗️ Project Architecture
 
-The project follows Next.js 15 App Router patterns with a clear separation of concerns:
+The project follows Next.js 16 App Router patterns with a clear separation of concerns:
 
 ```
 src/
@@ -318,7 +318,7 @@ src/
 │   ├── tools.json         # Web resources and internal tools
 │   └── travel.json        # Transportation services
 └── lib/                   # Utility functions
-    ├── search.ts          # Search functionality with Fuse.js
+    ├── search-index.ts    # Search indexing and fuzzy matching with MiniSearch
     ├── utils.ts           # General utilities and helpers
     └── vcard.ts           # vCard generation for contacts
 ```
