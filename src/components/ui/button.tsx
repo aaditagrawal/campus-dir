@@ -1,56 +1,138 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { cn } from "@/lib/utils";
+import { colors, motion, radii } from "@/styles/constants.stylex";
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary: "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
+type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+type ButtonSize = "default" | "sm" | "lg" | "icon";
+
+type ButtonProps = Omit<React.ComponentProps<"button">, "className" | "style"> & {
+  asChild?: boolean;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  xstyle?: StyleXStyles;
+};
+
+const styles = stylex.create({
+  root: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.5rem",
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    borderRadius: radii.md,
+    borderStyle: "solid",
+    borderWidth: 0,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    fontWeight: 500,
+    outline: "none",
+    cursor: { default: "pointer", ":disabled": "not-allowed" },
+    opacity: { default: 1, ":disabled": 0.5 },
+    pointerEvents: { default: "auto", ":disabled": "none" },
+    transform: { default: "scale(1)", ":active": "scale(0.97)", ":disabled": "scale(1)" },
+    transitionProperty: "color, background-color, border-color, box-shadow, transform, opacity",
+    transitionDuration: motion.fast,
+    transitionTimingFunction: motion.standard,
+    boxShadow: {
+      default: "none",
+      ":focus-visible": `0 0 0 3px color-mix(in oklab, ${colors.ring} 50%, transparent)`,
     },
   },
-);
+  default: {
+    backgroundColor: {
+      default: colors.primary,
+      ":hover": `color-mix(in oklab, ${colors.primary} 90%, transparent)`,
+    },
+    color: colors.primaryForeground,
+    boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+  },
+  destructive: {
+    backgroundColor: {
+      default: colors.destructive,
+      ":hover": `color-mix(in oklab, ${colors.destructive} 90%, transparent)`,
+    },
+    color: colors.white,
+    boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+  },
+  outline: {
+    borderWidth: "1px",
+    borderColor: colors.input,
+    backgroundColor: { default: colors.background, ":hover": colors.accent },
+    color: { default: colors.foreground, ":hover": colors.accentForeground },
+    boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+  },
+  secondary: {
+    backgroundColor: {
+      default: colors.secondary,
+      ":hover": `color-mix(in oklab, ${colors.secondary} 80%, transparent)`,
+    },
+    color: colors.secondaryForeground,
+    boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+  },
+  ghost: {
+    backgroundColor: { default: "transparent", ":hover": colors.accent },
+    color: { default: colors.foreground, ":hover": colors.accentForeground },
+  },
+  link: {
+    padding: 0,
+    backgroundColor: "transparent",
+    color: colors.primary,
+    textUnderlineOffset: "4px",
+    textDecorationLine: { default: "none", ":hover": "underline" },
+  },
+  sizeDefault: { height: "2.25rem", paddingInline: "1rem", paddingBlock: "0.5rem" },
+  sizeSm: {
+    height: "2rem",
+    gap: "0.375rem",
+    paddingInline: "0.75rem",
+    borderRadius: radii.md,
+  },
+  sizeLg: { height: "2.5rem", paddingInline: "1.5rem", borderRadius: radii.md },
+  sizeIcon: { width: "2.25rem", height: "2.25rem", padding: 0 },
+});
+
+const variantStyles = {
+  default: styles.default,
+  destructive: styles.destructive,
+  outline: styles.outline,
+  secondary: styles.secondary,
+  ghost: styles.ghost,
+  link: styles.link,
+};
+
+const sizeStyles = {
+  default: styles.sizeDefault,
+  sm: styles.sizeSm,
+  lg: styles.sizeLg,
+  icon: styles.sizeIcon,
+};
 
 function Button({
-  className,
-  variant,
-  size,
+  variant = "default",
+  size = "default",
   asChild = false,
+  xstyle,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
+}: ButtonProps) {
   const Comp = asChild ? Slot : "button";
-
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      {...stylex.props(
+        stylex.defaultMarker(),
+        styles.root,
+        variantStyles[variant],
+        sizeStyles[size],
+        xstyle,
+      )}
       {...props}
     />
   );
 }
 
-export { Button, buttonVariants };
+export { Button, styles as buttonStyles };
+export type { ButtonProps, ButtonSize, ButtonVariant };

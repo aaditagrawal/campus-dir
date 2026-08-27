@@ -1,50 +1,91 @@
+import * as stylex from "@stylexjs/stylex";
 import data from "@/data/services.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
 import { FavoriteButton } from "@/components/favorite-button";
 import { DownloadVCardButton } from "@/components/contact-actions";
+import { colors } from "@/styles/constants.stylex";
+import { shared } from "@/styles/shared";
 
 type Listing = { name: string; phones: string[]; notes?: string };
 type ServicesData = { laundry: Listing[]; xerox: Listing[] };
 
+const styles = stylex.create({
+  row: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+  },
+  content: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  phones: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" },
+  muted: { color: colors.mutedForeground },
+  link: { textDecorationLine: "underline" },
+  resourceContent: {
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  resourceUrl: {
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+    textDecorationLine: { default: "none", ":hover": "underline" },
+  },
+});
+
 function Section({ title, items }: { title: string; items: Listing[] }) {
   return (
-    <div className="space-y-2 scroll-mt-24" id={slugify(title)}>
-      <h2 className="text-xl">{title}</h2>
-      <div className="grid sm:grid-cols-2 gap-4">
-        {items.map((i) => (
-          <Card key={i.name} id={slugify(i.name)} className="glass scroll-mt-24">
+    <div {...stylex.props(shared.sectionCompact)} id={slugify(title)}>
+      <h2 {...stylex.props(shared.heading2)}>{title}</h2>
+      <div {...stylex.props(shared.grid2)}>
+        {items.map((item) => (
+          <Card
+            key={item.name}
+            id={slugify(item.name)}
+            xstyle={[shared.glass, shared.scrollTarget]}
+          >
             <CardHeader>
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle>{i.name}</CardTitle>
+              <div {...stylex.props(styles.row)}>
+                <CardTitle>{item.name}</CardTitle>
                 <FavoriteButton
                   item={{
-                    id: `service-${slugify(title)}-${slugify(i.name)}`,
+                    id: `service-${slugify(title)}-${slugify(item.name)}`,
                     type: "service",
-                    name: i.name,
-                    href: `/services#${slugify(i.name)}`,
-                    phones: i.phones,
+                    name: item.name,
+                    href: `/services#${slugify(item.name)}`,
+                    phones: item.phones,
                     subtitle: title,
                   }}
                   size="sm"
                 />
               </div>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex flex-wrap gap-2 items-center">
-                {i.phones.map((p) => (
-                  <a key={p} href={`tel:${p}`} className="underline">
-                    {p}
+            <CardContent xstyle={styles.content}>
+              <div {...stylex.props(styles.phones)}>
+                {item.phones.map((phone) => (
+                  <a key={phone} href={`tel:${phone}`} {...stylex.props(styles.link)}>
+                    {phone}
                   </a>
                 ))}
               </div>
-              {i.notes && <div className="text-muted-foreground">{i.notes}</div>}
+              {item.notes && <div {...stylex.props(styles.muted)}>{item.notes}</div>}
               <div>
                 <DownloadVCardButton
                   variant="secondary"
-                  filename={i.name}
-                  vcard={buildVCard({ name: i.name, phones: i.phones, org: "General Services" })}
+                  filename={item.name}
+                  vcard={buildVCard({
+                    name: item.name,
+                    phones: item.phones,
+                    org: "General Services",
+                  })}
                 >
                   Download contact
                 </DownloadVCardButton>
@@ -59,41 +100,36 @@ function Section({ title, items }: { title: string; items: Listing[] }) {
 
 export default function ServicesPage() {
   const services: ServicesData = data;
-
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8 grid gap-8">
+    <main {...stylex.props(shared.page, shared.pageGrid)}>
       <div>
-        <h1 className="text-3xl">Services</h1>
-        <p className="text-muted-foreground">Various student-centric services on campus.</p>
+        <h1 {...stylex.props(shared.heading1)}>Services</h1>
+        <p {...stylex.props(shared.mutedText)}>Various student-centric services on campus.</p>
       </div>
-      <div className="space-y-2" id={slugify("Web Resources")}>
-        <h2 className="text-xl">Web Resources</h2>
-        <div className="[column-fill:_balance]_columns-1 sm:columns-2 gap-4">
-          <Card className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid">
+      <div {...stylex.props(shared.sectionCompact)} id={slugify("Web Resources")}>
+        <h2 {...stylex.props(shared.heading2)}>Web Resources</h2>
+        <div {...stylex.props(shared.columns2)}>
+          <Card xstyle={[shared.glass, shared.cardHover, shared.breakInsideAvoid]}>
             <CardHeader>
               <CardTitle>MIT Map – Nakshatra</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
+            <CardContent xstyle={styles.resourceContent}>
               Interactive campus map
               <br />
               <a href="https://mit.nakshatramaps.com/" target="_blank" rel="noreferrer">
-                <span className="text-xs text-gray-500 hover:underline">
-                  https://mit.nakshatramaps.com/
-                </span>
+                <span {...stylex.props(styles.resourceUrl)}>https://mit.nakshatramaps.com/</span>
               </a>
             </CardContent>
           </Card>
-          <Card className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid">
+          <Card xstyle={[shared.glass, shared.cardHover, shared.breakInsideAvoid]}>
             <CardHeader>
               <CardTitle>Indian Kitchen – Weekly Menu</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
+            <CardContent xstyle={styles.resourceContent}>
               Current week&apos;s mess menu
               <br />
               <a href="https://fc2.coolstuff.work" target="_blank" rel="noreferrer">
-                <span className="text-xs text-gray-500 hover:underline">
-                  https://fc2.coolstuff.work
-                </span>
+                <span {...stylex.props(styles.resourceUrl)}>https://fc2.coolstuff.work</span>
               </a>
             </CardContent>
           </Card>

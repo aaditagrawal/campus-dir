@@ -1,34 +1,46 @@
 "use client";
 
 import { Star } from "lucide-react";
+import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
 import { toggleFavorite, useFavoriteStatus, type FavoriteItem } from "@/hooks/useFavorites";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { motion } from "@/styles/constants.stylex";
 
 type FavoriteButtonProps = {
   item: FavoriteItem;
-  className?: string;
   size?: "sm" | "md" | "lg";
+  xstyle?: StyleXStyles;
 };
 
-const sizeClasses = {
-  sm: "h-7 w-7",
-  md: "h-8 w-8",
-  lg: "h-9 w-9",
-};
+const styles = stylex.create({
+  button: {
+    position: "relative",
+    zIndex: 20,
+    cursor: "pointer",
+    transitionProperty: "color, background-color, border-color, box-shadow, transform, opacity",
+    transitionDuration: motion.normal,
+  },
+  pending: { cursor: "not-allowed", opacity: 0.5 },
+  buttonSm: { width: "1.75rem", height: "1.75rem" },
+  buttonMd: { width: "2rem", height: "2rem" },
+  buttonLg: { width: "2.25rem", height: "2.25rem" },
+  icon: { transitionProperty: "fill, color, transform", transitionDuration: motion.normal },
+  iconSm: { width: "0.875rem", height: "0.875rem" },
+  iconMd: { width: "1rem", height: "1rem" },
+  iconLg: { width: "1.25rem", height: "1.25rem" },
+  saved: { fill: "currentColor" },
+});
 
-const iconSizes = {
-  sm: "h-3.5 w-3.5",
-  md: "h-4 w-4",
-  lg: "h-5 w-5",
-};
+const buttonSizes = { sm: styles.buttonSm, md: styles.buttonMd, lg: styles.buttonLg };
+const iconSizes = { sm: styles.iconSm, md: styles.iconMd, lg: styles.iconLg };
 
-export function FavoriteButton({ item, className, size = "md" }: FavoriteButtonProps) {
+export function FavoriteButton({ item, xstyle, size = "md" }: FavoriteButtonProps) {
   const status = useFavoriteStatus(item.id);
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
     toggleFavorite(item);
   };
 
@@ -37,10 +49,10 @@ export function FavoriteButton({ item, className, size = "md" }: FavoriteButtonP
       <Button
         variant="ghost"
         size="icon"
-        className={cn(sizeClasses[size], "opacity-50 cursor-not-allowed", className)}
+        xstyle={[styles.button, buttonSizes[size], styles.pending, xstyle]}
         disabled
       >
-        <Star className={iconSizes[size]} />
+        <Star {...stylex.props(styles.icon, iconSizes[size])} />
       </Button>
     );
   }
@@ -52,17 +64,11 @@ export function FavoriteButton({ item, className, size = "md" }: FavoriteButtonP
       variant="ghost"
       size="icon"
       onClick={handleClick}
-      className={cn(
-        sizeClasses[size],
-        "transition-all duration-200 relative z-20 cursor-pointer",
-        className,
-      )}
+      xstyle={[styles.button, buttonSizes[size], xstyle]}
       title={favorited ? "Remove from favorites" : "Add to favorites"}
       aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
     >
-      <Star
-        className={cn(iconSizes[size], favorited && "fill-current", "transition-all duration-200")}
-      />
+      <Star {...stylex.props(styles.icon, iconSizes[size], favorited && styles.saved)} />
     </Button>
   );
 }

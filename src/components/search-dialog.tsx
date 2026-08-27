@@ -3,6 +3,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
+import * as stylex from "@stylexjs/stylex";
 import { Button } from "@/components/ui/button";
 import {
   isFuzzyEngineReady,
@@ -11,13 +12,113 @@ import {
   searchDirectory,
 } from "@/lib/search-index";
 import { type SearchItem } from "@/lib/search";
+import { breakpoints, colors, motion, radii } from "@/styles/constants.stylex";
 
 const SUGGESTION_COUNT = 8;
 
-/**
- * Memoized so moving the highlight - which every mouse move over the list
- * does - re-renders the two rows whose selection changed, not all ten.
- */
+const styles = stylex.create({
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    zIndex: 60,
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    paddingInline: "1rem",
+    paddingBottom: "1rem",
+    paddingTop: "4.5rem",
+    backgroundColor: `color-mix(in oklab, ${colors.background} 80%, transparent)`,
+    backdropFilter: "blur(4px)",
+  },
+  dialog: {
+    width: "100%",
+    maxWidth: "36rem",
+    borderRadius: radii.lg,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.background,
+    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+  },
+  searchBar: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    paddingInline: "0.75rem",
+    paddingBlock: "0.5rem",
+    borderBottomWidth: "1px",
+    borderBottomStyle: "solid",
+    borderBottomColor: colors.border,
+  },
+  searchIcon: { width: "1rem", height: "1rem", color: colors.mutedForeground },
+  input: {
+    width: "100%",
+    borderWidth: 0,
+    backgroundColor: "transparent",
+    paddingBlock: "0.5rem",
+    color: colors.foreground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    outline: "none",
+    "::placeholder": { color: colors.mutedForeground },
+  },
+  controls: { display: "flex", alignItems: "center", gap: "0.5rem" },
+  escape: {
+    display: { default: "none", [breakpoints.sm]: "inline" },
+    borderRadius: radii.sm,
+    backgroundColor: colors.muted,
+    paddingInline: "0.375rem",
+    paddingBlock: "0.125rem",
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+  },
+  closeButton: { width: "1.5rem", height: "1.5rem" },
+  closeIcon: { width: "1rem", height: "1rem" },
+  results: { maxHeight: "60vh", overflow: "auto", listStyle: "none", margin: 0, padding: 0 },
+  result: {
+    width: "100%",
+    borderTopWidth: 0,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+    borderLeftWidth: "2px",
+    borderLeftStyle: "solid",
+    paddingInline: "1rem",
+    paddingBlock: "0.75rem",
+    color: colors.foreground,
+    textAlign: "left",
+    cursor: "pointer",
+    transitionProperty: "background-color, border-color",
+    transitionDuration: motion.fast,
+  },
+  resultIdle: {
+    borderLeftColor: "transparent",
+    backgroundColor: {
+      default: "transparent",
+      ":hover": `color-mix(in oklab, ${colors.muted} 60%, transparent)`,
+    },
+  },
+  resultSelected: {
+    borderLeftColor: colors.primary,
+    backgroundColor: `color-mix(in oklab, ${colors.primary} 10%, transparent)`,
+  },
+  resultTitle: { fontSize: "0.875rem", lineHeight: "1.25rem" },
+  medium: { fontWeight: 500 },
+  muted: { color: colors.mutedForeground },
+  resultSection: {
+    marginTop: "0.125rem",
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+  },
+  empty: {
+    paddingInline: "1rem",
+    paddingBlock: "0.75rem",
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+});
+
 const SearchResultRow = memo(function SearchResultRow({
   item,
   index,
@@ -38,19 +139,15 @@ const SearchResultRow = memo(function SearchResultRow({
       <button
         type="button"
         ref={rowRef}
-        className={`w-full px-4 py-3 cursor-pointer transition-colors text-left ${
-          selected
-            ? "bg-primary/10 border-l-2 border-primary"
-            : "hover:bg-muted/60 border-l-2 border-transparent"
-        }`}
+        {...stylex.props(styles.result, selected ? styles.resultSelected : styles.resultIdle)}
         onClick={() => onSelect(item)}
         onMouseEnter={() => onHover(index)}
       >
-        <div className="text-sm">
-          <span className="font-medium">{item.title}</span>
-          {item.subtitle && <span className="text-muted-foreground"> • {item.subtitle}</span>}
+        <div {...stylex.props(styles.resultTitle)}>
+          <span {...stylex.props(styles.medium)}>{item.title}</span>
+          {item.subtitle && <span {...stylex.props(styles.muted)}> • {item.subtitle}</span>}
         </div>
-        <div className="text-xs text-muted-foreground mt-0.5">{item.section}</div>
+        <div {...stylex.props(styles.resultSection)}>{item.section}</div>
       </button>
     </li>
   );
@@ -75,27 +172,19 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
   }, []);
 
   useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     searchTimeoutRef.current = setTimeout(() => {
       performSearch(query);
     }, 75);
     return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
   }, [query, performSearch]);
 
-  // Fuzzy only covers what the index cannot - typos and transpositions - so it
-  // is fetched alongside the first keystrokes rather than shipped with every page.
   useEffect(() => {
     if (fuzzyReady) return;
-
     let active = true;
     loadFuzzyEngine().then(() => {
-      // Stays false if the chunk failed to load, so reopening the dialog retries.
       if (active) setFuzzyReady(isFuzzyEngineReady());
     });
     return () => {
@@ -103,10 +192,6 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
     };
   }, [fuzzyReady]);
 
-  // Rerunning the search when the fuzzy engine lands would rebuild the results
-  // array and reset the highlight under a user who is already reading the list.
-  // Only an empty list can actually gain anything from the fallback, so only
-  // that reruns.
   useEffect(() => {
     if (!fuzzyReady || !query || results.length > 0) return;
     performSearch(query);
@@ -117,10 +202,10 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
   }, []);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        e.stopPropagation();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
         onClose();
       }
     };
@@ -133,33 +218,24 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
   }, [results]);
 
   useEffect(() => {
-    if (selectedItemRef.current) {
-      selectedItemRef.current.scrollIntoView({
-        block: "nearest",
-        behavior: "smooth",
-      });
-    }
+    selectedItemRef.current?.scrollIntoView({ block: "nearest" });
   }, [selectedIndex]);
 
   const navigateToResult = useCallback(
-    (r: SearchItem) => {
+    (result: SearchItem) => {
       onClose();
       try {
-        if (!r || !r.href) {
-          console.error("Invalid search result:", r);
+        if (!result || !result.href) {
+          console.error("Invalid search result:", result);
           return;
         }
-
-        if (r.href.startsWith("http")) {
-          window.location.href = r.href;
+        if (result.href.startsWith("http")) {
+          window.location.href = result.href;
           return;
         }
-
-        const url = new URL(r.href, window.location.origin);
+        const url = new URL(result.href, window.location.origin);
         const elementId = url.hash ? url.hash.substring(1) : "";
         const element = elementId ? document.getElementById(elementId) : null;
-
-        // Already on this page: scroll, do not route.
         if (element) {
           const headerHeight = 56;
           const extraOffset = window.innerHeight * 0.1;
@@ -168,83 +244,72 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
             top: Math.max(0, absoluteTop - headerHeight - extraOffset),
             behavior: "smooth",
           });
-          window.history.pushState(null, "", r.href);
+          window.history.pushState(null, "", result.href);
           return;
         }
-
-        // The router keeps this a client transition instead of tearing down the
-        // app; the target cards carry `scroll-mt-24`, so the sticky header does
-        // not cover the anchor.
-        router.push(r.href);
+        router.push(result.href);
       } catch (error) {
-        console.error("Navigation error:", error, r);
-        if (r && r.href) {
-          window.location.href = r.href;
-        }
+        console.error("Navigation error:", error, result);
+        if (result?.href) window.location.href = result.href;
       }
     },
     [router, onClose],
   );
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && results.length > 0) {
-      e.preventDefault();
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && results.length > 0) {
+      event.preventDefault();
       navigateToResult(results[selectedIndex]);
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev + 1) % results.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setSelectedIndex((previous) => (previous + 1) % results.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setSelectedIndex((previous) => (previous - 1 + results.length) % results.length);
     }
   };
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-start justify-center p-4 bg-background/80 backdrop-blur-sm"
+      {...stylex.props(styles.overlay)}
       role="dialog"
+      aria-label="Search directory"
       aria-modal="true"
-      style={{ paddingTop: "calc(3.5rem + 1rem)" }}
     >
-      <div
-        className="w-full max-w-xl rounded-lg border bg-background shadow-lg"
-        style={{ marginTop: 0 }}
-      >
-        <div className="flex items-center gap-2 px-3 py-2 border-b">
-          <Search className="size-4 text-muted-foreground" />
+      <div {...stylex.props(styles.dialog)}>
+        <div {...stylex.props(styles.searchBar)}>
+          <Search {...stylex.props(styles.searchIcon)} />
           <input
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleInputKeyDown}
             placeholder="Search anything…"
-            className="w-full bg-transparent outline-none py-2 text-sm"
+            {...stylex.props(styles.input)}
             aria-label="Search"
           />
-          <div className="flex items-center gap-2">
-            <kbd className="hidden sm:inline rounded bg-muted px-1.5 py-0.5 text-xs">Esc</kbd>
+          <div {...stylex.props(styles.controls)}>
+            <kbd {...stylex.props(styles.escape)}>Esc</kbd>
             <Button
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="h-6 w-6"
+              xstyle={styles.closeButton}
               aria-label="Close search"
             >
-              <X className="size-4" />
+              <X {...stylex.props(styles.closeIcon)} />
             </Button>
           </div>
         </div>
-        <ul className="max-h-[60vh] overflow-auto">
-          {results.length === 0 && (
-            <li className="px-4 py-3 text-sm text-muted-foreground">No results</li>
-          )}
-          {results.map((r, idx) => (
+        <ul {...stylex.props(styles.results)}>
+          {results.length === 0 && <li {...stylex.props(styles.empty)}>No results</li>}
+          {results.map((result, index) => (
             <SearchResultRow
-              key={`${r.href}-${idx}`}
-              item={r}
-              index={idx}
-              selected={idx === selectedIndex}
-              rowRef={idx === selectedIndex ? selectedItemRef : null}
+              key={`${result.href}-${index}`}
+              item={result}
+              index={index}
+              selected={index === selectedIndex}
+              rowRef={index === selectedIndex ? selectedItemRef : null}
               onSelect={navigateToResult}
               onHover={setSelectedIndex}
             />

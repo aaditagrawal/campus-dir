@@ -1,30 +1,83 @@
+import * as stylex from "@stylexjs/stylex";
 import data from "@/data/travel.json";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Phone, Shuffle } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
 import { RandomTelButton } from "@/components/contact-actions";
 import { getAutoPhoneOptions } from "@/lib/random-auto";
 import { slugify } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { colors, radii } from "@/styles/constants.stylex";
+import { shared } from "@/styles/shared";
 
 type Listing = { name: string; phones: string[]; notes?: string };
 type TravelData = { autos: Listing[]; cabs: Listing[] };
-
 const travel: TravelData = data;
+
+const styles = stylex.create({
+  back: {
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    textDecorationLine: { default: "none", ":hover": "underline" },
+  },
+  title: { marginTop: "1rem", marginBottom: "0.5rem" },
+  randomWrap: { marginTop: "1.5rem" },
+  randomButton: {
+    display: "inline-flex",
+    width: { default: "100%", "@media (min-width: 640px)": "auto" },
+    height: "2.25rem",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.5rem",
+    borderRadius: radii.md,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: colors.input,
+    backgroundColor: { default: colors.background, ":hover": colors.accent },
+    color: { default: colors.foreground, ":hover": colors.accentForeground },
+    paddingInline: "1rem",
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    fontWeight: 500,
+    cursor: "pointer",
+    transform: { default: "scale(1)", ":active": "scale(0.97)" },
+    transitionProperty: "color, background-color, border-color, box-shadow, transform",
+    transitionDuration: "150ms",
+    boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+  },
+  header: { paddingBottom: "0.75rem" },
+  row: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+  },
+  cardTitle: { fontSize: "1.125rem" },
+  content: { display: "flex", flexDirection: "column", gap: "1rem" },
+  phones: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" },
+  link: { textDecorationLine: "underline" },
+  noteLink: {
+    color: { default: colors.mutedForeground, ":hover": colors.primary },
+    textDecorationLine: "underline",
+  },
+  notes: { color: colors.mutedForeground, fontSize: "0.875rem", lineHeight: 1.625 },
+  callButton: { width: "100%", height: "2.75rem", fontSize: "1rem", fontWeight: 600 },
+  icon16: { width: "1rem", height: "1rem" },
+  icon20: { width: "1.25rem", height: "1.25rem" },
+});
 
 function renderNotesWithLinks(notes: string) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = notes.split(urlRegex);
-  return parts.map((part, i) =>
+  return notes.split(urlRegex).map((part, index) =>
     /^https?:\/\//.test(part) ? (
       <a
-        key={i}
+        key={index}
         href={part}
         target="_blank"
         rel="noopener noreferrer"
-        className="underline hover:text-primary"
+        {...stylex.props(styles.noteLink)}
       >
         {part}
       </a>
@@ -35,67 +88,66 @@ function renderNotesWithLinks(notes: string) {
 }
 
 export default function AutoQuickCallPage() {
-  const autos = travel.autos;
-
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <Link href="/travel" className="text-sm text-muted-foreground hover:underline">
+    <main {...stylex.props(shared.page)}>
+      <div {...stylex.props(shared.pageHeader)}>
+        <Link href="/travel" {...stylex.props(styles.back)}>
           ← Travel
         </Link>
-        <h1 className="text-3xl font-bold mt-4 mb-2">Rapid-call an auto</h1>
-        <p className="text-muted-foreground">
+        <h1 {...stylex.props(shared.heading1, shared.heading1Strong, styles.title)}>
+          Rapid-call an auto
+        </h1>
+        <p {...stylex.props(shared.mutedText)}>
           Gate stands and drivers - tap to dial. If one line is busy, try the next.
         </p>
-        <div className="mt-6">
-          <RandomTelButton
-            options={getAutoPhoneOptions()}
-            className={cn(buttonVariants({ variant: "outline" }), "w-full gap-2 sm:w-auto")}
-          >
-            <Shuffle className="size-4" aria-hidden />
+        <div {...stylex.props(styles.randomWrap)}>
+          <RandomTelButton options={getAutoPhoneOptions()} xstyle={styles.randomButton}>
+            <Shuffle aria-hidden {...stylex.props(styles.icon16)} />
             Call Random Auto
           </RandomTelButton>
         </div>
       </div>
-      <div className="grid sm:grid-cols-2 gap-4">
-        {autos.map((i) => (
+      <div {...stylex.props(shared.grid2)}>
+        {travel.autos.map((listing) => (
           <Card
-            key={i.name}
-            id={slugify(i.name)}
-            className="glass hover:shadow-md transition-shadow duration-200 scroll-mt-24"
+            key={listing.name}
+            id={slugify(listing.name)}
+            xstyle={[shared.glass, shared.cardHover, shared.scrollTarget]}
           >
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-2">
-                <CardTitle className="text-lg">{i.name}</CardTitle>
+            <CardHeader xstyle={styles.header}>
+              <div {...stylex.props(styles.row)}>
+                <CardTitle xstyle={styles.cardTitle}>{listing.name}</CardTitle>
                 <FavoriteButton
                   item={{
-                    id: `travel-autos-${slugify(i.name)}`,
+                    id: `travel-autos-${slugify(listing.name)}`,
                     type: "travel",
-                    name: i.name,
-                    href: `/travel#${slugify(i.name)}`,
-                    phones: i.phones,
+                    name: listing.name,
+                    href: `/travel#${slugify(listing.name)}`,
+                    phones: listing.phones,
                     subtitle: "Autos",
                   }}
                   size="sm"
                 />
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-2 items-center">
-                {i.phones.map((p) => (
-                  <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className="underline">
-                    {p}
+            <CardContent xstyle={styles.content}>
+              <div {...stylex.props(styles.phones)}>
+                {listing.phones.map((phone) => (
+                  <a
+                    key={phone}
+                    href={`tel:${phone.replace(/\s+/g, "")}`}
+                    {...stylex.props(styles.link)}
+                  >
+                    {phone}
                   </a>
                 ))}
               </div>
-              {i.notes && (
-                <div className="text-sm text-muted-foreground leading-relaxed">
-                  {renderNotesWithLinks(i.notes)}
-                </div>
+              {listing.notes && (
+                <div {...stylex.props(styles.notes)}>{renderNotesWithLinks(listing.notes)}</div>
               )}
-              <Button asChild className="w-full gap-2 h-11 text-base font-semibold">
-                <a href={`tel:${i.phones?.[0]?.replace(/\s+/g, "") ?? ""}`}>
-                  <Phone className="size-5" />
+              <Button asChild xstyle={styles.callButton}>
+                <a href={`tel:${listing.phones[0]?.replace(/\s+/g, "") ?? ""}`}>
+                  <Phone {...stylex.props(styles.icon20)} />
                   Call now
                 </a>
               </Button>

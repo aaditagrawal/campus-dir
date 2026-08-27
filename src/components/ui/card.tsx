@@ -1,80 +1,77 @@
 import * as React from "react";
+import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { cn } from "@/lib/utils";
+import { colors, radii } from "@/styles/constants.stylex";
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+type StyledDivProps = Omit<React.ComponentProps<"div">, "className" | "style"> & {
+  xstyle?: StyleXStyles;
+};
+
+const styles = stylex.create({
+  card: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.5rem",
+    borderRadius: radii.xl,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: `color-mix(in oklab, ${colors.card} 60%, transparent)`,
+    color: colors.cardForeground,
+    paddingBlock: "1.5rem",
+    boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+  },
+  header: {
+    display: "grid",
+    gridAutoRows: "min-content",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      ':has([data-slot="card-action"])': "minmax(0, 1fr) auto",
+    },
+    gridTemplateRows: "auto auto",
+    alignItems: "start",
+    gap: "0.375rem",
+    paddingInline: "1.5rem",
+  },
+  title: { fontSize: "1.125rem", lineHeight: 1, fontWeight: 600 },
+  description: {
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  action: {
+    gridColumnStart: 2,
+    gridRow: "1 / span 2",
+    alignSelf: "start",
+    justifySelf: "end",
+  },
+  content: { paddingInline: "1.5rem" },
+  footer: { display: "flex", alignItems: "center", paddingInline: "1.5rem" },
+});
+
+function Card({ xstyle, ...props }: StyledDivProps) {
+  return <div data-slot="card" {...stylex.props(styles.card, xstyle)} {...props} />;
+}
+function CardHeader({ xstyle, ...props }: StyledDivProps) {
+  return <div data-slot="card-header" {...stylex.props(styles.header, xstyle)} {...props} />;
+}
+function CardTitle({ xstyle, ...props }: StyledDivProps) {
+  return <div data-slot="card-title" {...stylex.props(styles.title, xstyle)} {...props} />;
+}
+function CardDescription({ xstyle, ...props }: StyledDivProps) {
   return (
-    <div
-      data-slot="card"
-      className={cn(
-        // No backdrop-blur here. `.glass` already supplies one where the design
-        // calls for it, and an unlayered rule beats this utility anyway - so on
-        // glass cards this only ever cost specificity. On the rest it put a
-        // backdrop-filter on every card in the app for an effect barely visible
-        // against the ambient gradient.
-        "bg-card/60 text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
-        className,
-      )}
-      {...props}
-    />
+    <div data-slot="card-description" {...stylex.props(styles.description, xstyle)} {...props} />
   );
 }
-
-function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-header"
-      className={cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
-        className,
-      )}
-      {...props}
-    />
-  );
+function CardAction({ xstyle, ...props }: StyledDivProps) {
+  return <div data-slot="card-action" {...stylex.props(styles.action, xstyle)} {...props} />;
 }
-
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-title"
-      className={cn("leading-none font-semibold text-lg", className)}
-      {...props}
-    />
-  );
+function CardContent({ xstyle, ...props }: StyledDivProps) {
+  return <div data-slot="card-content" {...stylex.props(styles.content, xstyle)} {...props} />;
 }
-
-function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-description"
-      className={cn("text-muted-foreground text-sm", className)}
-      {...props}
-    />
-  );
-}
-
-function CardAction({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-action"
-      className={cn("col-start-2 row-span-2 row-start-1 self-start justify-self-end", className)}
-      {...props}
-    />
-  );
-}
-
-function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-content" className={cn("px-6", className)} {...props} />;
-}
-
-function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-footer"
-      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
-      {...props}
-    />
-  );
+function CardFooter({ xstyle, ...props }: StyledDivProps) {
+  return <div data-slot="card-footer" {...stylex.props(styles.footer, xstyle)} {...props} />;
 }
 
 export { Card, CardHeader, CardFooter, CardTitle, CardAction, CardDescription, CardContent };

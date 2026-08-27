@@ -1,39 +1,82 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { cn } from "@/lib/utils";
+import { colors, motion, radii } from "@/styles/constants.stylex";
 
-const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
-  {
-    variants: {
-      variant: {
-        default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
+type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
+type BadgeProps = Omit<React.ComponentProps<"span">, "className" | "style"> & {
+  asChild?: boolean;
+  variant?: BadgeVariant;
+  xstyle?: StyleXStyles;
+};
+
+const styles = stylex.create({
+  root: {
+    display: "inline-flex",
+    width: "fit-content",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.25rem",
+    flexShrink: 0,
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    borderRadius: radii.md,
+    borderStyle: "solid",
+    borderWidth: "1px",
+    paddingInline: "0.5rem",
+    paddingBlock: "0.125rem",
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+    fontWeight: 500,
+    outline: "none",
+    transitionProperty: "color, background-color, border-color, box-shadow",
+    transitionDuration: motion.fast,
+    boxShadow: {
+      default: "none",
+      ":focus-visible": `0 0 0 3px color-mix(in oklab, ${colors.ring} 50%, transparent)`,
     },
   },
-);
+  default: {
+    borderColor: "transparent",
+    backgroundColor: colors.primary,
+    color: colors.primaryForeground,
+  },
+  secondary: {
+    borderColor: "transparent",
+    backgroundColor: colors.secondary,
+    color: colors.secondaryForeground,
+  },
+  destructive: {
+    borderColor: "transparent",
+    backgroundColor: colors.destructive,
+    color: colors.white,
+  },
+  outline: {
+    borderColor: colors.border,
+    backgroundColor: "transparent",
+    color: colors.foreground,
+  },
+});
 
-function Badge({
-  className,
-  variant,
-  asChild = false,
-  ...props
-}: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+const variantStyles = {
+  default: styles.default,
+  secondary: styles.secondary,
+  destructive: styles.destructive,
+  outline: styles.outline,
+};
+
+function Badge({ variant = "default", asChild = false, xstyle, ...props }: BadgeProps) {
   const Comp = asChild ? Slot : "span";
-
   return (
-    <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
+    <Comp
+      data-slot="badge"
+      {...stylex.props(styles.root, variantStyles[variant], xstyle)}
+      {...props}
+    />
   );
 }
 
-export { Badge, badgeVariants };
+export { Badge };
+export type { BadgeProps, BadgeVariant };

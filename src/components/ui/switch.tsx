@@ -2,27 +2,83 @@
 
 import * as React from "react";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
+import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { cn } from "@/lib/utils";
+import { colors, motion } from "@/styles/constants.stylex";
 
-function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimitive.Root>) {
+type SwitchProps = Omit<
+  React.ComponentProps<typeof SwitchPrimitive.Root>,
+  "className" | "style"
+> & {
+  xstyle?: StyleXStyles;
+};
+
+const styles = stylex.create({
+  root: {
+    position: "relative",
+    display: "inline-flex",
+    width: "2rem",
+    height: "1.15rem",
+    flexShrink: 0,
+    alignItems: "center",
+    overflow: "hidden",
+    borderRadius: "9999px",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: "transparent",
+    backgroundColor: "transparent",
+    padding: 0,
+    outline: "none",
+    cursor: { default: "pointer", ":disabled": "not-allowed" },
+    opacity: { default: 1, ":disabled": 0.5 },
+    boxShadow: {
+      default: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      ":focus-visible": `0 0 0 3px color-mix(in oklab, ${colors.ring} 50%, transparent)`,
+    },
+  },
+  track: {
+    position: "absolute",
+    inset: 0,
+    borderRadius: "inherit",
+    backgroundColor: {
+      default: colors.input,
+      [stylex.when.ancestor('[data-state="checked"]')]: colors.primary,
+    },
+    transitionProperty: "background-color",
+    transitionDuration: motion.fast,
+  },
+  thumb: {
+    position: "relative",
+    zIndex: 1,
+    display: "block",
+    width: "1rem",
+    height: "1rem",
+    borderRadius: "9999px",
+    backgroundColor: colors.background,
+    pointerEvents: "none",
+    transform: {
+      default: "translateX(0)",
+      [stylex.when.ancestor('[data-state="checked"]')]: "translateX(calc(100% - 2px))",
+    },
+    transitionProperty: "transform, background-color",
+    transitionDuration: motion.fast,
+    transitionTimingFunction: motion.standard,
+  },
+});
+
+function Switch({ xstyle, ...props }: SwitchProps) {
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
-      className={cn(
-        "peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/80 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
+      {...stylex.props(stylex.defaultMarker(), styles.root, xstyle)}
       {...props}
     >
-      <SwitchPrimitive.Thumb
-        data-slot="switch-thumb"
-        className={cn(
-          "bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
-        )}
-      />
+      <span aria-hidden {...stylex.props(styles.track)} />
+      <SwitchPrimitive.Thumb data-slot="switch-thumb" {...stylex.props(styles.thumb)} />
     </SwitchPrimitive.Root>
   );
 }
 
 export { Switch };
+export type { SwitchProps };

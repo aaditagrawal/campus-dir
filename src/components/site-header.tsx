@@ -21,11 +21,11 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
+import { breakpoints, colors, motion, preferences, radii } from "@/styles/constants.stylex";
 
 const SearchDialog = dynamic(() => import("@/components/search-dialog"), { ssr: false });
-
-// Warm the search chunk (fuse.js + index) before the user actually opens it.
 const preloadSearch = () => {
   import("@/components/search-dialog");
 };
@@ -57,16 +57,15 @@ const mobileLinks = [
   { href: "/emergency", label: "Emergency", icon: ShieldAlert, accent: true },
 ];
 
-/** Close on Escape or on pointerdown outside `ref` while `open`. */
 function useDismiss(open: boolean, onClose: () => void, ref: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     if (!open) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const target = e.target;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target;
       if (ref.current && target instanceof Node && !ref.current.contains(target)) onClose();
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKey);
@@ -77,18 +76,219 @@ function useDismiss(open: boolean, onClose: () => void, ref: React.RefObject<HTM
   }, [open, onClose, ref]);
 }
 
-function IconButton(props: React.ComponentProps<"button">) {
-  const { className, ...rest } = props;
-  return (
-    <button
-      type="button"
-      className={cn(
-        "flex size-9 items-center justify-center rounded-full text-muted-foreground transition-[background-color,color,transform] duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
-        className,
-      )}
-      {...rest}
-    />
-  );
+const dropdownIn = stylex.keyframes({
+  from: { opacity: 0, transform: "translateY(-4px) scale(0.97)" },
+  to: { opacity: 1, transform: "translateY(0) scale(1)" },
+});
+const mobileMenuIn = stylex.keyframes({
+  from: { opacity: 0, transform: "translateY(-4px)" },
+  to: { opacity: 1, transform: "translateY(0)" },
+});
+const fadeIn = stylex.keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
+
+const styles = stylex.create({
+  header: {
+    position: "sticky",
+    top: { default: "0.75rem", [breakpoints.sm]: "1rem" },
+    zIndex: 50,
+    marginTop: { default: "0.75rem", [breakpoints.sm]: "1rem" },
+    paddingInline: "0.75rem",
+  },
+  panel: {
+    position: "relative",
+    maxWidth: "48rem",
+    marginInline: "auto",
+    borderRadius: "1.4rem",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: `color-mix(in oklab, ${colors.border} 70%, transparent)`,
+    backgroundColor: `color-mix(in oklab, ${colors.background} 70%, transparent)`,
+    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.04), 0 4px 6px -4px rgb(0 0 0 / 0.04)",
+    backdropFilter: "blur(24px)",
+  },
+  bar: {
+    display: "flex",
+    height: "3rem",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingInlineStart: "1rem",
+    paddingInlineEnd: "0.375rem",
+  },
+  brand: {
+    whiteSpace: "nowrap",
+    color: colors.foreground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    fontWeight: 600,
+    letterSpacing: "-0.025em",
+    textDecorationLine: "none",
+  },
+  brandSuffix: {
+    display: { default: "none", [breakpoints.sm]: "inline" },
+    color: colors.mutedForeground,
+    fontWeight: 400,
+  },
+  desktopNav: {
+    display: { default: "none", [breakpoints.md]: "flex" },
+    alignItems: "center",
+  },
+  navLink: {
+    borderRadius: "9999px",
+    paddingInline: "0.625rem",
+    paddingBlock: "0.375rem",
+    color: { default: colors.mutedForeground, ":hover": colors.foreground },
+    backgroundColor: {
+      default: "transparent",
+      ":hover": `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
+    },
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    textDecorationLine: "none",
+    transitionProperty: "color, background-color",
+    transitionDuration: motion.fast,
+  },
+  relative: { position: "relative" },
+  moreButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.25rem",
+    borderWidth: 0,
+    borderRadius: "9999px",
+    paddingInline: "0.625rem",
+    paddingBlock: "0.375rem",
+    color: { default: colors.mutedForeground, ":hover": colors.foreground },
+    backgroundColor: {
+      default: "transparent",
+      ":hover": `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
+    },
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    cursor: "pointer",
+    transitionProperty: "color, background-color",
+    transitionDuration: motion.fast,
+  },
+  moreButtonOpen: {
+    color: colors.foreground,
+    backgroundColor: `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
+  },
+  chevron: {
+    width: "0.875rem",
+    height: "0.875rem",
+    transform: "rotate(0deg)",
+    transitionProperty: "transform",
+    transitionDuration: motion.fast,
+    transitionTimingFunction: motion.out,
+  },
+  chevronOpen: { transform: "rotate(180deg)" },
+  dropdown: {
+    position: "absolute",
+    top: "100%",
+    right: 0,
+    zIndex: 50,
+    width: "13rem",
+    marginTop: "0.5rem",
+    padding: "0.375rem",
+    transformOrigin: "top right",
+    borderRadius: radii.xl,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: `color-mix(in oklab, ${colors.border} 70%, transparent)`,
+    backgroundColor: `color-mix(in oklab, ${colors.popover} 95%, transparent)`,
+    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+    backdropFilter: "blur(24px)",
+    animationName: { default: dropdownIn, [preferences.reducedMotion]: fadeIn },
+    animationDuration: motion.fast,
+    animationTimingFunction: motion.out,
+  },
+  dropdownLink: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.625rem",
+    borderRadius: radii.lg,
+    paddingInline: "0.75rem",
+    paddingBlock: "0.5rem",
+    color: colors.foreground,
+    backgroundColor: {
+      default: "transparent",
+      ":hover": `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
+    },
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    textDecorationLine: "none",
+    transitionProperty: "background-color",
+    transitionDuration: motion.fast,
+  },
+  icon16: { width: "1rem", height: "1rem" },
+  icon18: { width: "1.125rem", height: "1.125rem" },
+  mutedIcon: { color: colors.mutedForeground },
+  actionGroup: { display: "flex", alignItems: "center", gap: "0.125rem" },
+  iconButton: {
+    display: "flex",
+    width: "2.25rem",
+    height: "2.25rem",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 0,
+    borderRadius: "9999px",
+    backgroundColor: {
+      default: "transparent",
+      ":hover": `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
+    },
+    color: { default: colors.mutedForeground, ":hover": colors.foreground },
+    cursor: "pointer",
+    transform: { default: "scale(1)", ":active": "scale(0.95)" },
+    transitionProperty: "background-color, color, transform",
+    transitionDuration: motion.fast,
+  },
+  desktopOnly: { display: { default: "none", [breakpoints.md]: "flex" } },
+  mobileOnly: { display: { default: "flex", [breakpoints.md]: "none" } },
+  mobileMenu: {
+    display: { default: "grid", [breakpoints.md]: "none" },
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "0.125rem",
+    padding: "0.5rem",
+    transformOrigin: "top",
+    borderTopWidth: "1px",
+    borderTopStyle: "solid",
+    borderTopColor: `color-mix(in oklab, ${colors.border} 60%, transparent)`,
+    animationName: { default: mobileMenuIn, [preferences.reducedMotion]: fadeIn },
+    animationDuration: motion.fast,
+    animationTimingFunction: motion.out,
+  },
+  mobileLink: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.625rem",
+    borderRadius: radii.lg,
+    paddingInline: "0.75rem",
+    paddingBlock: "0.625rem",
+    color: colors.foreground,
+    backgroundColor: {
+      default: "transparent",
+      ":hover": `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
+      ":active": colors.muted,
+    },
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    textDecorationLine: "none",
+    transitionProperty: "background-color, color",
+    transitionDuration: motion.fast,
+  },
+  mobileThemeButton: {
+    width: "100%",
+    borderWidth: 0,
+    textAlign: "left",
+    color: colors.mutedForeground,
+    cursor: "pointer",
+  },
+  emergency: { color: colors.rose },
+});
+
+function IconButton({
+  xstyle,
+  ...props
+}: Omit<React.ComponentProps<"button">, "className" | "style"> & { xstyle?: StyleXStyles }) {
+  return <button type="button" {...stylex.props(styles.iconButton, xstyle)} {...props} />;
 }
 
 export function SiteHeader() {
@@ -101,11 +301,9 @@ export function SiteHeader() {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
-
   const closeSearch = useCallback(() => setSearchOpen(false), []);
   const closeMore = useCallback(() => setMoreOpen(false), []);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
-
   useDismiss(moreOpen, closeMore, moreRef);
   useDismiss(menuOpen, closeMenu, panelRef);
 
@@ -116,10 +314,10 @@ export function SiteHeader() {
   }, []);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setSearchOpen((v) => !v);
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setSearchOpen((value) => !value);
       }
     };
     window.addEventListener("keydown", onKey, true);
@@ -129,71 +327,49 @@ export function SiteHeader() {
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
   const themeIcon =
     mounted && theme === "dark" ? (
-      <Sun className="size-[18px]" />
+      <Sun {...stylex.props(styles.icon18)} />
     ) : (
-      <Moon className="size-[18px]" />
+      <Moon {...stylex.props(styles.icon18)} />
     );
 
   return (
-    <header className="sticky top-3 z-50 mt-3 px-3 sm:top-4 sm:mt-4">
-      <div
-        ref={panelRef}
-        className="relative mx-auto max-w-3xl rounded-[1.4rem] border border-border/70 bg-background/70 shadow-lg shadow-black/[0.04] backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
-      >
-        <div className="flex h-12 items-center justify-between pl-4 pr-1.5">
-          <Link
-            href="/"
-            className="text-sm font-semibold tracking-tight whitespace-nowrap"
-            onClick={closeMenu}
-          >
+    <header {...stylex.props(styles.header)}>
+      <div ref={panelRef} {...stylex.props(styles.panel)}>
+        <div {...stylex.props(styles.bar)}>
+          <Link href="/" {...stylex.props(styles.brand)} onClick={closeMenu}>
             MIT Manipal
-            <span className="hidden font-normal text-muted-foreground sm:inline"> Directory</span>
+            <span {...stylex.props(styles.brandSuffix)}> Directory</span>
           </Link>
 
-          <nav className="hidden items-center md:flex" aria-label="Main">
-            {primaryLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="rounded-full px-2.5 py-1.5 text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted/70 hover:text-foreground"
-              >
-                {l.label}
+          <nav {...stylex.props(styles.desktopNav)} aria-label="Main">
+            {primaryLinks.map((link) => (
+              <Link key={link.href} href={link.href} {...stylex.props(styles.navLink)}>
+                {link.label}
               </Link>
             ))}
-            <div ref={moreRef} className="relative">
+            <div ref={moreRef} {...stylex.props(styles.relative)}>
               <button
                 type="button"
                 aria-expanded={moreOpen}
                 aria-haspopup="menu"
-                onClick={() => setMoreOpen((v) => !v)}
-                className={cn(
-                  "flex items-center gap-1 rounded-full px-2.5 py-1.5 text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted/70 hover:text-foreground",
-                  moreOpen && "bg-muted/70 text-foreground",
-                )}
+                onClick={() => setMoreOpen((value) => !value)}
+                {...stylex.props(styles.moreButton, moreOpen && styles.moreButtonOpen)}
               >
                 More
-                <ChevronDown
-                  className={cn(
-                    "size-3.5 transition-transform duration-150",
-                    moreOpen && "rotate-180",
-                  )}
-                />
+                <ChevronDown {...stylex.props(styles.chevron, moreOpen && styles.chevronOpen)} />
               </button>
               {moreOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 top-full z-50 mt-2 w-52 origin-top-right rounded-xl border border-border/70 bg-popover/95 p-1.5 shadow-lg backdrop-blur-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150 ease-out"
-                >
-                  {moreLinks.map((l) => (
+                <div role="menu" {...stylex.props(styles.dropdown)}>
+                  {moreLinks.map((link) => (
                     <Link
-                      key={l.href}
-                      href={l.href}
+                      key={link.href}
+                      href={link.href}
                       role="menuitem"
                       onClick={closeMore}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 hover:bg-muted/70"
+                      {...stylex.props(styles.dropdownLink)}
                     >
-                      <l.icon className="size-4 text-muted-foreground" />
-                      {l.label}
+                      <link.icon {...stylex.props(styles.icon16, styles.mutedIcon)} />
+                      {link.label}
                     </Link>
                   ))}
                 </div>
@@ -201,7 +377,7 @@ export function SiteHeader() {
             </div>
           </nav>
 
-          <div className="flex items-center gap-0.5">
+          <div {...stylex.props(styles.actionGroup)}>
             <IconButton
               aria-label="Open search"
               onMouseEnter={preloadSearch}
@@ -209,47 +385,48 @@ export function SiteHeader() {
               onTouchStart={preloadSearch}
               onClick={() => setSearchOpen(true)}
             >
-              <Search className="size-[18px]" />
+              <Search {...stylex.props(styles.icon18)} />
             </IconButton>
-            <IconButton aria-label="Toggle theme" className="hidden md:flex" onClick={toggleTheme}>
+            <IconButton aria-label="Toggle theme" xstyle={styles.desktopOnly} onClick={toggleTheme}>
               {themeIcon}
             </IconButton>
             <IconButton
               aria-label="Toggle navigation menu"
               aria-expanded={menuOpen}
-              className="md:hidden"
-              onClick={() => setMenuOpen((v) => !v)}
+              xstyle={styles.mobileOnly}
+              onClick={() => setMenuOpen((value) => !value)}
             >
-              {menuOpen ? <X className="size-[18px]" /> : <Menu className="size-[18px]" />}
+              {menuOpen ? (
+                <X {...stylex.props(styles.icon18)} />
+              ) : (
+                <Menu {...stylex.props(styles.icon18)} />
+              )}
             </IconButton>
           </div>
         </div>
 
         {menuOpen && (
-          <nav
-            aria-label="Main"
-            className="grid origin-top grid-cols-2 gap-0.5 border-t border-border/60 p-2 animate-in fade-in-0 slide-in-from-top-1 duration-150 ease-out md:hidden"
-          >
-            {mobileLinks.map((l) => (
+          <nav aria-label="Main" {...stylex.props(styles.mobileMenu)}>
+            {mobileLinks.map((link) => (
               <Link
-                key={l.href}
-                href={l.href}
+                key={link.href}
+                href={link.href}
                 onClick={closeMenu}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors duration-150 hover:bg-muted/70 active:bg-muted",
-                  l.accent && "text-rose-600 dark:text-rose-400",
-                )}
+                {...stylex.props(styles.mobileLink, link.accent && styles.emergency)}
               >
-                <l.icon
-                  className={cn("size-4", l.accent ? "text-rose-500" : "text-muted-foreground")}
+                <link.icon
+                  {...stylex.props(
+                    styles.icon16,
+                    link.accent ? styles.emergency : styles.mutedIcon,
+                  )}
                 />
-                {l.label}
+                {link.label}
               </Link>
             ))}
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted/70 active:bg-muted"
+              {...stylex.props(styles.mobileLink, styles.mobileThemeButton)}
             >
               {themeIcon}
               Theme

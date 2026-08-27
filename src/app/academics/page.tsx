@@ -1,7 +1,41 @@
 import { ReactNode } from "react";
+import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { slugify } from "@/lib/utils";
 import { FavoriteButton } from "@/components/favorite-button";
+import { colors, fonts } from "@/styles/constants.stylex";
+import { shared } from "@/styles/shared";
+
+const styles = stylex.create({
+  card: { position: "relative", scrollMarginTop: "6rem" },
+  row: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+  },
+  cardLink: { position: "absolute", inset: 0, zIndex: 0 },
+  content: {
+    position: "relative",
+    zIndex: 10,
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  url: {
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+    overflowWrap: "anywhere",
+  },
+  credential: { fontSize: "0.75rem", lineHeight: "1rem" },
+  mono: { fontFamily: fonts.mono },
+  alternate: { position: "relative", zIndex: 20, fontSize: "0.75rem", lineHeight: "1rem" },
+  alternateLink: {
+    color: { default: colors.mutedForeground, ":hover": colors.foreground },
+    textDecorationLine: "underline",
+  },
+});
 
 function AcademicCard({
   title,
@@ -14,11 +48,11 @@ function AcademicCard({
 }) {
   return (
     <Card
-      className="glass hover:shadow-lg transition-colors mb-4 break-inside-avoid scroll-mt-24 relative group"
+      xstyle={[shared.glass, shared.cardHover, shared.breakInsideAvoid, styles.card]}
       id={slugify(title)}
     >
       <CardHeader>
-        <div className="flex items-start justify-between gap-2">
+        <div {...stylex.props(styles.row)}>
           <CardTitle>{title}</CardTitle>
           <FavoriteButton
             item={{
@@ -36,13 +70,13 @@ function AcademicCard({
         href={url}
         target="_blank"
         rel="noreferrer"
-        className="absolute inset-0 z-0"
+        {...stylex.props(styles.cardLink)}
         aria-label={`Open ${title}`}
       />
-      <CardContent className="text-sm text-muted-foreground relative z-10">
+      <CardContent xstyle={styles.content}>
         {children}
         <br />
-        <span className="text-xs text-gray-500 break-all">{url}</span>
+        <span {...stylex.props(styles.url)}>{url}</span>
       </CardContent>
     </Card>
   );
@@ -50,15 +84,15 @@ function AcademicCard({
 
 export default function AcademicsPage() {
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8 grid gap-8">
+    <main {...stylex.props(shared.page, shared.pageGrid)}>
       <div>
-        <h1 className="text-3xl">Academics</h1>
-        <p className="text-muted-foreground">Quick links to academic systems and resources.</p>
+        <h1 {...stylex.props(shared.heading1)}>Academics</h1>
+        <p {...stylex.props(shared.mutedText)}>Quick links to academic systems and resources.</p>
       </div>
 
-      <div className="space-y-2" id={slugify("Student Lifecycle Management")}>
-        <h2 className="text-xl">Student Lifecycle Management</h2>
-        <div className="[column-fill:_balance]_columns-1 sm:columns-2 gap-4">
+      <div {...stylex.props(shared.sectionCompact)} id={slugify("Student Lifecycle Management")}>
+        <h2 {...stylex.props(shared.heading2)}>Student Lifecycle Management</h2>
+        <div {...stylex.props(shared.columns2)}>
           <AcademicCard title="SLCM 2.0" url="https://maheslcmtech.manipal.edu">
             New SLCM portal
           </AcademicCard>
@@ -68,9 +102,9 @@ export default function AcademicsPage() {
         </div>
       </div>
 
-      <div className="space-y-2" id={slugify("Library")}>
-        <h2 className="text-xl">Library</h2>
-        <div className="[column-fill:_balance]_columns-1 sm:columns-2 gap-4">
+      <div {...stylex.props(shared.sectionCompact)} id={slugify("Library")}>
+        <h2 {...stylex.props(shared.heading2)}>Library</h2>
+        <div {...stylex.props(shared.columns2)}>
           <AcademicCard
             title="Previous Years' Questions Archive"
             url="https://library-orpin-two.vercel.app"
@@ -84,12 +118,12 @@ export default function AcademicsPage() {
             Student led initiative to compile and share past question papers
           </AcademicCard>
           <AcademicCard title="EBSCO search" url="https://research.ebsco.com/c/fqdtcf/search">
-            <span className="text-xs">
-              User ID: <span className="font-mono">ebscopreviewmity</span>
+            <span {...stylex.props(styles.credential)}>
+              User ID: <span {...stylex.props(styles.mono)}>ebscopreviewmity</span>
             </span>
             <br />
-            <span className="text-xs">
-              Password: <span className="font-mono">UIPreview2021!</span>
+            <span {...stylex.props(styles.credential)}>
+              Password: <span {...stylex.props(styles.mono)}>UIPreview2021!</span>
             </span>
             <br />
             Search academic databases
@@ -100,9 +134,9 @@ export default function AcademicsPage() {
         </div>
       </div>
 
-      <div className="space-y-2" id={slugify("Academic Resources")}>
-        <h2 className="text-xl">Academic Resources</h2>
-        <div className="[column-fill:_balance]_columns-1 sm:columns-2 gap-4">
+      <div {...stylex.props(shared.sectionCompact)} id={slugify("Academic Resources")}>
+        <h2 {...stylex.props(shared.heading2)}>Academic Resources</h2>
+        <div {...stylex.props(shared.columns2)}>
           <AcademicCard title="Lighthouse" url="https://lighthouse.manipal.edu">
             Semester-wise resources and quiz platform
           </AcademicCard>
@@ -121,13 +155,13 @@ export default function AcademicsPage() {
           <AcademicCard title="Impartus" url="https://impartus.manipal.edu">
             Class recordings platform
             <br />
-            <span className="text-xs relative z-20">
+            <span {...stylex.props(styles.alternate)}>
               Alt:{" "}
               <a
                 href="https://a.impartus.com"
                 target="_blank"
                 rel="noreferrer"
-                className="underline hover:text-foreground"
+                {...stylex.props(styles.alternateLink)}
               >
                 a.impartus.com
               </a>
@@ -136,18 +170,18 @@ export default function AcademicsPage() {
         </div>
       </div>
 
-      <div className="space-y-2" id={slugify("Research")}>
-        <h2 className="text-xl">Research</h2>
-        <div className="[column-fill:_balance]_columns-1 sm:columns-2 gap-4">
+      <div {...stylex.props(shared.sectionCompact)} id={slugify("Research")}>
+        <h2 {...stylex.props(shared.heading2)}>Research</h2>
+        <div {...stylex.props(shared.columns2)}>
           <AcademicCard title="Manipal PURE" url="https://researcher.manipal.edu">
             Researchers directory
           </AcademicCard>
         </div>
       </div>
 
-      <div className="space-y-2" id={slugify("Microsoft 365")}>
-        <h2 className="text-xl">Microsoft 365</h2>
-        <div className="[column-fill:_balance]_columns-1 sm:columns-2 gap-4">
+      <div {...stylex.props(shared.sectionCompact)} id={slugify("Microsoft 365")}>
+        <h2 {...stylex.props(shared.heading2)}>Microsoft 365</h2>
+        <div {...stylex.props(shared.columns2)}>
           <AcademicCard title="Outlook" url="https://outlook.office365.com/mail/">
             Web mail
           </AcademicCard>

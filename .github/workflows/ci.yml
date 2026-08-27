@@ -37,6 +37,9 @@ jobs:
       - name: Oxlint
         run: bun run lint
 
+      - name: StyleX migration guard
+        run: bun run check:styles
+
   format:
     name: Format
     runs-on: ubuntu-latest

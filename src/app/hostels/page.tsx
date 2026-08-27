@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import * as stylex from "@stylexjs/stylex";
 import data from "@/data/hostels.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,8 @@ import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
 import { ArrowUpDown, ArrowUp, ArrowDown, Download, Phone } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
+import { breakpoints, colors, fonts } from "@/styles/constants.stylex";
+import { shared } from "@/styles/shared";
 
 type Hostel = {
   block: string;
@@ -18,7 +21,6 @@ type Hostel = {
   wardens: {
     name: string;
     designation?: string;
-    /** `null` in the source data when the warden has no office line. */
     officePhone?: string | null;
     mobiles?: string[];
     email?: string;
@@ -33,44 +35,144 @@ function openDialer(phone: string) {
   window.location.href = `tel:${telHref(phone)}`;
 }
 
-function blockPhones(h: Hostel): string[] {
+function blockPhones(hostel: Hostel): string[] {
   const out: string[] = [];
-  if (h.receptionPhone) out.push(h.receptionPhone);
-  for (const w of h.wardens) {
-    if (w.mobiles) out.push(...w.mobiles);
-    if (w.officePhone) out.push(w.officePhone);
+  if (hostel.receptionPhone) out.push(hostel.receptionPhone);
+  for (const warden of hostel.wardens) {
+    if (warden.mobiles) out.push(...warden.mobiles);
+    if (warden.officePhone) out.push(warden.officePhone);
   }
   return [...new Set(out)];
 }
 
-function wardenPrimaryPhone(w: Hostel["wardens"][number]): string | null {
-  if (w.mobiles?.length) return w.mobiles[0];
-  if (w.officePhone) return w.officePhone;
+function wardenPrimaryPhone(warden: Hostel["wardens"][number]): string | null {
+  if (warden.mobiles?.length) return warden.mobiles[0];
+  if (warden.officePhone) return warden.officePhone;
   return null;
 }
 
+const styles = stylex.create({
+  page: { paddingBlock: { default: "2rem", [breakpoints.md]: "3rem" } },
+  pageHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: "1.5rem",
+  },
+  title: {
+    fontFamily: fonts.serif,
+    fontSize: { default: "1.5rem", [breakpoints.md]: "1.875rem" },
+    lineHeight: { default: "2rem", [breakpoints.md]: "2.25rem" },
+  },
+  subtitle: {
+    marginTop: "0.25rem",
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+  },
+  sortButton: { height: "2rem", gap: "0.375rem", fontSize: "0.75rem" },
+  icon14: { width: "0.875rem", height: "0.875rem" },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
+    },
+    gap: "1rem",
+  },
+  header: { paddingBottom: "0.75rem" },
+  row: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+  },
+  min: { minWidth: 0 },
+  grow: { minWidth: 0, flex: 1 },
+  cardTitle: { fontFamily: fonts.serif, fontSize: "1.25rem" },
+  campus: {
+    marginTop: "0.125rem",
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+  },
+  content: { display: "flex", flexDirection: "column", gap: "0.75rem", paddingTop: 0 },
+  reception: { paddingBlock: "0.5rem" },
+  contact: {
+    paddingBlock: "0.5rem",
+    borderTopWidth: "1px",
+    borderTopStyle: "solid",
+    borderTopColor: `color-mix(in oklab, ${colors.border} 50%, transparent)`,
+  },
+  firstContact: { paddingTop: 0, borderTopWidth: 0 },
+  name: { fontSize: "0.875rem", lineHeight: "1.25rem", fontWeight: 500 },
+  designation: { color: colors.mutedForeground, fontSize: "0.75rem", lineHeight: "1rem" },
+  controls: { display: "flex", alignItems: "center", gap: "0.25rem" },
+  miniButton: { height: "1.75rem", flexShrink: 0, paddingInline: "0.5rem", fontSize: "0.75rem" },
+  contactPrimary: {
+    display: "flex",
+    flexWrap: "wrap",
+    columnGap: "0.75rem",
+    rowGap: "0.125rem",
+    marginTop: "0.25rem",
+    fontSize: "0.875rem",
+    lineHeight: "1.25rem",
+    fontWeight: 500,
+  },
+  primaryLink: {
+    color: colors.foreground,
+    textDecorationLine: "underline",
+    textDecorationColor: { default: colors.mutedForeground, ":hover": colors.foreground },
+    textUnderlineOffset: "2px",
+  },
+  email: {
+    maxWidth: "13.75rem",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    color: { default: colors.mutedForeground, ":hover": colors.foreground },
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+    fontWeight: 400,
+    textUnderlineOffset: "2px",
+    textDecorationLine: { default: "none", ":hover": "underline" },
+  },
+  details: {
+    display: "flex",
+    flexWrap: "wrap",
+    columnGap: "0.75rem",
+    rowGap: "0.125rem",
+    marginTop: "0.25rem",
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+  },
+  detailLink: {
+    color: { default: colors.mutedForeground, ":hover": colors.foreground },
+    textUnderlineOffset: "2px",
+    textDecorationLine: { default: "none", ":hover": "underline" },
+  },
+  detailEmail: {
+    maxWidth: "12.5rem",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+});
+
 export default function HostelsPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
-
   const hostels: Hostel[] = data;
-
   const sortedHostels = useMemo(() => {
     if (!sortOrder) return hostels;
     return [...hostels].sort((a, b) => {
-      // Extract block numbers from "Block X" format
       const getBlockNumber = (block: string) => {
         const match = block.match(/Block (\d+)/);
         return match ? parseInt(match[1], 10) : 0;
       };
-
       const numA = getBlockNumber(a.block);
       const numB = getBlockNumber(b.block);
-
-      if (numA !== numB) {
-        return sortOrder === "asc" ? numA - numB : numB - numA;
-      }
-
-      // If numbers are equal, fallback to alphabetical
+      if (numA !== numB) return sortOrder === "asc" ? numA - numB : numB - numA;
       return sortOrder === "asc" ? a.block.localeCompare(b.block) : b.block.localeCompare(a.block);
     });
   }, [hostels, sortOrder]);
@@ -82,186 +184,191 @@ export default function HostelsPage() {
       return null;
     });
   };
+
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8 md:py-12">
-      <div className="flex items-center justify-between mb-6">
+    <main {...stylex.props(shared.page, styles.page)}>
+      <div {...stylex.props(styles.pageHeader)}>
         <div>
-          <h1 className="text-2xl md:text-3xl font-serif">Hostels</h1>
-          <p className="text-sm text-muted-foreground mt-1">Wardens and block contacts</p>
+          <h1 {...stylex.props(styles.title)}>Hostels</h1>
+          <p {...stylex.props(styles.subtitle)}>Wardens and block contacts</p>
         </div>
-        <Button variant="outline" size="sm" onClick={toggleSort} className="gap-1.5 h-8 text-xs">
-          {sortOrder === "asc" && <ArrowUp className="size-3.5" />}
-          {sortOrder === "desc" && <ArrowDown className="size-3.5" />}
-          {sortOrder === null && <ArrowUpDown className="size-3.5" />}
+        <Button variant="outline" size="sm" onClick={toggleSort} xstyle={styles.sortButton}>
+          {sortOrder === "asc" && <ArrowUp {...stylex.props(styles.icon14)} />}
+          {sortOrder === "desc" && <ArrowDown {...stylex.props(styles.icon14)} />}
+          {sortOrder === null && <ArrowUpDown {...stylex.props(styles.icon14)} />}
           {sortOrder === "asc" ? "1→9" : sortOrder === "desc" ? "9→1" : "Sort"}
         </Button>
       </div>
-      <div className="grid md:grid-cols-2 gap-4">
-        {sortedHostels.map((h) => {
-          const receptionPhone = h.receptionPhone;
+      <div {...stylex.props(styles.grid)}>
+        {sortedHostels.map((hostel) => {
+          const receptionPhone = hostel.receptionPhone;
           return (
-            <Card key={h.block} id={slugify(h.block)} className="glass scroll-mt-24">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <CardTitle className="text-xl font-serif">{h.block}</CardTitle>
-                    {h.campus && <p className="text-xs text-muted-foreground mt-0.5">{h.campus}</p>}
+            <Card
+              key={hostel.block}
+              id={slugify(hostel.block)}
+              xstyle={[shared.glass, shared.scrollTarget]}
+            >
+              <CardHeader xstyle={styles.header}>
+                <div {...stylex.props(styles.row)}>
+                  <div {...stylex.props(styles.min)}>
+                    <CardTitle xstyle={styles.cardTitle}>{hostel.block}</CardTitle>
+                    {hostel.campus && <p {...stylex.props(styles.campus)}>{hostel.campus}</p>}
                   </div>
                   <FavoriteButton
                     item={{
-                      id: `hostel-block-${slugify(h.block)}`,
+                      id: `hostel-block-${slugify(hostel.block)}`,
                       type: "hostel",
-                      name: h.block,
-                      href: `/hostels#${slugify(h.block)}`,
-                      phones: blockPhones(h),
-                      subtitle: h.campus,
+                      name: hostel.block,
+                      href: `/hostels#${slugify(hostel.block)}`,
+                      phones: blockPhones(hostel),
+                      subtitle: hostel.campus,
                     }}
                     size="sm"
                   />
                 </div>
               </CardHeader>
-              <CardContent className="pt-0 space-y-3">
+              <CardContent xstyle={styles.content}>
                 {receptionPhone && (
                   <div
-                    id={`${slugify(h.block)}-reception`}
-                    className="py-2 border-t border-border/50 first:border-t-0"
+                    id={`${slugify(hostel.block)}-reception`}
+                    {...stylex.props(styles.reception)}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium">Reception</div>
+                    <div {...stylex.props(styles.row)}>
+                      <div {...stylex.props(styles.grow)}>
+                        <div {...stylex.props(styles.name)}>Reception</div>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div {...stylex.props(styles.controls)}>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           onClick={() => openDialer(receptionPhone)}
-                          className="h-7 text-xs px-2 shrink-0"
+                          xstyle={styles.miniButton}
                           aria-label={`Call reception at ${receptionPhone}`}
                           title="Call reception"
                         >
-                          <Phone className="h-3.5 w-3.5" />
+                          <Phone {...stylex.props(styles.icon14)} />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => {
-                            const v = buildVCard({
+                            const vcard = buildVCard({
                               name: "Reception",
                               title: "Hostel reception",
                               phones: [receptionPhone],
-                              email: h.email,
-                              org: h.block,
+                              email: hostel.email,
+                              org: hostel.block,
                               address:
-                                [h.campus, h.address].filter(Boolean).join(", ") || undefined,
+                                [hostel.campus, hostel.address].filter(Boolean).join(", ") ||
+                                undefined,
                             });
-                            downloadVCardFile(`${h.block}-reception`, v);
+                            downloadVCardFile(`${hostel.block}-reception`, vcard);
                           }}
-                          className="h-7 text-xs px-2 shrink-0"
+                          xstyle={styles.miniButton}
                           aria-label="Save reception contact"
                         >
-                          <Download className="h-3.5 w-3.5" />
+                          <Download {...stylex.props(styles.icon14)} />
                         </Button>
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-sm font-medium">
+                    <div {...stylex.props(styles.contactPrimary)}>
                       <a
                         href={`tel:${telHref(receptionPhone)}`}
-                        className="text-foreground underline underline-offset-2 decoration-muted-foreground hover:decoration-foreground"
+                        {...stylex.props(styles.primaryLink)}
                       >
                         {receptionPhone}
                       </a>
-                      {h.email && (
-                        <a
-                          href={`mailto:${h.email}`}
-                          className="text-xs font-normal text-muted-foreground hover:text-foreground hover:underline underline-offset-2 truncate max-w-[220px]"
-                        >
-                          {h.email}
+                      {hostel.email && (
+                        <a href={`mailto:${hostel.email}`} {...stylex.props(styles.email)}>
+                          {hostel.email}
                         </a>
                       )}
                     </div>
                   </div>
                 )}
-                {h.wardens.map((w, i) => {
-                  const quickCall = wardenPrimaryPhone(w);
+                {hostel.wardens.map((warden, index) => {
+                  const quickCall = wardenPrimaryPhone(warden);
                   return (
                     <div
-                      key={i}
-                      id={slugify(`${h.block}-${w.name}`)}
-                      className="py-2 first:pt-0 border-t first:border-0 border-border/50"
+                      key={index}
+                      id={slugify(`${hostel.block}-${warden.name}`)}
+                      {...stylex.props(
+                        styles.contact,
+                        !receptionPhone && index === 0 && styles.firstContact,
+                      )}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium">{w.name}</div>
-                          {w.designation && (
-                            <div className="text-xs text-muted-foreground">{w.designation}</div>
+                      <div {...stylex.props(styles.row)}>
+                        <div {...stylex.props(styles.grow)}>
+                          <div {...stylex.props(styles.name)}>{warden.name}</div>
+                          {warden.designation && (
+                            <div {...stylex.props(styles.designation)}>{warden.designation}</div>
                           )}
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div {...stylex.props(styles.controls)}>
                           {quickCall && (
                             <Button
                               type="button"
                               variant="ghost"
                               size="sm"
                               onClick={() => openDialer(quickCall)}
-                              className="h-7 text-xs px-2 shrink-0"
-                              aria-label={`Call ${w.name}`}
+                              xstyle={styles.miniButton}
+                              aria-label={`Call ${warden.name}`}
                               title="Quick call"
                             >
-                              <Phone className="h-3.5 w-3.5" />
+                              <Phone {...stylex.props(styles.icon14)} />
                             </Button>
                           )}
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              const v = buildVCard({
-                                name: w.name,
-                                title: w.designation,
+                              const vcard = buildVCard({
+                                name: warden.name,
+                                title: warden.designation,
                                 phones: [
-                                  ...(w.mobiles ?? []),
-                                  ...(w.officePhone ? [w.officePhone] : []),
+                                  ...(warden.mobiles ?? []),
+                                  ...(warden.officePhone ? [warden.officePhone] : []),
                                 ],
-                                email: w.email,
-                                org: h.block,
+                                email: warden.email,
+                                org: hostel.block,
                                 address:
-                                  [h.campus, h.address].filter(Boolean).join(", ") || undefined,
+                                  [hostel.campus, hostel.address].filter(Boolean).join(", ") ||
+                                  undefined,
                               });
-                              downloadVCardFile(`${h.block}-${w.name}`, v);
+                              downloadVCardFile(`${hostel.block}-${warden.name}`, vcard);
                             }}
-                            className="h-7 text-xs px-2 shrink-0"
+                            xstyle={styles.miniButton}
                             aria-label="Save contact"
                           >
-                            <Download className="h-3.5 w-3.5" />
+                            <Download {...stylex.props(styles.icon14)} />
                           </Button>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
-                        {w.mobiles &&
-                          w.mobiles.length > 0 &&
-                          w.mobiles.map((m) => (
-                            <a
-                              key={m}
-                              href={`tel:${telHref(m)}`}
-                              className="hover:text-foreground hover:underline underline-offset-2"
-                            >
-                              {m}
-                            </a>
-                          ))}
-                        {w.officePhone && (
+                      <div {...stylex.props(styles.details)}>
+                        {warden.mobiles?.map((mobile) => (
                           <a
-                            href={`tel:${telHref(w.officePhone)}`}
-                            className="hover:text-foreground hover:underline underline-offset-2"
+                            key={mobile}
+                            href={`tel:${telHref(mobile)}`}
+                            {...stylex.props(styles.detailLink)}
                           >
-                            Office: {w.officePhone}
+                            {mobile}
+                          </a>
+                        ))}
+                        {warden.officePhone && (
+                          <a
+                            href={`tel:${telHref(warden.officePhone)}`}
+                            {...stylex.props(styles.detailLink)}
+                          >
+                            Office: {warden.officePhone}
                           </a>
                         )}
-                        {w.email && (
+                        {warden.email && (
                           <a
-                            href={`mailto:${w.email}`}
-                            className="hover:text-foreground hover:underline underline-offset-2 truncate max-w-[200px]"
+                            href={`mailto:${warden.email}`}
+                            {...stylex.props(styles.detailLink, styles.detailEmail)}
                           >
-                            {w.email}
+                            {warden.email}
                           </a>
                         )}
                       </div>

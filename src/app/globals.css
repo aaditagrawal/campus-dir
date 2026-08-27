@@ -1,49 +1,4 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-instrument-sans);
-  --font-serif: var(--font-instrument-serif);
-  --font-mono:
-    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
+@stylex;
 
 :root {
   --radius: 0.625rem;
@@ -65,28 +20,10 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  /* category accent defaults */
-  --accent-restaurants: oklch(0.748 0.175 29); /* orange */
-  --accent-hostels: oklch(0.693 0.141 264); /* indigo */
-  --accent-travel: oklch(0.7 0.12 190); /* blue */
-  --accent-emergency: oklch(0.7 0.18 145); /* green */
+  color-scheme: light;
 }
 
 .dark {
-  /* Deep neutral dark: near-ink base with subtle surface steps */
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.195 0 0);
@@ -105,126 +42,142 @@
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.5 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.13 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.22 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.5 0 0);
+  color-scheme: dark;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-size: 16px;
-    /*
-     * A single static gradient: no repaint loop, no promoted compositor
-     * layers, and the `.glass` backdrop blurs sample a stable surface.
-     */
-    background-image: radial-gradient(
-      64rem 32rem at 50% -8rem,
-      color-mix(in oklab, var(--primary) 5%, transparent),
-      transparent
-    );
-    background-repeat: no-repeat;
-  }
-  .dark body {
-    background-image: radial-gradient(
-      64rem 32rem at 50% -8rem,
-      color-mix(in oklab, var(--muted) 45%, transparent),
-      transparent
-    );
-  }
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-instrument-serif);
-  }
-  h1 {
-    font-size: 2.25rem;
-  }
-  h2 {
-    font-size: 1.875rem;
-  }
-  h3 {
-    font-size: 1.5rem;
-  }
-  h4 {
-    font-size: 1.25rem;
-  }
-  h5 {
-    font-size: 1.125rem;
-  }
-  h6 {
-    font-size: 1rem;
-  }
-  p,
-  span,
-  div {
-    font-size: 1rem;
-  }
-  small {
-    font-size: 0.875rem;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--border);
 }
 
-/*
- * glass helper - more subtle
- *
- * A backdrop-filter is one of the most expensive things a page can ask for: the
- * element has to sample and blur everything behind it, and it redoes that work
- * whenever its backdrop changes - which includes every scroll frame, since the
- * card moves over a fixed background. There are 17 to 25 of these per page
- * (25 on /emergency), so the cost is paid many times over.
- *
- * The blur is kept, at a smaller radius, on pointer devices with a large enough
- * viewport. Below that it is dropped and the tint carries the effect on its own,
- * which is where the cost hurts most and the blur reads least.
- */
-.glass {
-  background: color-mix(in oklab, var(--card) 70%, transparent);
-  border-color: color-mix(in oklab, var(--border) 60%, transparent);
+html {
+  font-family: var(--font-instrument-sans), system-ui, sans-serif;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  tab-size: 4;
 }
 
-@media (min-width: 768px) {
-  .glass {
-    backdrop-filter: saturate(120%) blur(8px);
-    -webkit-backdrop-filter: saturate(120%) blur(8px);
-  }
+body {
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--background);
+  background-image: radial-gradient(
+    64rem 32rem at 50% -8rem,
+    color-mix(in oklab, var(--primary) 5%, transparent),
+    transparent
+  );
+  background-repeat: no-repeat;
+  color: var(--foreground);
+  font-size: 1rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Honour an explicit request for less transparency, and stop blurring for it. */
-@media (prefers-reduced-transparency: reduce) {
-  .glass {
-    background: var(--card);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+.dark body {
+  background-image: radial-gradient(
+    64rem 32rem at 50% -8rem,
+    color-mix(in oklab, var(--muted) 45%, transparent),
+    transparent
+  );
 }
 
-/* category accent helpers */
-.accent-restaurants {
-  color: var(--accent-restaurants);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre {
+  margin: 0;
 }
-.accent-hostels {
-  color: var(--accent-hostels);
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  font-weight: inherit;
 }
-.accent-travel {
-  color: var(--accent-travel);
+
+h1 {
+  font-size: 2.25rem;
 }
-.accent-emergency {
-  color: var(--accent-emergency);
+
+h2 {
+  font-size: 1.875rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+}
+
+button,
+select {
+  text-transform: none;
+}
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  appearance: button;
+}
+
+textarea {
+  overflow: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+[hidden] {
+  display: none !important;
 }
