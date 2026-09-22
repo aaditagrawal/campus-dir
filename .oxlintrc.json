@@ -17,6 +17,8 @@
     "nursery": "off"
   },
   "rules": {
+    "react/set-state-in-effect": "warn",
+    "react/immutability": "warn",
     "eqeqeq": "error",
     "no-debugger": "error",
     "no-console": "warn",
