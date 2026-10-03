@@ -25,27 +25,13 @@ const styles = stylex.create({
   header: {
     display: "grid",
     gridAutoRows: "min-content",
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      ':has([data-slot="card-action"])': "minmax(0, 1fr) auto",
-    },
+    gridTemplateColumns: "minmax(0, 1fr)",
     gridTemplateRows: "auto auto",
     alignItems: "start",
     gap: "0.375rem",
     paddingInline: "1.5rem",
   },
   title: { fontSize: "1.125rem", lineHeight: 1, fontWeight: 600 },
-  description: {
-    color: colors.mutedForeground,
-    fontSize: "0.875rem",
-    lineHeight: "1.25rem",
-  },
-  action: {
-    gridColumnStart: 2,
-    gridRow: "1 / span 2",
-    alignSelf: "start",
-    justifySelf: "end",
-  },
   content: { paddingInline: "1.5rem" },
   footer: { display: "flex", alignItems: "center", paddingInline: "1.5rem" },
 });
@@ -59,14 +45,6 @@ function CardHeader({ xstyle, ...props }: StyledDivProps) {
 function CardTitle({ xstyle, ...props }: StyledDivProps) {
   return <div data-slot="card-title" {...stylex.props(styles.title, xstyle)} {...props} />;
 }
-function CardDescription({ xstyle, ...props }: StyledDivProps) {
-  return (
-    <div data-slot="card-description" {...stylex.props(styles.description, xstyle)} {...props} />
-  );
-}
-function CardAction({ xstyle, ...props }: StyledDivProps) {
-  return <div data-slot="card-action" {...stylex.props(styles.action, xstyle)} {...props} />;
-}
 function CardContent({ xstyle, ...props }: StyledDivProps) {
   return <div data-slot="card-content" {...stylex.props(styles.content, xstyle)} {...props} />;
 }
@@ -74,4 +52,4 @@ function CardFooter({ xstyle, ...props }: StyledDivProps) {
   return <div data-slot="card-footer" {...stylex.props(styles.footer, xstyle)} {...props} />;
 }
 
-export { Card, CardHeader, CardFooter, CardTitle, CardAction, CardDescription, CardContent };
+export { Card, CardHeader, CardFooter, CardTitle, CardContent };

@@ -127,7 +127,7 @@ export const RESTAURANTS: readonly Restaurant[] = RAW_RESTAURANTS.map(buildResta
 
 function isWithin(window: OpeningWindow, minutes: number): boolean {
   return window.close < window.open
-    ? minutes >= window.open || minutes < window.close
+    ? minutes >= window.open
     : minutes >= window.open && minutes < window.close;
 }
 
@@ -213,12 +213,13 @@ const BOUNDARIES: readonly number[] = (() => {
 export function msUntilNextBoundary(now: Date): number {
   if (BOUNDARIES.length === 0) return MINUTES_PER_WEEK * MS_PER_MINUTE;
 
+  const local = new Date(now.getTime() + 330 * MS_PER_MINUTE);
   const msIntoWeek =
-    now.getDay() * MINUTES_PER_DAY * MS_PER_MINUTE +
-    now.getHours() * 60 * MS_PER_MINUTE +
-    now.getMinutes() * MS_PER_MINUTE +
-    now.getSeconds() * 1000 +
-    now.getMilliseconds();
+    local.getUTCDay() * MINUTES_PER_DAY * MS_PER_MINUTE +
+    local.getUTCHours() * 60 * MS_PER_MINUTE +
+    local.getUTCMinutes() * MS_PER_MINUTE +
+    local.getUTCSeconds() * 1000 +
+    local.getUTCMilliseconds();
   const minuteIntoWeek = Math.floor(msIntoWeek / MS_PER_MINUTE);
 
   // First boundary strictly after the current minute; wraps to next week.
@@ -236,8 +237,9 @@ export function msUntilNextBoundary(now: Date): number {
 
 /** Status for every restaurant, positionally aligned with `RESTAURANTS`. */
 export function resolveAll(now: Date): ReadonlyArray<OpenStatus> {
-  const day = now.getDay();
-  const minutes = now.getHours() * 60 + now.getMinutes();
+  const local = new Date(now.getTime() + 330 * MS_PER_MINUTE);
+  const day = local.getUTCDay();
+  const minutes = local.getUTCHours() * 60 + local.getUTCMinutes();
   return RESTAURANTS.map((restaurant) => resolveStatus(restaurant, day, minutes));
 }
 

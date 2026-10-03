@@ -1,3 +1,4 @@
+import academics from "@/data/academics.json";
 import { ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,107 +90,51 @@ export default function AcademicsPage() {
         <h1 {...stylex.props(shared.heading1)}>Academics</h1>
         <p {...stylex.props(shared.mutedText)}>Quick links to academic systems and resources.</p>
       </div>
-
-      <div {...stylex.props(shared.sectionCompact)} id={slugify("Student Lifecycle Management")}>
-        <h2 {...stylex.props(shared.heading2)}>Student Lifecycle Management</h2>
-        <div {...stylex.props(shared.columns2)}>
-          <AcademicCard title="SLCM 2.0" url="https://maheslcmtech.manipal.edu">
-            New SLCM portal
-          </AcademicCard>
-          <AcademicCard title="SLCM (Classic)" url="https://slcm.manipal.edu">
-            Legacy SLCM portal
-          </AcademicCard>
+      {academics.map((section) => (
+        <div
+          key={section.section}
+          {...stylex.props(shared.sectionCompact)}
+          id={slugify(section.section)}
+        >
+          <h2 {...stylex.props(shared.heading2)}>{section.section}</h2>
+          <div {...stylex.props(shared.columns2)}>
+            {section.items.map((item) => (
+              <AcademicCard key={item.name} title={item.name} url={item.url}>
+                {"credentials" in item && item.credentials && (
+                  <>
+                    <span {...stylex.props(styles.credential)}>
+                      User ID: <span {...stylex.props(styles.mono)}>{item.credentials.userId}</span>
+                    </span>
+                    <br />
+                    <span {...stylex.props(styles.credential)}>
+                      Password:{" "}
+                      <span {...stylex.props(styles.mono)}>{item.credentials.password}</span>
+                    </span>
+                    <br />
+                  </>
+                )}
+                {item.description}
+                {"altUrl" in item && item.altUrl && (
+                  <>
+                    <br />
+                    <span {...stylex.props(styles.alternate)}>
+                      Alt:{" "}
+                      <a
+                        href={item.altUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        {...stylex.props(styles.alternateLink)}
+                      >
+                        {item.altUrl}
+                      </a>
+                    </span>
+                  </>
+                )}
+              </AcademicCard>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div {...stylex.props(shared.sectionCompact)} id={slugify("Library")}>
-        <h2 {...stylex.props(shared.heading2)}>Library</h2>
-        <div {...stylex.props(shared.columns2)}>
-          <AcademicCard
-            title="Previous Years' Questions Archive"
-            url="https://library-orpin-two.vercel.app"
-          >
-            Browse past question papers
-          </AcademicCard>
-          <AcademicCard
-            title="Manipal OSF"
-            url="https://learnermanipal.sharepoint.com/sites/ManipalOSF"
-          >
-            Student led initiative to compile and share past question papers
-          </AcademicCard>
-          <AcademicCard title="EBSCO search" url="https://research.ebsco.com/c/fqdtcf/search">
-            <span {...stylex.props(styles.credential)}>
-              User ID: <span {...stylex.props(styles.mono)}>ebscopreviewmity</span>
-            </span>
-            <br />
-            <span {...stylex.props(styles.credential)}>
-              Password: <span {...stylex.props(styles.mono)}>UIPreview2021!</span>
-            </span>
-            <br />
-            Search academic databases
-          </AcademicCard>
-          <AcademicCard title="Library Portal" url="https://libportal.manipal.edu/MIT/MIT.aspx">
-            MIT Library portal
-          </AcademicCard>
-        </div>
-      </div>
-
-      <div {...stylex.props(shared.sectionCompact)} id={slugify("Academic Resources")}>
-        <h2 {...stylex.props(shared.heading2)}>Academic Resources</h2>
-        <div {...stylex.props(shared.columns2)}>
-          <AcademicCard title="Lighthouse" url="https://lighthouse.manipal.edu">
-            Semester-wise resources and quiz platform
-          </AcademicCard>
-          <AcademicCard
-            title="Pulse (Android)"
-            url="https://play.google.com/store/apps/details?id=com.d2l.brightspace.student.android"
-          >
-            Brightspace Pulse app for Lighthouse
-          </AcademicCard>
-          <AcademicCard
-            title="Pulse (iOS)"
-            url="https://apps.apple.com/us/app/brightspace-pulse/id1001688546"
-          >
-            Brightspace Pulse app for Lighthouse
-          </AcademicCard>
-          <AcademicCard title="Impartus" url="https://impartus.manipal.edu">
-            Class recordings platform
-            <br />
-            <span {...stylex.props(styles.alternate)}>
-              Alt:{" "}
-              <a
-                href="https://a.impartus.com"
-                target="_blank"
-                rel="noreferrer"
-                {...stylex.props(styles.alternateLink)}
-              >
-                a.impartus.com
-              </a>
-            </span>
-          </AcademicCard>
-        </div>
-      </div>
-
-      <div {...stylex.props(shared.sectionCompact)} id={slugify("Research")}>
-        <h2 {...stylex.props(shared.heading2)}>Research</h2>
-        <div {...stylex.props(shared.columns2)}>
-          <AcademicCard title="Manipal PURE" url="https://researcher.manipal.edu">
-            Researchers directory
-          </AcademicCard>
-        </div>
-      </div>
-
-      <div {...stylex.props(shared.sectionCompact)} id={slugify("Microsoft 365")}>
-        <h2 {...stylex.props(shared.heading2)}>Microsoft 365</h2>
-        <div {...stylex.props(shared.columns2)}>
-          <AcademicCard title="Outlook" url="https://outlook.office365.com/mail/">
-            Web mail
-          </AcademicCard>
-          <AcademicCard title="Office 365" url="https://m365.cloud.microsoft/apps/">
-            Microsoft 365 apps
-          </AcademicCard>
-        </div>
-      </div>
+      ))}
     </main>
   );
 }

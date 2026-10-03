@@ -193,9 +193,9 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
   }, [fuzzyReady]);
 
   useEffect(() => {
-    if (!fuzzyReady || !query || results.length > 0) return;
+    if (!fuzzyReady || !query) return;
     performSearch(query);
-  }, [fuzzyReady, query, results.length, performSearch]);
+  }, [fuzzyReady, query, performSearch]);
 
   useEffect(() => {
     inputRef.current?.focus();
