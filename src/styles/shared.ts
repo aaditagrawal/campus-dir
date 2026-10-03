@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints, colors, fonts, motion, preferences, radii } from "./constants.stylex";
+import { breakpoints, colors, fonts, motion, preferences } from "./constants.stylex";
 
 export const shared = stylex.create({
   page: {
@@ -35,12 +35,6 @@ export const shared = stylex.create({
   heading2Strong: {
     fontWeight: 600,
   },
-  heading3: {
-    fontFamily: fonts.serif,
-    fontSize: "1.125rem",
-    lineHeight: "1.75rem",
-    fontWeight: 600,
-  },
   mutedText: {
     color: colors.mutedForeground,
   },
@@ -51,9 +45,6 @@ export const shared = stylex.create({
   textXs: {
     fontSize: "0.75rem",
     lineHeight: "1rem",
-  },
-  mono: {
-    fontFamily: fonts.mono,
   },
   section: {
     display: "flex",
@@ -89,74 +80,6 @@ export const shared = stylex.create({
     columnGap: "1rem",
     columnFill: "balance",
   },
-  flex: {
-    display: "flex",
-  },
-  flexColumn: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  flexWrap: {
-    flexWrap: "wrap",
-  },
-  flex1: {
-    flex: 1,
-  },
-  itemsStart: {
-    alignItems: "flex-start",
-  },
-  itemsCenter: {
-    alignItems: "center",
-  },
-  justifyBetween: {
-    justifyContent: "space-between",
-  },
-  justifyCenter: {
-    justifyContent: "center",
-  },
-  gap1: {
-    gap: "0.25rem",
-  },
-  gap2: {
-    gap: "0.5rem",
-  },
-  gap3: {
-    gap: "0.75rem",
-  },
-  gap4: {
-    gap: "1rem",
-  },
-  fullWidth: {
-    width: "100%",
-  },
-  relative: {
-    position: "relative",
-  },
-  absoluteFill: {
-    position: "absolute",
-    inset: 0,
-  },
-  link: {
-    textDecorationLine: "underline",
-    textUnderlineOffset: "2px",
-  },
-  linkHover: {
-    color: {
-      default: colors.mutedForeground,
-      ":hover": colors.foreground,
-    },
-    textDecorationLine: {
-      default: "none",
-      ":hover": "underline",
-    },
-  },
-  focusRing: {
-    outline: "none",
-    boxShadow: {
-      default: "none",
-      ":focus-visible": `0 0 0 3px color-mix(in oklab, ${colors.ring} 50%, transparent)`,
-    },
-  },
   glass: {
     backgroundColor: {
       default: `color-mix(in oklab, ${colors.card} 70%, transparent)`,
@@ -184,16 +107,5 @@ export const shared = stylex.create({
   },
   scrollTarget: {
     scrollMarginTop: "6rem",
-  },
-  rounded: {
-    borderRadius: radii.md,
-  },
-  truncate: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  breakAll: {
-    overflowWrap: "anywhere",
   },
 });

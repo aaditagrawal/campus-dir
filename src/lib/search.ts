@@ -4,6 +4,7 @@ import travel from "@/data/travel.json";
 import emergencies from "@/data/emergency.json";
 import hostels from "@/data/hostels.json";
 import academics from "@/data/academics.json";
+import tools from "@/data/tools.json";
 import grievance from "@/data/grievance.json";
 import { slugify } from "@/lib/utils";
 
@@ -133,6 +134,7 @@ export function getAllSearchItems(): SearchItem[] {
   // Section entries for quick navigation
   const sections: Array<[string, string]> = [
     ["Home", "/"],
+    ["Tools", "/tools"],
     ["Academics", "/academics"],
     ["Restaurants", "/restaurants"],
     ["Hostels", "/hostels"],
@@ -145,6 +147,10 @@ export function getAllSearchItems(): SearchItem[] {
     if (title && href) {
       items.push({ title, section: "Pages", href });
     }
+  }
+
+  for (const tool of [...tools.web_resources, ...tools.internal_tools]) {
+    items.push({ title: tool.name, subtitle: tool.description, section: "Tools", href: tool.url });
   }
 
   // Restaurants

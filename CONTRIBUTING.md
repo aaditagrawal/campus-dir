@@ -425,7 +425,6 @@ The project uses Radix UI primitives for accessibility:
 - `Badge` - Status indicators
 - `NavigationMenu` - Main navigation
 - `Sheet` - Mobile navigation drawer
-- `Switch` - Toggle controls
 
 **Adding New Components:**
 
