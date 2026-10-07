@@ -4,6 +4,8 @@ import travel from "@/data/travel.json";
 import emergencies from "@/data/emergency.json";
 import hostels from "@/data/hostels.json";
 import academics from "@/data/academics.json";
+import campusLife from "@/data/campus-life.json";
+import type { ResourceSection } from "@/lib/resources";
 import tools from "@/data/tools.json";
 import grievance from "@/data/grievance.json";
 import { slugify } from "@/lib/utils";
@@ -76,21 +78,6 @@ type Hostel = {
   wardens?: Warden[];
 };
 
-type AcademicItem = {
-  name: string;
-  description?: string;
-  url: string;
-  credentials?: {
-    userId: string;
-    password: string;
-  };
-};
-
-type AcademicSection = {
-  section: string;
-  items: AcademicItem[];
-};
-
 type GrievanceContact = {
   name?: string;
   role?: string;
@@ -119,7 +106,8 @@ const SERVICES: ServicesData = services;
 const TRAVEL: TravelData = travel;
 const EMERGENCIES: readonly EmergencyItem[] = emergencies;
 const HOSTELS: readonly Hostel[] = hostels;
-const ACADEMICS: readonly AcademicSection[] = academics;
+const ACADEMICS: readonly ResourceSection[] = academics;
+const CAMPUS_LIFE: readonly ResourceSection[] = campusLife;
 const GRIEVANCE: GrievanceData = grievance;
 
 let cachedItems: SearchItem[] | null = null;
@@ -136,6 +124,7 @@ export function getAllSearchItems(): SearchItem[] {
     ["Home", "/"],
     ["Tools", "/tools"],
     ["Academics", "/academics"],
+    ["Campus Life", "/campus-life"],
     ["Restaurants", "/restaurants"],
     ["Hostels", "/hostels"],
     ["Travel", "/travel"],
@@ -272,26 +261,38 @@ export function getAllSearchItems(): SearchItem[] {
     }
   }
 
-  // Academics
-  for (const section of ACADEMICS) {
-    if (section && section.section && Array.isArray(section.items)) {
-      // Index the section header
-      items.push({
-        title: section.section,
-        section: "Academics",
-        href: `/academics#${slugify(section.section)}`,
-      });
+  const resourcePages = [
+    { sections: ACADEMICS, label: "Academics", route: "/academics" },
+    { sections: CAMPUS_LIFE, label: "Campus Life", route: "/campus-life" },
+  ];
+  for (const page of resourcePages) {
+    for (const section of page.sections) {
+      if (section && section.section && Array.isArray(section.items)) {
+        // Index the section header
+        items.push({
+          title: section.section,
+          section: page.label,
+          href: `${page.route}#${slugify(section.section)}`,
+        });
 
-      // Index individual academic resources
-      for (const item of section.items) {
-        if (item && item.name) {
-          items.push({
-            title: item.name,
-            section: "Academics",
-            subtitle: section.section,
-            href: `/academics#${slugify(item.name)}`,
-            notes: item.description,
-          });
+        // Index individual academic resources
+        for (const item of section.items) {
+          if (item && item.name) {
+            items.push({
+              title: item.name,
+              section: page.label,
+              subtitle: section.section,
+              href: `${page.route}#${slugify(item.name)}`,
+              notes: [
+                item.description,
+                item.appliesTo,
+                ...(item.steps ?? []),
+                ...(item.keywords ?? []),
+              ]
+                .filter(Boolean)
+                .join(" "),
+            });
+          }
         }
       }
     }

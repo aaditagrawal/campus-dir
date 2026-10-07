@@ -25,6 +25,7 @@ const SECTIONS: ReadonlyArray<{ type: FavoriteType; label: string }> = [
   { type: "service", label: "Services" },
   { type: "travel", label: "Travel" },
   { type: "academic", label: "Academic Resources" },
+  { type: "campus-life", label: "Campus Life" },
   { type: "tool", label: "Tools" },
   { type: "grievance", label: "Grievance Redressal" },
 ];

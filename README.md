@@ -20,6 +20,17 @@ Live at https://cd.coolstuff.work
 
 Dark/light mode included.
 
+Campus Life links to official club and project directories, counselling and routine
+healthcare, sports, peer support, makerspaces, startup support, safety committees,
+events, and hostel information. Academics also includes the unified MIT library
+portal, SSO access instructions, official question papers, forms, dated regulations,
+scholarships, and study abroad guidance.
+
+New official resource cards show their source, campus, and the date the source was
+checked. This date records a website check, not a phone call or an in-person check.
+Calendar, curriculum, and scholarship entries state the year or scheme they apply
+to. Confirm current schedules and fees with the responsible office.
+
 ## Running locally
 
 ```bash
@@ -43,6 +54,15 @@ src/
 ```
 
 All directory content lives in `src/data/*.json`. To update a phone number, restaurant, or warden, edit the relevant JSON file.
+
+Academic and Campus Life resources share the `ResourceSection` type in
+`src/lib/resources.ts`. Add a resource to `academics.json` or `campus-life.json` to
+include it in the page and global search. For official additions, include `source`,
+`checkedOn` in `YYYY-MM-DD` format, and `campus`. Use `appliesTo` for year or
+curriculum restrictions, `steps` for short instructions, and `keywords` for names
+students may search for. Keep source descriptions brief and write instructions in
+your own words. Do not publish shared login credentials; link to the official SSO
+instructions instead.
 
 ## Tech
 

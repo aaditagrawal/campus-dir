@@ -29,17 +29,48 @@
       },
       {
         "name": "EBSCO search",
-        "description": "Search academic databases",
+        "description": "Search academic databases through the library. Sign in with your MAHE account for subscribed resources.",
         "url": "https://research.ebsco.com/c/fqdtcf/search",
-        "credentials": {
-          "userId": "ebscopreviewmity",
-          "password": "UIPreview2021!"
-        }
+        "source": "https://mitmpllibportal.manipal.edu/sites/default/files/2025-10/Access%20and%20User%20Guide.pdf",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal"
       },
       {
         "name": "Library Portal",
-        "description": "MIT Library portal",
-        "url": "https://libportal.manipal.edu/MIT/MIT.aspx"
+        "description": "Search MIT Central Library books, journals, databases, and study resources.",
+        "url": "https://mitmpllibportal.manipal.edu/",
+        "source": "https://mitmpllibportal.manipal.edu/",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal"
+      },
+      {
+        "name": "Official MIT Question Papers",
+        "description": "Search previous examination papers by year, course, and subject. SSO login is required to open files.",
+        "url": "https://mitmpllibportal.manipal.edu/question-papers-1",
+        "source": "https://mitmpllibportal.manipal.edu/question-papers-1",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal"
+      },
+      {
+        "name": "Library Remote Access",
+        "description": "Use OpenAthens to access library subscriptions away from campus.",
+        "url": "https://mitmpllibportal.manipal.edu/sites/default/files/2025-10/Access%20and%20User%20Guide.pdf",
+        "source": "https://mitmpllibportal.manipal.edu/sites/default/files/2025-10/Access%20and%20User%20Guide.pdf",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal",
+        "steps": [
+          "Open the MIT Central Library portal and choose Login, then Log in with SSO.",
+          "Select the MAHE University Microsoft Azure option.",
+          "Sign in with your @manipal.edu or @learner.manipal.edu email."
+        ]
+      },
+      {
+        "name": "Library Forms",
+        "description": "Find student membership and book recommendation forms. Check each form for the institution it applies to before submitting.",
+        "url": "https://mitmpllibportal.manipal.edu/library-forms-0",
+        "source": "https://mitmpllibportal.manipal.edu/library-forms-0",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal"
       }
     ]
   },
@@ -76,6 +107,14 @@
         "name": "Manipal PURE",
         "description": "Researchers directory",
         "url": "https://researcher.manipal.edu"
+      },
+      {
+        "name": "Research Support Tools",
+        "description": "Find Grammarly, citation managers, and research tools. Turnitin access is arranged through your institution coordinator.",
+        "url": "https://mitmpllibportal.manipal.edu/research-support-tools-8",
+        "source": "https://mitmpllibportal.manipal.edu/research-support-tools-8",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal"
       }
     ]
   },
@@ -91,6 +130,56 @@
         "name": "Office 365",
         "description": "Microsoft 365 apps",
         "url": "https://m365.cloud.microsoft/apps/"
+      }
+    ]
+  },
+  {
+    "section": "Academic Dates & Rules",
+    "items": [
+      {
+        "name": "MIT Academic Calendar",
+        "description": "Official calendar downloads. The page listed 2025-26 and 2024-25 when checked; confirm the 2026-27 calendar with the Academic Section.",
+        "url": "https://www.manipal.edu/mit/mit-experience/academic-calendar.html",
+        "source": "https://www.manipal.edu/mit/mit-experience/academic-calendar.html",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal",
+        "appliesTo": "Published calendars: 2025-26 and 2024-25. These are not the current academic year."
+      },
+      {
+        "name": "Academic Regulations - 2022 Scheme",
+        "description": "Read the published attendance, assessment, examination, and progression rules for the 2022 curriculum scheme.",
+        "url": "https://www.manipal.edu/content/dam/manipal/mu/mit/documents/MIT-Academic%20regulations-2022%20curriculum.pdf",
+        "source": "https://www.manipal.edu/content/dam/manipal/mu/mit/documents/MIT-Academic%20regulations-2022%20curriculum.pdf",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal",
+        "appliesTo": "2022 curriculum scheme only. Confirm your applicable scheme and later amendments with the Academic Section."
+      }
+    ]
+  },
+  {
+    "section": "Scholarships & Study Abroad",
+    "items": [
+      {
+        "name": "Scholarships & Financial Aid",
+        "description": "Browse MAHE scholarships, including HBSF-MAHE EduEmpower for MIT Manipal BTech students, and follow the applicable application policy.",
+        "url": "https://www.manipal.edu/educationloan",
+        "source": "https://www.manipal.edu/educationloan",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal",
+        "appliesTo": "2026 scholarship policy. Eligibility and renewal conditions depend on the scheme and intake."
+      },
+      {
+        "name": "MIT Study Abroad Programme",
+        "description": "Find semester eligibility, academic requirements, application documents, and credit transfer instructions.",
+        "url": "https://www.manipal.edu/mit/why/internationalisation-at-mit/student-mobility/study-abroad-program.html",
+        "source": "https://www.manipal.edu/mit/why/internationalisation-at-mit/student-mobility/study-abroad-program.html",
+        "checkedOn": "2026-10-07",
+        "campus": "MIT Manipal",
+        "steps": [
+          "Check the published eligibility requirements and select a host university.",
+          "Submit the application and parent or guardian undertaking for review.",
+          "Obtain course approval and a learning agreement before arranging travel. Start at least six months ahead."
+        ]
       }
     ]
   }

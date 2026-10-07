@@ -19,6 +19,7 @@ import {
   Star,
   MessageSquareWarning,
   ChevronDown,
+  Users,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
@@ -39,6 +40,7 @@ const primaryLinks = [
 ];
 
 const moreLinks = [
+  { href: "/campus-life", label: "Campus Life", icon: Users },
   { href: "/services", label: "Services", icon: Wrench },
   { href: "/tools", label: "Tools", icon: Settings },
   { href: "/grievance", label: "Grievance Redressal", icon: MessageSquareWarning },
@@ -47,6 +49,7 @@ const moreLinks = [
 
 const mobileLinks = [
   { href: "/academics", label: "Academics", icon: GraduationCap },
+  { href: "/campus-life", label: "Campus Life", icon: Users },
   { href: "/restaurants", label: "Restaurants", icon: Utensils },
   { href: "/hostels", label: "Hostels", icon: Building2 },
   { href: "/travel", label: "Travel", icon: Bus },

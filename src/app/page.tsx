@@ -12,6 +12,7 @@ import {
   MessageSquareWarning,
   ChevronRight,
   Shuffle,
+  Users,
 } from "lucide-react";
 import * as stylex from "@stylexjs/stylex";
 import { FavoritesTileLabel, SearchLauncher } from "@/components/home-client";
@@ -321,6 +322,13 @@ export default function Home() {
               icon={<GraduationCap {...stylex.props(styles.icon20)} />}
               title="Academics"
               description="Systems & portals"
+            />
+          </Link>
+          <Link href="/campus-life" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+            <TileBody
+              icon={<Users {...stylex.props(styles.icon20)} />}
+              title="Campus Life"
+              description="Clubs, health & opportunities"
             />
           </Link>
           <Link href="/restaurants" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
