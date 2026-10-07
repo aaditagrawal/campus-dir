@@ -148,7 +148,7 @@
   ],
   "studentCouncil": {
     "name": "MIT Student Council",
-    "description": "CC us in all your grievance emails. You can also mail us directly.",
+    "description": "For general student concerns, you can contact Student Council or CC them in your email. For ragging or sexual harassment complaints, use the dedicated committee links on Campus Life and contact the committee directly.",
     "contacts": [
       { "role": "Student Council President (MAHE-MIT)", "email": "president.scmit@manipal.edu" },
       { "role": "Student Council Technical Secretary (MAHE-MIT)", "email": "techsec.scmit@manipal.edu" },

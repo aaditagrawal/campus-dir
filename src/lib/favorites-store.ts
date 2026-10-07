@@ -15,6 +15,7 @@ export type FavoriteType =
   | "service"
   | "travel"
   | "academic"
+  | "campus-life"
   | "tool"
   | "grievance";
 
@@ -182,6 +183,7 @@ const VALID_TYPES: ReadonlySet<string> = new Set<FavoriteType>([
   "service",
   "travel",
   "academic",
+  "campus-life",
   "tool",
   "grievance",
 ]);
