@@ -134,17 +134,8 @@
     ]
   },
   {
-    "section": "Academic Dates & Rules",
+    "section": "Academic Rules",
     "items": [
-      {
-        "name": "MIT Academic Calendar",
-        "description": "Official calendar downloads. The page listed 2025-26 and 2024-25 when checked; confirm the 2026-27 calendar with the Academic Section.",
-        "url": "https://www.manipal.edu/mit/mit-experience/academic-calendar.html",
-        "source": "https://www.manipal.edu/mit/mit-experience/academic-calendar.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MIT Manipal",
-        "appliesTo": "Published calendars: 2025-26 and 2024-25. These are not the current academic year."
-      },
       {
         "name": "Academic Regulations - 2022 Scheme",
         "description": "Read the published attendance, assessment, examination, and progression rules for the 2022 curriculum scheme.",

@@ -7,7 +7,7 @@ import { shared } from "@/styles/shared";
 export const metadata: Metadata = {
   title: "Campus Life | MIT Manipal Directory",
   description:
-    "Official MIT Manipal and MAHE resources for clubs, student projects, counselling, sports, and startup support.",
+    "Book counselling, find routine medical care, contact peer support, or reach the hostel office and student welfare committees.",
 };
 
 export default function CampusLifePage() {
@@ -16,7 +16,7 @@ export default function CampusLifePage() {
       <div>
         <h1 {...stylex.props(shared.heading1)}>Campus Life</h1>
         <p {...stylex.props(shared.mutedText)}>
-          Find a club, get support, or start building something.
+          Appointments, peer support, and campus service contacts.
         </p>
       </div>
       <ResourceSections sections={campusLife} type="campus-life" />

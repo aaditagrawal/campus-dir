@@ -328,7 +328,7 @@ export default function Home() {
             <TileBody
               icon={<Users {...stylex.props(styles.icon20)} />}
               title="Campus Life"
-              description="Clubs, health & opportunities"
+              description="Health & support contacts"
             />
           </Link>
           <Link href="/restaurants" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
