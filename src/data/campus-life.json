@@ -16,14 +16,6 @@
         ]
       },
       {
-        "name": "SSC Therapy & Medicare FAQ",
-        "description": "Read how counselling works, confidentiality guidance, and Medicare coverage for SSC sessions.",
-        "url": "https://ssc.manipal.edu/FAQ.aspx",
-        "source": "https://ssc.manipal.edu/FAQ.aspx",
-        "checkedOn": "2026-10-07",
-        "campus": "MAHE Manipal"
-      },
-      {
         "name": "Student Health Clinic & Medicare",
         "description": "Find routine medical care at the first floor of the New Outpatient block, Kasturba Hospital. Call 0820-2922057 for an appointment and carry your student ID.",
         "url": "https://www.manipal.edu/mu/about-us/international-collaboration/student-support-services.html",
@@ -35,78 +27,8 @@
     ]
   },
   {
-    "section": "Clubs & Student Projects",
+    "section": "Peer Learning",
     "items": [
-      {
-        "name": "MIT Technical Clubs",
-        "description": "Explore computing, engineering, science, and finance clubs. Open a club profile for its official contact and ask about recruitment.",
-        "url": "https://www.manipal.edu/mit/mit-experience/student-welfare/technical-clubs.html",
-        "source": "https://www.manipal.edu/mit/mit-experience/student-welfare/technical-clubs.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MIT Manipal",
-        "keywords": [
-          "ACM",
-          "ACM-W",
-          "Apple Developers Group",
-          "IECSE",
-          "IEEE",
-          "IAESTE",
-          "MIST",
-          "MOSS",
-          "Astronomy",
-          "Economics and Finance"
-        ]
-      },
-      {
-        "name": "MIT Cultural & Community Clubs",
-        "description": "Find theatre, dance, music, literature, photography, volunteering, and other student groups through the official club profiles.",
-        "url": "https://www.manipal.edu/mit/mit-experience/student-welfare/non-technical-clubs.html",
-        "source": "https://www.manipal.edu/mit/mit-experience/student-welfare/non-technical-clubs.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MIT Manipal",
-        "keywords": [
-          "Aaina",
-          "Ada",
-          "MAFIA",
-          "Goonj",
-          "Nudi",
-          "Rotaract",
-          "Artpod",
-          "Blitzkrieg",
-          "Music and Fine Arts"
-        ]
-      },
-      {
-        "name": "Major Student Project Teams",
-        "description": "Explore teams building vehicles, robots, autonomous systems, and cybersecurity projects. Use the published team email to enquire about joining.",
-        "url": "https://www.manipal.edu/mit/mit-experience/mit-videos/major-student-projects.html",
-        "source": "https://www.manipal.edu/mit/mit-experience/mit-videos/major-student-projects.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MIT Manipal",
-        "keywords": [
-          "Formula Manipal",
-          "Project MANAS",
-          "AUV",
-          "Cryptonite",
-          "DronAid",
-          "Team Combat Robotics",
-          "Team Synergy"
-        ]
-      }
-    ]
-  },
-  {
-    "section": "Sports & Peer Learning",
-    "items": [
-      {
-        "name": "MARENA Indoor Stadium",
-        "description": "Find the gym, jogging track, badminton, squash, basketball, and other sports facilities.",
-        "url": "https://www.manipal.edu/mu/campus-life/around-campus/sports-overview/marena.html",
-        "source": "https://www.manipal.edu/mu/campus-life/around-campus/sports-overview/marena.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MAHE Manipal",
-        "appliesTo": "Confirm current membership fees, facility schedules, and entry requirements at MARENA reception."
-      },
       {
         "name": "Student Council & Peer Support",
         "description": "Find Student Teaching Student, the Mentorship Programme, Career Development Center, and Club Expo through MIT Student Council.",
@@ -125,45 +47,6 @@
           "mentorship",
           "peer tutoring"
         ]
-      }
-    ]
-  },
-  {
-    "section": "Makerspaces & Startups",
-    "items": [
-      {
-        "name": "Innovation Centre & Makerspace",
-        "description": "Explore prototyping tools, 3D printing, Apple Creative Studio, and support for developing a startup idea. Contact the centre about access and training.",
-        "url": "https://www.manipal.edu/mu/important-links/innovation-entrepreneruship/innovation-centre.html",
-        "source": "https://www.manipal.edu/mu/important-links/innovation-entrepreneruship/innovation-centre.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MAHE Manipal",
-        "keywords": [
-          "prototype",
-          "3D printer",
-          "iOS",
-          "seed funding"
-        ]
-      },
-      {
-        "name": "Manipal Universal Technology Business Incubator",
-        "description": "Find startup incubation, infrastructure, mentorship, and funding support through MUTBI.",
-        "url": "https://www.manipal.edu/mu/important-links/innovation-entrepreneruship/mutbi.html",
-        "source": "https://www.manipal.edu/mu/important-links/innovation-entrepreneruship/mutbi.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MAHE Manipal",
-        "keywords": [
-          "MUTBI",
-          "entrepreneurship"
-        ]
-      },
-      {
-        "name": "AICTE IDEA Lab",
-        "description": "Learn about MIT's multidisciplinary facility for innovation, design, and hands-on prototyping.",
-        "url": "https://www.manipal.edu/mit/mit-experience/aicte-idea-lab.html",
-        "source": "https://www.manipal.edu/mit/mit-experience/aicte-idea-lab.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MIT Manipal"
       }
     ]
   },
@@ -189,16 +72,8 @@
     ]
   },
   {
-    "section": "Events & Hostel Information",
+    "section": "Hostel Office",
     "items": [
-      {
-        "name": "MIT Festivals & Events",
-        "description": "Find official information about Revels and TechTatva. Check the event organisers for current dates and registration.",
-        "url": "https://www.manipal.edu/mit/mit-experience/student-welfare/events.html",
-        "source": "https://www.manipal.edu/mit/mit-experience/student-welfare/events.html",
-        "checkedOn": "2026-10-07",
-        "campus": "MIT Manipal"
-      },
       {
         "name": "MIT Campus Hostel Information",
         "description": "Find the official hostel office contact and linked hostel fee documents. Check the academic year on each fee schedule.",
