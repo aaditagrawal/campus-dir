@@ -6,6 +6,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { PwaInstallLoader } from "@/components/pwa-install-loader";
+import { LocaleProvider } from "@/components/locale-provider";
 import { colors, fonts, motion } from "@/styles/constants.stylex";
 
 const instrumentSerif = Instrument_Serif({
@@ -92,22 +93,24 @@ export default function RootLayout({
       </head>
       <body {...stylex.props(styles.body)}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <SiteHeader />
-          {children}
-          <PwaInstallLoader />
-          <footer {...stylex.props(styles.footer)}>
-            <p>
-              Found something wrong or missing? Help improve this directory by contributing at{" "}
-              <a
-                href="https://github.com/aaditagrawal/campus-dir"
-                target="_blank"
-                rel="noopener noreferrer"
-                {...stylex.props(styles.footerLink)}
-              >
-                GitHub
-              </a>
-            </p>
-          </footer>
+          <LocaleProvider>
+            <SiteHeader />
+            {children}
+            <PwaInstallLoader />
+            <footer {...stylex.props(styles.footer)}>
+              <p>
+                Found something wrong or missing? Help improve this directory by contributing at{" "}
+                <a
+                  href="https://github.com/aaditagrawal/campus-dir"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  {...stylex.props(styles.footerLink)}
+                >
+                  GitHub
+                </a>
+              </p>
+            </footer>
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>
