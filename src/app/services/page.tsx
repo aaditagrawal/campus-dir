@@ -128,8 +128,8 @@ export default function ServicesPage() {
             <CardContent xstyle={styles.resourceContent}>
               Current week&apos;s mess menu
               <br />
-              <a href="https://fc2.coolstuff.work" target="_blank" rel="noreferrer">
-                <span {...stylex.props(styles.resourceUrl)}>https://fc2.coolstuff.work</span>
+              <a href="https://tikmit.com" target="_blank" rel="noreferrer">
+                <span {...stylex.props(styles.resourceUrl)}>https://tikmit.com</span>
               </a>
             </CardContent>
           </Card>
