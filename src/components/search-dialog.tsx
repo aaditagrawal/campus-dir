@@ -166,8 +166,10 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
   const performSearch = useCallback((searchQuery: string) => {
     try {
       setResults(searchQuery ? searchDirectory(searchQuery) : sampleSuggestions(SUGGESTION_COUNT));
+      setSelectedIndex(0);
     } catch {
       setResults([]);
+      setSelectedIndex(0);
     }
   }, []);
 
@@ -179,7 +181,7 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
-  }, [query, performSearch]);
+  }, [query, fuzzyReady, performSearch]);
 
   useEffect(() => {
     if (fuzzyReady) return;
@@ -191,11 +193,6 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
       active = false;
     };
   }, [fuzzyReady]);
-
-  useEffect(() => {
-    if (!fuzzyReady || !query || results.length > 0) return;
-    performSearch(query);
-  }, [fuzzyReady, query, results.length, performSearch]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -212,10 +209,6 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
   }, [onClose]);
-
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [results]);
 
   useEffect(() => {
     selectedItemRef.current?.scrollIntoView({ block: "nearest" });

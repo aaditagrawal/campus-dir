@@ -21,6 +21,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useIsClient } from "@/hooks/useClientSnapshot";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { breakpoints, colors, motion, preferences, radii } from "@/styles/constants.stylex";
@@ -293,14 +294,13 @@ function IconButton({
 
 export function SiteHeader() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setMounted(true), []);
   const closeSearch = useCallback(() => setSearchOpen(false), []);
   const closeMore = useCallback(() => setMoreOpen(false), []);
   const closeMenu = useCallback(() => setMenuOpen(false), []);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import { useState, useMemo, useCallback, Suspense } from "react";
+import { useIsClient } from "@/hooks/useClientSnapshot";
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -216,50 +217,83 @@ function describeDuration(startDate: string, endDate: string): string {
   return `${days} day(s) from ${DATE_FORMAT.format(start)} to ${DATE_FORMAT.format(end)}`;
 }
 
+function createMailPreview(data: FormData) {
+  const subject = `${data.studentName}, ${data.registrationNumber} and ${data.block} ${data.roomNumber}`;
+
+  const purposeText =
+    data.purpose === "custom"
+      ? data.customPurpose
+      : PURPOSE_TEXT_BY_LABEL.get(data.purpose) || data.purpose;
+
+  const durationText = describeDuration(data.startDate, data.endDate);
+
+  const body = `1. Student name: ${data.studentName || "[NOT FILLED]"}
+2. Registration Number: ${data.registrationNumber || "[NOT FILLED]"}
+3. Semester & Branch: ${data.semester ? data.semester + " Semester, " : "[NOT FILLED] "}${data.branch || "[NOT FILLED]"}
+4. Block and Room Number: ${data.block || "[NOT FILLED]"}${data.roomNumber ? " - Room " + data.roomNumber : " [NOT FILLED]"}
+5. Contact number of Student: ${data.contactNumber || "[NOT FILLED]"}
+6. Duration of leave and dates: ${durationText || "[NOT FILLED]"}
+7. Place of visit, address in detail and purpose: ${data.placeOfVisit || "[NOT FILLED]"}
+${data.address || "[NOT FILLED]"}
+Purpose: ${purposeText || "[NOT FILLED]"}
+8. Parents name & contact details: ${data.parentName || "[NOT FILLED]"} - ${data.parentContact || "[NOT FILLED]"}
+9. Parent's undertaking for the student's leave: ${data.parentName ? `I, ${data.parentName}, hereby undertake full responsibility for my ward ${data.studentName || "[STUDENT NAME NOT FILLED]"}'s leave during the period mentioned above and ensure that they will maintain discipline and adhere to all rules and regulations.` : "[NOT FILLED - Parent name required]"}`;
+
+  return { subject, body };
+}
+
 function MailToWardenContent() {
   const searchParams = useSearchParams();
-  const [isSharedLink, setIsSharedLink] = useState(false);
-
-  const [formData, setFormData] = useState<FormData>({
-    studentName: "",
-    registrationNumber: "",
-    semester: "",
-    branch: "",
-    block: "",
-    roomNumber: "",
-    contactNumber: "",
-    startDate: "",
-    endDate: "",
-    placeOfVisit: "",
-    address: "",
-    purpose: "",
-    customPurpose: "",
-    parentName: "",
-    parentContact: "",
-    selectedWardens: [],
-  });
-
-  const [mailPreview, setMailPreview] = useState<{ subject: string; body: string } | null>(null);
-  const [shareableLink, setShareableLink] = useState<string>("");
-  const [linkCopied, setLinkCopied] = useState(false);
-
-  // Load form data from URL parameters if present
-  useEffect(() => {
-    const dataParam = searchParams.get("data");
-    if (dataParam) {
-      try {
-        const decodedData = JSON.parse(decodeURIComponent(dataParam));
-        setFormData(decodedData);
-        setIsSharedLink(true);
-        // Auto-generate preview for shared links
-        setTimeout(() => {
-          generateMailFromData(decodedData);
-        }, 100);
-      } catch (e) {
-        console.error("Failed to parse shared link data:", e);
-      }
+  const dataParam = searchParams.get("data");
+  const initialData = useMemo((): FormData | null => {
+    if (!dataParam) return null;
+    try {
+      return JSON.parse(decodeURIComponent(dataParam));
+    } catch (error) {
+      console.error("Failed to parse shared link data:", error);
+      return null;
     }
-  }, [searchParams]);
+  }, [dataParam]);
+  return <MailToWardenForm key={dataParam ?? ""} initialData={initialData} />;
+}
+
+function MailToWardenForm({ initialData }: { initialData: FormData | null }) {
+  const isSharedLink = initialData !== null;
+  const isClient = useIsClient();
+
+  const [formData, setFormData] = useState<FormData>(
+    initialData ?? {
+      studentName: "",
+      registrationNumber: "",
+      semester: "",
+      branch: "",
+      block: "",
+      roomNumber: "",
+      contactNumber: "",
+      startDate: "",
+      endDate: "",
+      placeOfVisit: "",
+      address: "",
+      purpose: "",
+      customPurpose: "",
+      parentName: "",
+      parentContact: "",
+      selectedWardens: [],
+    },
+  );
+
+  const [mailPreview, setMailPreview] = useState(() =>
+    initialData ? createMailPreview(initialData) : null,
+  );
+  const [shareableData, setShareableData] = useState<FormData | null>(initialData);
+  const shareableLink =
+    isClient &&
+    shareableData &&
+    HOSTELS_BY_BLOCK.has(shareableData.block) &&
+    shareableData.selectedWardens.length > 0
+      ? `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(shareableData))}`
+      : "";
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const selectedHostel = HOSTELS_BY_BLOCK.get(formData.block);
 
@@ -279,35 +313,8 @@ function MailToWardenContent() {
   );
 
   const generateMailFromData = (data: FormData) => {
-    const subject = `${data.studentName}, ${data.registrationNumber} and ${data.block} ${data.roomNumber}`;
-
-    const purposeText =
-      data.purpose === "custom"
-        ? data.customPurpose
-        : PURPOSE_TEXT_BY_LABEL.get(data.purpose) || data.purpose;
-
-    const durationText = describeDuration(data.startDate, data.endDate);
-
-    const body = `1. Student name: ${data.studentName || "[NOT FILLED]"}
-2. Registration Number: ${data.registrationNumber || "[NOT FILLED]"}
-3. Semester & Branch: ${data.semester ? data.semester + " Semester, " : "[NOT FILLED] "}${data.branch || "[NOT FILLED]"}
-4. Block and Room Number: ${data.block || "[NOT FILLED]"}${data.roomNumber ? " - Room " + data.roomNumber : " [NOT FILLED]"}
-5. Contact number of Student: ${data.contactNumber || "[NOT FILLED]"}
-6. Duration of leave and dates: ${durationText || "[NOT FILLED]"}
-7. Place of visit, address in detail and purpose: ${data.placeOfVisit || "[NOT FILLED]"}
-${data.address || "[NOT FILLED]"}
-Purpose: ${purposeText || "[NOT FILLED]"}
-8. Parents name & contact details: ${data.parentName || "[NOT FILLED]"} - ${data.parentContact || "[NOT FILLED]"}
-9. Parent's undertaking for the student's leave: ${data.parentName ? `I, ${data.parentName}, hereby undertake full responsibility for my ward ${data.studentName || "[STUDENT NAME NOT FILLED]"}'s leave during the period mentioned above and ensure that they will maintain discipline and adhere to all rules and regulations.` : "[NOT FILLED - Parent name required]"}`;
-
-    setMailPreview({ subject, body });
-
-    // Generate shareable web URL (not mailto)
-    const hostel = HOSTELS_BY_BLOCK.get(data.block);
-    if (hostel && data.selectedWardens.length > 0) {
-      const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(JSON.stringify(data))}`;
-      setShareableLink(shareUrl);
-    }
+    setMailPreview(createMailPreview(data));
+    setShareableData(data);
   };
 
   const generateMail = () => {

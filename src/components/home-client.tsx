@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useIsMac } from "@/hooks/useClientSnapshot";
 import * as stylex from "@stylexjs/stylex";
 import { useFavoritesCount, useFavoritesLoaded } from "@/hooks/useFavorites";
 import { colors, motion, radii } from "@/styles/constants.stylex";
@@ -49,10 +49,7 @@ const styles = stylex.create({
 });
 
 export function SearchLauncher() {
-  const [isMac, setIsMac] = useState(false);
-  useEffect(() => {
-    setIsMac(navigator.platform.toUpperCase().includes("MAC"));
-  }, []);
+  const isMac = useIsMac();
 
   return (
     <button
