@@ -12,7 +12,8 @@
     "lint:fix": "oxlint . --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "typecheck": "bunx --bun tsrs --noEmit"
+    "typecheck": "bunx --bun tsrs --noEmit",
+    "test:security": "node scripts/security-braces.mjs"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.17",
@@ -39,5 +40,8 @@
     "postcss": "^8.5.31",
     "tsrs": "0.18.0-ts7.1.0-dev.20260929",
     "typescript": "^7.0.2"
+  },
+  "patchedDependencies": {
+    "braces@3.0.3": "patches/braces@3.0.3.patch"
   }
 }
