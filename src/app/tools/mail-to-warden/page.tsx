@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,27 +30,86 @@ interface FormData {
   selectedWardens: string[];
 }
 
-const FormDataSchema = z.object({
-  studentName: z.string(),
-  registrationNumber: z.string(),
-  semester: z.string(),
-  branch: z.string(),
-  block: z.string(),
-  roomNumber: z.string(),
-  contactNumber: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-  placeOfVisit: z.string(),
-  address: z.string(),
-  purpose: z.string(),
-  customPurpose: z.string(),
-  parentName: z.string(),
-  parentContact: z.string(),
-  selectedWardens: z.array(z.string()),
-});
+type JsonValue = string | number | boolean | null | JsonValue[] | JsonRecord;
+type JsonRecord = { readonly [key: string]: JsonValue };
 
-function isFormData(value: Partial<FormData>): value is FormData {
-  return FormDataSchema.safeParse(value).success;
+function isJsonRecord(value: JsonValue): value is JsonRecord {
+  return value !== null && !Array.isArray(value) && value instanceof Object;
+}
+
+function readText(value: JsonValue | undefined): string | null {
+  if (value === undefined) return null;
+  const text = String(value);
+  return text === value ? text : null;
+}
+
+function readStringList(value: JsonValue | undefined): string[] | null {
+  if (value === undefined || !Array.isArray(value)) return null;
+  const items: string[] = [];
+  for (const entry of value) {
+    const text = readText(entry);
+    if (text === null) return null;
+    items.push(text);
+  }
+  return items;
+}
+
+function decodeSharedForm(raw: JsonValue): FormData | null {
+  if (!isJsonRecord(raw)) return null;
+  const studentName = readText(raw.studentName);
+  const registrationNumber = readText(raw.registrationNumber);
+  const semester = readText(raw.semester);
+  const branch = readText(raw.branch);
+  const block = readText(raw.block);
+  const roomNumber = readText(raw.roomNumber);
+  const contactNumber = readText(raw.contactNumber);
+  const startDate = readText(raw.startDate);
+  const endDate = readText(raw.endDate);
+  const placeOfVisit = readText(raw.placeOfVisit);
+  const address = readText(raw.address);
+  const purpose = readText(raw.purpose);
+  const customPurpose = readText(raw.customPurpose);
+  const parentName = readText(raw.parentName);
+  const parentContact = readText(raw.parentContact);
+  const selectedWardens = readStringList(raw.selectedWardens);
+  if (
+    studentName === null ||
+    registrationNumber === null ||
+    semester === null ||
+    branch === null ||
+    block === null ||
+    roomNumber === null ||
+    contactNumber === null ||
+    startDate === null ||
+    endDate === null ||
+    placeOfVisit === null ||
+    address === null ||
+    purpose === null ||
+    customPurpose === null ||
+    parentName === null ||
+    parentContact === null ||
+    selectedWardens === null
+  ) {
+    return null;
+  }
+  return {
+    studentName,
+    registrationNumber,
+    semester,
+    branch,
+    block,
+    roomNumber,
+    contactNumber,
+    startDate,
+    endDate,
+    placeOfVisit,
+    address,
+    purpose,
+    customPurpose,
+    parentName,
+    parentContact,
+    selectedWardens,
+  };
 }
 
 const PURPOSE_TEMPLATES = [
@@ -272,8 +330,9 @@ function MailToWardenContent() {
     const dataParam = searchParams.get("data");
     if (dataParam) {
       try {
-        const decodedData: Partial<FormData> = JSON.parse(dataParam);
-        if (!isFormData(decodedData)) return;
+        const parsed: JsonValue = JSON.parse(dataParam);
+        const decodedData = decodeSharedForm(parsed);
+        if (decodedData === null) return;
         setFormData(decodedData);
         setIsSharedLink(true);
         // Auto-generate preview for shared links

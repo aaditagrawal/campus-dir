@@ -1,8 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Icon } from "@/components/icons";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@/components/ui/button";
 import {
@@ -154,7 +153,6 @@ const SearchResultRow = memo(function SearchResultRow({
 });
 
 export default function SearchDialog({ onClose }: { onClose: () => void }) {
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -221,40 +219,10 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
     selectedItemRef.current?.scrollIntoView({ block: "nearest" });
   }, [selectedIndex]);
 
-  const navigateToResult = useCallback(
-    (result: SearchItem) => {
-      onClose();
-      try {
-        if (!result || !result.href) {
-          console.error("Invalid search result:", result);
-          return;
-        }
-        if (result.href.startsWith("http")) {
-          window.location.href = result.href;
-          return;
-        }
-        const url = new URL(result.href, window.location.origin);
-        const elementId = url.hash ? url.hash.substring(1) : "";
-        const element = elementId ? document.getElementById(elementId) : null;
-        if (element) {
-          const headerHeight = 56;
-          const extraOffset = window.innerHeight * 0.1;
-          const absoluteTop = element.getBoundingClientRect().top + window.scrollY;
-          window.scrollTo({
-            top: Math.max(0, absoluteTop - headerHeight - extraOffset),
-            behavior: "smooth",
-          });
-          window.history.pushState(null, "", result.href);
-          return;
-        }
-        router.push(result.href);
-      } catch (error) {
-        console.error("Navigation error:", error, result);
-        if (result?.href) window.location.href = result.href;
-      }
-    },
-    [router, onClose],
-  );
+  const navigateToResult = useCallback((result: SearchItem) => {
+    if (result.href.length === 0) return;
+    window.location.assign(result.href);
+  }, []);
 
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && results.length > 0) {
@@ -278,7 +246,7 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
     >
       <div {...stylex.props(styles.dialog)}>
         <div {...stylex.props(styles.searchBar)}>
-          <Search {...stylex.props(styles.searchIcon)} />
+          <Icon name="search" {...stylex.props(styles.searchIcon)} />
           <input
             ref={inputRef}
             value={query}
@@ -297,7 +265,7 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
               xstyle={styles.closeButton}
               aria-label="Close search"
             >
-              <X {...stylex.props(styles.closeIcon)} />
+              <Icon name="x" {...stylex.props(styles.closeIcon)} />
             </Button>
           </div>
         </div>

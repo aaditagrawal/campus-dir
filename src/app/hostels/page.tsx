@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
-import { ArrowUpDown, ArrowUp, ArrowDown, Download, Phone } from "lucide-react";
+import { Icon } from "@/components/icons";
 import { FavoriteButton } from "@/components/favorite-button";
 import { breakpoints, colors, fonts } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
@@ -193,9 +193,9 @@ export default function HostelsPage() {
           <p {...stylex.props(styles.subtitle)}>Wardens and block contacts</p>
         </div>
         <Button variant="outline" size="sm" onClick={toggleSort} xstyle={styles.sortButton}>
-          {sortOrder === "asc" && <ArrowUp {...stylex.props(styles.icon14)} />}
-          {sortOrder === "desc" && <ArrowDown {...stylex.props(styles.icon14)} />}
-          {sortOrder === null && <ArrowUpDown {...stylex.props(styles.icon14)} />}
+          {sortOrder === "asc" && <Icon name="arrowUp" {...stylex.props(styles.icon14)} />}
+          {sortOrder === "desc" && <Icon name="arrowDown" {...stylex.props(styles.icon14)} />}
+          {sortOrder === null && <Icon name="arrowUpDown" {...stylex.props(styles.icon14)} />}
           {sortOrder === "asc" ? "1→9" : sortOrder === "desc" ? "9→1" : "Sort"}
         </Button>
       </div>
@@ -219,7 +219,7 @@ export default function HostelsPage() {
                       id: `hostel-block-${slugify(hostel.block)}`,
                       type: "hostel",
                       name: hostel.block,
-                      href: `/hostels#${slugify(hostel.block)}`,
+                      href: `/hostels/#${slugify(hostel.block)}`,
                       phones: blockPhones(hostel),
                       subtitle: hostel.campus,
                     }}
@@ -247,7 +247,7 @@ export default function HostelsPage() {
                           aria-label={`Call reception at ${receptionPhone}`}
                           title="Call reception"
                         >
-                          <Phone {...stylex.props(styles.icon14)} />
+                          <Icon name="phone" {...stylex.props(styles.icon14)} />
                         </Button>
                         <Button
                           variant="ghost"
@@ -268,7 +268,7 @@ export default function HostelsPage() {
                           xstyle={styles.miniButton}
                           aria-label="Save reception contact"
                         >
-                          <Download {...stylex.props(styles.icon14)} />
+                          <Icon name="download" {...stylex.props(styles.icon14)} />
                         </Button>
                       </div>
                     </div>
@@ -316,7 +316,7 @@ export default function HostelsPage() {
                               aria-label={`Call ${warden.name}`}
                               title="Quick call"
                             >
-                              <Phone {...stylex.props(styles.icon14)} />
+                              <Icon name="phone" {...stylex.props(styles.icon14)} />
                             </Button>
                           )}
                           <Button
@@ -341,7 +341,7 @@ export default function HostelsPage() {
                             xstyle={styles.miniButton}
                             aria-label="Save contact"
                           >
-                            <Download {...stylex.props(styles.icon14)} />
+                            <Icon name="download" {...stylex.props(styles.icon14)} />
                           </Button>
                         </div>
                       </div>

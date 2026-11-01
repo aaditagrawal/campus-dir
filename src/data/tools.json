@@ -19,7 +19,7 @@
   "internal_tools": [
     {
       "name": "Generate Mail to Warden",
-      "url": "/tools/mail-to-warden",
+      "url": "/tools/mail-to-warden/",
       "description": "Generate leave request emails for hostel wardens"
     }
   ]

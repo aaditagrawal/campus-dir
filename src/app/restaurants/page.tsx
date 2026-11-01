@@ -15,7 +15,7 @@ import {
   type Restaurant,
 } from "@/lib/restaurant-hours";
 import { useRestaurantStatuses } from "@/hooks/useRestaurantStatuses";
-import { ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, Clock, Phone } from "lucide-react";
+import { Icon } from "@/components/icons";
 import { FavoriteButton } from "@/components/favorite-button";
 import { breakpoints, colors, fonts } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
@@ -126,7 +126,7 @@ const RestaurantCard = memo(function RestaurantCard({
                 id: `restaurant-${restaurant.slug}`,
                 type: "restaurant",
                 name: restaurant.name,
-                href: `/restaurants#${restaurant.slug}`,
+                href: `/restaurants/#${restaurant.slug}`,
                 phones: restaurant.phones,
                 subtitle: restaurant.address,
               }}
@@ -136,7 +136,7 @@ const RestaurantCard = memo(function RestaurantCard({
         </div>
         {status && (
           <div {...stylex.props(styles.hours)}>
-            <Clock {...stylex.props(styles.clockIcon)} />
+            <Icon name="clock" {...stylex.props(styles.clockIcon)} />
             {status.range}
           </div>
         )}
@@ -169,7 +169,7 @@ const RestaurantCard = memo(function RestaurantCard({
             }}
             xstyle={styles.actionButton}
           >
-            <Phone {...stylex.props(styles.icon14)} />
+            <Icon name="phone" {...stylex.props(styles.icon14)} />
             Call
           </Button>
           <Button
@@ -187,7 +187,7 @@ const RestaurantCard = memo(function RestaurantCard({
               onClick={() => window.open(restaurant.menuUrl, "_blank")}
               xstyle={styles.actionButton}
             >
-              <ExternalLink {...stylex.props(styles.icon14)} />
+              <Icon name="externalLink" {...stylex.props(styles.icon14)} />
               Menu
             </Button>
           )}
@@ -233,10 +233,10 @@ export default function RestaurantsPage() {
           <p {...stylex.props(styles.subtitle)}>Call or save contacts</p>
         </div>
         <Button variant="outline" size="sm" onClick={toggleSort} xstyle={styles.sortButton}>
-          {sortOrder === "alpha-asc" && <ArrowUp {...stylex.props(styles.icon14)} />}
-          {sortOrder === "alpha-desc" && <ArrowDown {...stylex.props(styles.icon14)} />}
-          {sortOrder === "open-now" && <Clock {...stylex.props(styles.icon14)} />}
-          {sortOrder === null && <ArrowUpDown {...stylex.props(styles.icon14)} />}
+          {sortOrder === "alpha-asc" && <Icon name="arrowUp" {...stylex.props(styles.icon14)} />}
+          {sortOrder === "alpha-desc" && <Icon name="arrowDown" {...stylex.props(styles.icon14)} />}
+          {sortOrder === "open-now" && <Icon name="clock" {...stylex.props(styles.icon14)} />}
+          {sortOrder === null && <Icon name="arrowUpDown" {...stylex.props(styles.icon14)} />}
           {sortOrder === "alpha-asc"
             ? "A-Z"
             : sortOrder === "alpha-desc"

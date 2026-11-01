@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Instrument_Sans } from "next/font/google";
-import Script from "next/script";
 import * as stylex from "@stylexjs/stylex";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
-import { PwaInstallLoader } from "@/components/pwa-install-loader";
+import { PwaBanner } from "@/components/pwa-banner";
+import { DOCUMENT_BOOT_SCRIPT } from "@/lib/document-boot";
 import { colors, fonts, motion } from "@/styles/constants.stylex";
 
 const instrumentSerif = Instrument_Serif({
@@ -13,6 +12,8 @@ const instrumentSerif = Instrument_Serif({
   weight: "400",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
+  adjustFontFallback: true,
 });
 
 const instrumentSans = Instrument_Sans({
@@ -20,6 +21,8 @@ const instrumentSans = Instrument_Sans({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   display: "swap",
+  preload: false,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -31,9 +34,6 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Campus Directory",
-  },
-  icons: {
-    apple: "/icons/apple-touch-icon.png",
   },
 };
 
@@ -88,27 +88,27 @@ export default function RootLayout({
       className={`${instrumentSerif.variable} ${instrumentSans.variable}`}
     >
       <head>
-        <Script defer src="https://stat.sys256.com/script.js" strategy="lazyOnload" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <script dangerouslySetInnerHTML={{ __html: DOCUMENT_BOOT_SCRIPT }} />
       </head>
       <body {...stylex.props(styles.body)}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <SiteHeader />
-          {children}
-          <PwaInstallLoader />
-          <footer {...stylex.props(styles.footer)}>
-            <p>
-              Found something wrong or missing? Help improve this directory by contributing at{" "}
-              <a
-                href="https://github.com/aaditagrawal/campus-dir"
-                target="_blank"
-                rel="noopener noreferrer"
-                {...stylex.props(styles.footerLink)}
-              >
-                GitHub
-              </a>
-            </p>
-          </footer>
-        </ThemeProvider>
+        <SiteHeader />
+        {children}
+        <PwaBanner />
+        <footer {...stylex.props(styles.footer)}>
+          <p>
+            Found something wrong or missing? Help improve this directory by contributing at{" "}
+            <a
+              href="https://github.com/aaditagrawal/campus-dir"
+              target="_blank"
+              rel="noopener noreferrer"
+              {...stylex.props(styles.footerLink)}
+            >
+              GitHub
+            </a>
+          </p>
+        </footer>
       </body>
     </html>
   );

@@ -122,15 +122,15 @@ export function getAllSearchItems(): SearchItem[] {
   // Section entries for quick navigation
   const sections: Array<[string, string]> = [
     ["Home", "/"],
-    ["Tools", "/tools"],
-    ["Academics", "/academics"],
-    ["Campus Life", "/campus-life"],
-    ["Restaurants", "/restaurants"],
-    ["Hostels", "/hostels"],
-    ["Travel", "/travel"],
-    ["Emergency", "/emergency"],
-    ["Services", "/services"],
-    ["Grievance Redressal", "/grievance"],
+    ["Tools", "/tools/"],
+    ["Academics", "/academics/"],
+    ["Campus Life", "/campus-life/"],
+    ["Restaurants", "/restaurants/"],
+    ["Hostels", "/hostels/"],
+    ["Travel", "/travel/"],
+    ["Emergency", "/emergency/"],
+    ["Services", "/services/"],
+    ["Grievance Redressal", "/grievance/"],
   ];
   for (const [title, href] of sections) {
     if (title && href) {
@@ -148,7 +148,7 @@ export function getAllSearchItems(): SearchItem[] {
       items.push({
         title: r.name,
         section: "Restaurants",
-        href: `/restaurants#${slugify(r.name)}`,
+        href: `/restaurants/#${slugify(r.name)}`,
         phones: r.phones,
         address: r.address,
         subtitle:
@@ -175,7 +175,7 @@ export function getAllSearchItems(): SearchItem[] {
             title: s.name,
             section: "Services",
             subtitle: svcTitle,
-            href: `/services#${slugify(s.name)}`,
+            href: `/services/#${slugify(s.name)}`,
             phones: s.phones,
             notes: s.notes,
           });
@@ -197,7 +197,7 @@ export function getAllSearchItems(): SearchItem[] {
             title: t.name,
             section: "Travel",
             subtitle: cat,
-            href: `/travel#${slugify(t.name)}`,
+            href: `/travel/#${slugify(t.name)}`,
             phones: t.phones,
             notes: t.notes,
           });
@@ -212,7 +212,7 @@ export function getAllSearchItems(): SearchItem[] {
       items.push({
         title: e.name,
         section: "Emergency",
-        href: `/emergency#${slugify(e.name)}`,
+        href: `/emergency/#${slugify(e.name)}`,
         phones: e.phones,
         address: e.address,
         notes: e.notes,
@@ -226,7 +226,7 @@ export function getAllSearchItems(): SearchItem[] {
       items.push({
         title: h.block,
         section: "Hostels",
-        href: `/hostels#${slugify(h.block)}`,
+        href: `/hostels/#${slugify(h.block)}`,
         address: [h.campus, h.address].filter(Boolean).join(", ") || undefined,
         phones: h.receptionPhone ? [h.receptionPhone] : undefined,
         subtitle: h.campus,
@@ -235,7 +235,7 @@ export function getAllSearchItems(): SearchItem[] {
         items.push({
           title: `Reception (${h.block})`,
           section: "Hostels",
-          href: `/hostels#${slugify(h.block)}-reception`,
+          href: `/hostels/#${slugify(h.block)}-reception`,
           phones: [h.receptionPhone],
           subtitle: h.campus,
           notes: h.email,
@@ -248,7 +248,7 @@ export function getAllSearchItems(): SearchItem[] {
               title: w.name,
               section: "Hostels",
               subtitle: `${h.block}${w.designation ? ` • ${w.designation}` : ""}`,
-              href: `/hostels#${slugify(h.block)}`,
+              href: `/hostels/#${slugify(h.block)}`,
               phones: [
                 ...(Array.isArray(w.mobiles) ? w.mobiles : []),
                 ...(w.officePhone ? [w.officePhone] : []),
@@ -307,7 +307,7 @@ export function getAllSearchItems(): SearchItem[] {
           title: c.name || c.role || cat.title,
           section: "Grievance Redressal",
           subtitle: cat.title,
-          href: `/grievance#${slugify(cat.title)}`,
+          href: `/grievance/#${slugify(cat.title)}`,
           phones: c.phones,
           notes: [emails.join(", "), c.notes].filter(Boolean).join(" · "),
         });
@@ -320,14 +320,14 @@ export function getAllSearchItems(): SearchItem[] {
       title: sc.name,
       section: "Grievance Redressal",
       subtitle: "Student Council",
-      href: `/grievance#${slugify("Student Council")}`,
+      href: `/grievance/#${slugify("Student Council")}`,
     });
     for (const c of sc.contacts) {
       items.push({
         title: c.role || "Student Council",
         section: "Grievance Redressal",
         subtitle: sc.name,
-        href: `/grievance#${slugify("Student Council")}`,
+        href: `/grievance/#${slugify("Student Council")}`,
         notes: c.email,
       });
     }

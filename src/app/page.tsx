@@ -1,22 +1,6 @@
-import Link from "next/link";
-import {
-  Siren,
-  GraduationCap,
-  Settings,
-  Mail,
-  Utensils,
-  Building,
-  Car,
-  Wrench,
-  Star,
-  MessageSquareWarning,
-  ChevronRight,
-  Shuffle,
-  Users,
-} from "lucide-react";
 import * as stylex from "@stylexjs/stylex";
-import { FavoritesTileLabel, SearchLauncher } from "@/components/home-client";
-import { RandomTelButton } from "@/components/contact-actions";
+import { Icon } from "@/components/icons";
+import { SearchLauncher } from "@/components/search-launcher";
 import { getAutoPhoneOptions } from "@/lib/random-auto";
 import { slugify } from "@/lib/utils";
 import { breakpoints, colors, fonts, motion } from "@/styles/constants.stylex";
@@ -237,7 +221,7 @@ function QuickActionBody({
         <span {...stylex.props(styles.quickTitle)}>{title}</span>
         <span {...stylex.props(styles.quickDescription)}>{description}</span>
       </span>
-      <ChevronRight {...stylex.props(styles.chevron)} aria-hidden />
+      <Icon name="chevronRight" {...stylex.props(styles.chevron)} aria-hidden />
     </>
   );
 }
@@ -280,117 +264,112 @@ export default function Home() {
       <section {...stylex.props(styles.quickSection)} aria-label="Quick actions">
         <h2 {...stylex.props(styles.sectionLabel)}>Quick actions</h2>
         <div {...stylex.props(styles.quickList)}>
-          <RandomTelButton
-            options={getAutoPhoneOptions()}
-            xstyle={[stylex.defaultMarker(), styles.quickAction]}
+          <button
+            {...stylex.props(styles.quickAction)}
+            type="button"
+            data-random-tel={JSON.stringify(getAutoPhoneOptions())}
             aria-label="Call a random auto from the directory"
           >
             <QuickActionBody
-              icon={<Shuffle {...stylex.props(styles.icon16)} aria-hidden />}
+              icon={<Icon name="shuffle" {...stylex.props(styles.icon16)} aria-hidden />}
               title="Call a random auto"
               description="Opens your dialer with a stand or driver number"
             />
-          </RandomTelButton>
-          <Link
-            href="/travel/auto"
-            {...stylex.props(stylex.defaultMarker(), styles.quickAction, styles.quickDivider)}
-          >
+          </button>
+          <a href="/travel/auto/" {...stylex.props(styles.quickAction, styles.quickDivider)}>
             <QuickActionBody
-              icon={<Car {...stylex.props(styles.icon16)} aria-hidden />}
+              icon={<Icon name="car" {...stylex.props(styles.icon16)} aria-hidden />}
               title="Get a taxi or auto"
               description="Gate stands, cabs & airport rates"
             />
-          </Link>
-          <Link
-            href="/tools/mail-to-warden"
-            {...stylex.props(stylex.defaultMarker(), styles.quickAction, styles.quickDivider)}
+          </a>
+          <a
+            href="/tools/mail-to-warden/"
+            {...stylex.props(styles.quickAction, styles.quickDivider)}
           >
             <QuickActionBody
-              icon={<Mail {...stylex.props(styles.icon16)} aria-hidden />}
+              icon={<Icon name="mail" {...stylex.props(styles.icon16)} aria-hidden />}
               title="Mail to warden"
               description="Generate leave request emails"
             />
-          </Link>
+          </a>
         </div>
       </section>
 
       <section {...stylex.props(styles.browseSection)} aria-label="Browse">
         <h2 {...stylex.props(styles.sectionLabel)}>Browse</h2>
         <div {...stylex.props(styles.browseGrid)}>
-          <Link href="/academics" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+          <a href="/academics/" {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<GraduationCap {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="graduationCap" {...stylex.props(styles.icon20)} />}
               title="Academics"
               description="Systems & portals"
             />
-          </Link>
-          <Link href="/campus-life" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+          </a>
+          <a href="/campus-life/" {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<Users {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="users" {...stylex.props(styles.icon20)} />}
               title="Campus Life"
               description="Health & support contacts"
             />
-          </Link>
-          <Link href="/restaurants" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+          </a>
+          <a href="/restaurants/" {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<Utensils {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="utensils" {...stylex.props(styles.icon20)} />}
               title="Restaurants"
               description="Menus & delivery"
             />
-          </Link>
-          <Link href="/hostels" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+          </a>
+          <a href="/hostels/" {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<Building {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="building" {...stylex.props(styles.icon20)} />}
               title="Hostels"
               description="Wardens & contacts"
             />
-          </Link>
-          <Link
-            href={`/travel#${slugify("Cabs & Taxis")}`}
-            {...stylex.props(stylex.defaultMarker(), styles.tile)}
-          >
+          </a>
+          <a href={`/travel/#${slugify("Cabs & Taxis")}`} {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<Car {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="car" {...stylex.props(styles.icon20)} />}
               title="Travel"
               description="Autos, cabs & taxis"
             />
-          </Link>
-          <Link href="/services" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+          </a>
+          <a href="/services/" {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<Wrench {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="wrench" {...stylex.props(styles.icon20)} />}
               title="Services"
               description="Laundry & xerox"
             />
-          </Link>
-          <Link href="/tools" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+          </a>
+          <a href="/tools/" {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<Settings {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="settings" {...stylex.props(styles.icon20)} />}
               title="Tools"
               description="Maps & resources"
             />
-          </Link>
-          <Link href="/grievance" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+          </a>
+          <a href="/grievance/" {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<MessageSquareWarning {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="messageSquareWarning" {...stylex.props(styles.icon20)} />}
               title="Grievance Redressal"
               description="Complaints & contacts"
             />
-          </Link>
-          <Link href="/favorites" {...stylex.props(stylex.defaultMarker(), styles.tile)}>
+          </a>
+          <a href="/favorites/" {...stylex.props(styles.tile)}>
             <TileBody
-              icon={<Star {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="star" {...stylex.props(styles.icon20)} />}
               title="Favorites"
-              description={<FavoritesTileLabel />}
+              description={<span data-favorites-label>Save your contacts</span>}
             />
-          </Link>
-          <Link href="/emergency" {...stylex.props(styles.tile, styles.emergencyTile)}>
+          </a>
+          <a href="/emergency/" {...stylex.props(styles.tile, styles.emergencyTile)}>
             <TileBody
               accent
-              icon={<Siren {...stylex.props(styles.icon20)} />}
+              icon={<Icon name="siren" {...stylex.props(styles.icon20)} />}
               title="Emergency"
               description="Clinic, ambulance & security"
             />
-          </Link>
+          </a>
         </div>
       </section>
     </main>

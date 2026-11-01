@@ -1,7 +1,7 @@
 "use client";
 
-import { Star } from "lucide-react";
 import * as stylex from "@stylexjs/stylex";
+import { Icon } from "@/components/icons";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { toggleFavorite, useFavoriteStatus, type FavoriteItem } from "@/hooks/useFavorites";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export function FavoriteButton({ item, xstyle, size = "md" }: FavoriteButtonProp
         xstyle={[styles.button, buttonSizes[size], styles.pending, xstyle]}
         disabled
       >
-        <Star {...stylex.props(styles.icon, iconSizes[size])} />
+        <Icon name="star" {...stylex.props(styles.icon, iconSizes[size])} />
       </Button>
     );
   }
@@ -68,7 +68,10 @@ export function FavoriteButton({ item, xstyle, size = "md" }: FavoriteButtonProp
       title={favorited ? "Remove from favorites" : "Add to favorites"}
       aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
     >
-      <Star {...stylex.props(styles.icon, iconSizes[size], favorited && styles.saved)} />
+      <Icon
+        name="star"
+        {...stylex.props(styles.icon, iconSizes[size], favorited && styles.saved)}
+      />
     </Button>
   );
 }

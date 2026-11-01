@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   experimental: {
-    optimizePackageImports: ["lucide-react", "@radix-ui/react-label"],
+    optimizePackageImports: ["@radix-ui/react-label"],
     optimizeCss: true,
     optimizeServerReact: true,
   },

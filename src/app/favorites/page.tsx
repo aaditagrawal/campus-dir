@@ -11,12 +11,20 @@ import {
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Phone, ExternalLink, Trash2, Download, Check, Copy } from "lucide-react";
-import Link from "next/link";
+import { Icon } from "@/components/icons";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { useMemo, useState } from "react";
 import { breakpoints, colors, fonts } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
+
+function directoryHref(href: string): string {
+  if (href.startsWith("http://") || href.startsWith("https://")) return href;
+  const hashAt = href.indexOf("#");
+  const path = hashAt === -1 ? href : href.slice(0, hashAt);
+  const hash = hashAt === -1 ? "" : href.slice(hashAt);
+  const slashed = path.endsWith("/") ? path : `${path}/`;
+  return `${slashed}${hash}`;
+}
 
 const SECTIONS: ReadonlyArray<{ type: FavoriteType; label: string }> = [
   { type: "restaurant", label: "Restaurants" },
@@ -192,7 +200,7 @@ export default function FavoritesPage() {
             }}
             xstyle={styles.destructive}
           >
-            <Trash2 {...stylex.props(styles.icon16, styles.clearIcon)} />
+            <Icon name="trash2" {...stylex.props(styles.icon16, styles.clearIcon)} />
             Clear All
           </Button>
         )}
@@ -201,7 +209,7 @@ export default function FavoritesPage() {
       {favorites.length === 0 ? (
         <Card xstyle={styles.emptyCard}>
           <CardContent xstyle={styles.emptyContent}>
-            <Star {...stylex.props(styles.emptyIcon)} />
+            <Icon name="star" {...stylex.props(styles.emptyIcon)} />
             <h3 {...stylex.props(styles.emptyTitle)}>No favorites yet</h3>
             <p {...stylex.props(styles.emptyCopy)}>
               Browse through restaurants, hostels, emergency contacts, services, or travel options
@@ -209,13 +217,13 @@ export default function FavoritesPage() {
             </p>
             <div {...stylex.props(styles.emptyActions)}>
               <Button asChild variant="outline" size="sm">
-                <Link href="/restaurants">Browse Restaurants</Link>
+                <a href="/restaurants/">Browse Restaurants</a>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/emergency">Emergency Contacts</Link>
+                <a href="/emergency/">Emergency Contacts</a>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/hostels">Hostels</Link>
+                <a href="/hostels/">Hostels</a>
               </Button>
             </div>
           </CardContent>
@@ -244,9 +252,12 @@ export default function FavoritesPage() {
                                 <CardTitle xstyle={styles.cardTitle}>{item.name}</CardTitle>
                               </a>
                             ) : (
-                              <Link href={item.href} {...stylex.props(styles.titleLink)}>
+                              <a
+                                href={directoryHref(item.href)}
+                                {...stylex.props(styles.titleLink)}
+                              >
                                 <CardTitle xstyle={styles.cardTitle}>{item.name}</CardTitle>
-                              </Link>
+                              </a>
                             )}
                             {item.subtitle && (
                               <p {...stylex.props(styles.subtitle)}>{item.subtitle}</p>
@@ -259,7 +270,7 @@ export default function FavoritesPage() {
                           <div {...stylex.props(styles.phones)}>
                             {item.phones.map((phone) => (
                               <div key={`${item.id}-${phone}`} {...stylex.props(styles.phoneRow)}>
-                                <Phone {...stylex.props(styles.phoneIcon)} />
+                                <Icon name="phone" {...stylex.props(styles.phoneIcon)} />
                                 <a href={`tel:${phone}`} {...stylex.props(styles.phoneLink)}>
                                   {phone}
                                 </a>
@@ -270,9 +281,9 @@ export default function FavoritesPage() {
                                   xstyle={styles.copyButton}
                                 >
                                   {copiedPhone === phone ? (
-                                    <Check {...stylex.props(styles.icon14)} />
+                                    <Icon name="check" {...stylex.props(styles.icon14)} />
                                   ) : (
-                                    <Copy {...stylex.props(styles.icon14)} />
+                                    <Icon name="copy" {...stylex.props(styles.icon14)} />
                                   )}
                                 </Button>
                               </div>
@@ -284,14 +295,20 @@ export default function FavoritesPage() {
                           <Button asChild variant="outline" size="sm" xstyle={styles.actionGrow}>
                             {item.href.startsWith("http") ? (
                               <a href={item.href} target="_blank" rel="noreferrer">
-                                <ExternalLink {...stylex.props(styles.icon14, styles.actionIcon)} />
+                                <Icon
+                                  name="externalLink"
+                                  {...stylex.props(styles.icon14, styles.actionIcon)}
+                                />
                                 Open Link
                               </a>
                             ) : (
-                              <Link href={item.href}>
-                                <ExternalLink {...stylex.props(styles.icon14, styles.actionIcon)} />
+                              <a href={directoryHref(item.href)}>
+                                <Icon
+                                  name="externalLink"
+                                  {...stylex.props(styles.icon14, styles.actionIcon)}
+                                />
                                 View Details
-                              </Link>
+                              </a>
                             )}
                           </Button>
                           {item.phones && item.phones.length > 0 && (
@@ -302,7 +319,7 @@ export default function FavoritesPage() {
                               title="Download vCard"
                               xstyle={styles.pointer}
                             >
-                              <Download {...stylex.props(styles.icon14)} />
+                              <Icon name="download" {...stylex.props(styles.icon14)} />
                             </Button>
                           )}
                           <Button
@@ -312,7 +329,7 @@ export default function FavoritesPage() {
                             xstyle={[styles.destructive, styles.pointer]}
                             title="Remove from favorites"
                           >
-                            <Trash2 {...stylex.props(styles.icon14)} />
+                            <Icon name="trash2" {...stylex.props(styles.icon14)} />
                           </Button>
                         </div>
                       </CardContent>

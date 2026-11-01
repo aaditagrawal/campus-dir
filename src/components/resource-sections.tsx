@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FavoriteButton } from "@/components/favorite-button";
+import { SaveStar } from "@/components/static-actions";
 import type { ResourceSection } from "@/lib/resources";
 import { slugify } from "@/lib/utils";
 import { colors } from "@/styles/constants.stylex";
@@ -48,7 +48,7 @@ export function ResourceSections({
   sections: readonly ResourceSection[];
   type: "academic" | "campus-life";
 }) {
-  const route = type === "academic" ? "/academics" : "/campus-life";
+  const route = type === "academic" ? "/academics/" : "/campus-life/";
   return sections.map((section) => (
     <section
       key={section.section}
@@ -75,7 +75,7 @@ export function ResourceSections({
                     {item.name}
                   </a>
                 </h3>
-                <FavoriteButton
+                <SaveStar
                   item={{
                     id: `${type}-${slugify(item.name)}`,
                     type,

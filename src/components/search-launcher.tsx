@@ -1,9 +1,5 @@
-"use client";
-
-import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
-import { useFavoritesCount, useFavoritesLoaded } from "@/hooks/useFavorites";
+import { Icon } from "@/components/icons";
 import { colors, motion, radii } from "@/styles/constants.stylex";
 
 const styles = stylex.create({
@@ -29,6 +25,7 @@ const styles = stylex.create({
     textAlign: "left",
     fontSize: "0.875rem",
     lineHeight: "1.25rem",
+    textDecorationLine: "none",
     cursor: "pointer",
     transform: { default: "scale(1)", ":active": "scale(0.99)" },
     transitionProperty: "background-color, border-color, transform",
@@ -49,28 +46,13 @@ const styles = stylex.create({
 });
 
 export function SearchLauncher() {
-  const [isMac, setIsMac] = useState(false);
-  useEffect(() => {
-    setIsMac(navigator.platform.toUpperCase().includes("MAC"));
-  }, []);
-
   return (
-    <button
-      {...stylex.props(styles.launcher)}
-      onClick={() => {
-        window.dispatchEvent(new Event("open-global-search"));
-      }}
-      aria-label="Open search"
-    >
-      <Search {...stylex.props(styles.icon)} />
+    <a href="/search/" {...stylex.props(styles.launcher)} aria-label="Open search">
+      <Icon name="search" {...stylex.props(styles.icon)} />
       <span {...stylex.props(styles.label)}>Search anything…</span>
-      <kbd {...stylex.props(styles.shortcut)}>{isMac ? "⌘K" : "Ctrl+K"}</kbd>
-    </button>
+      <kbd {...stylex.props(styles.shortcut)} data-search-shortcut>
+        Ctrl+K
+      </kbd>
+    </a>
   );
-}
-
-export function FavoritesTileLabel() {
-  const count = useFavoritesCount();
-  const isLoaded = useFavoritesLoaded();
-  return <>{!isLoaded || count === 0 ? "Save your contacts" : "Your saved items"}</>;
 }

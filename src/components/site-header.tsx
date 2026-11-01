@@ -1,83 +1,40 @@
-"use client";
-
-import Link from "next/link";
-import dynamic from "next/dynamic";
-import { useTheme } from "next-themes";
-import {
-  Sun,
-  Moon,
-  Menu,
-  X,
-  Utensils,
-  Building2,
-  Bus,
-  ShieldAlert,
-  Wrench,
-  GraduationCap,
-  Search,
-  Settings,
-  Star,
-  MessageSquareWarning,
-  ChevronDown,
-  Users,
-} from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
-import type { StyleXStyles } from "@stylexjs/stylex";
+import { Icon, type IconName } from "@/components/icons";
 import { breakpoints, colors, motion, preferences, radii } from "@/styles/constants.stylex";
 
-const SearchDialog = dynamic(() => import("@/components/search-dialog"), { ssr: false });
-const preloadSearch = () => {
-  import("@/components/search-dialog");
-};
-
 const primaryLinks = [
-  { href: "/academics", label: "Academics" },
-  { href: "/restaurants", label: "Restaurants" },
-  { href: "/hostels", label: "Hostels" },
-  { href: "/travel", label: "Travel" },
-  { href: "/emergency", label: "Emergency" },
+  { href: "/academics/", label: "Academics" },
+  { href: "/restaurants/", label: "Restaurants" },
+  { href: "/hostels/", label: "Hostels" },
+  { href: "/travel/", label: "Travel" },
+  { href: "/emergency/", label: "Emergency" },
 ];
 
-const moreLinks = [
-  { href: "/campus-life", label: "Campus Life", icon: Users },
-  { href: "/services", label: "Services", icon: Wrench },
-  { href: "/tools", label: "Tools", icon: Settings },
-  { href: "/grievance", label: "Grievance Redressal", icon: MessageSquareWarning },
-  { href: "/favorites", label: "Favorites", icon: Star },
+const moreLinks: ReadonlyArray<{ href: string; label: string; icon: IconName }> = [
+  { href: "/campus-life/", label: "Campus Life", icon: "users" },
+  { href: "/services/", label: "Services", icon: "wrench" },
+  { href: "/tools/", label: "Tools", icon: "settings" },
+  { href: "/grievance/", label: "Grievance Redressal", icon: "messageSquareWarning" },
+  { href: "/favorites/", label: "Favorites", icon: "star" },
 ];
 
-const mobileLinks = [
-  { href: "/academics", label: "Academics", icon: GraduationCap },
-  { href: "/campus-life", label: "Campus Life", icon: Users },
-  { href: "/restaurants", label: "Restaurants", icon: Utensils },
-  { href: "/hostels", label: "Hostels", icon: Building2 },
-  { href: "/travel", label: "Travel", icon: Bus },
-  { href: "/services", label: "Services", icon: Wrench },
-  { href: "/tools", label: "Tools", icon: Settings },
-  { href: "/grievance", label: "Grievance", icon: MessageSquareWarning },
-  { href: "/favorites", label: "Favorites", icon: Star },
-  { href: "/emergency", label: "Emergency", icon: ShieldAlert, accent: true },
+const mobileLinks: ReadonlyArray<{
+  href: string;
+  label: string;
+  icon: IconName;
+  accent?: boolean;
+}> = [
+  { href: "/academics/", label: "Academics", icon: "graduationCap" },
+  { href: "/campus-life/", label: "Campus Life", icon: "users" },
+  { href: "/restaurants/", label: "Restaurants", icon: "utensils" },
+  { href: "/hostels/", label: "Hostels", icon: "building2" },
+  { href: "/travel/", label: "Travel", icon: "bus" },
+  { href: "/services/", label: "Services", icon: "wrench" },
+  { href: "/tools/", label: "Tools", icon: "settings" },
+  { href: "/grievance/", label: "Grievance", icon: "messageSquareWarning" },
+  { href: "/favorites/", label: "Favorites", icon: "star" },
+  { href: "/emergency/", label: "Emergency", icon: "shieldAlert", accent: true },
 ];
-
-function useDismiss(open: boolean, onClose: () => void, ref: React.RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (event: PointerEvent) => {
-      const target = event.target;
-      if (ref.current && target instanceof Node && !ref.current.contains(target)) onClose();
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose, ref]);
-}
 
 const dropdownIn = stylex.keyframes({
   from: { opacity: 0, transform: "translateY(-4px) scale(0.97)" },
@@ -166,13 +123,11 @@ const styles = stylex.create({
     },
     fontSize: "0.875rem",
     lineHeight: "1.25rem",
+    fontFamily: "inherit",
+    listStyle: "none",
     cursor: "pointer",
     transitionProperty: "color, background-color",
     transitionDuration: motion.fast,
-  },
-  moreButtonOpen: {
-    color: colors.foreground,
-    backgroundColor: `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
   },
   chevron: {
     width: "0.875rem",
@@ -182,7 +137,6 @@ const styles = stylex.create({
     transitionDuration: motion.fast,
     transitionTimingFunction: motion.out,
   },
-  chevronOpen: { transform: "rotate(180deg)" },
   dropdown: {
     position: "absolute",
     top: "100%",
@@ -238,7 +192,10 @@ const styles = stylex.create({
       ":hover": `color-mix(in oklab, ${colors.muted} 70%, transparent)`,
     },
     color: { default: colors.mutedForeground, ":hover": colors.foreground },
+    listStyle: "none",
     cursor: "pointer",
+    textDecorationLine: "none",
+    fontFamily: "inherit",
     transform: { default: "scale(1)", ":active": "scale(0.95)" },
     transitionProperty: "background-color, color, transform",
     transitionDuration: motion.fast,
@@ -246,7 +203,6 @@ const styles = stylex.create({
   desktopOnly: { display: { default: "none", [breakpoints.md]: "flex" } },
   mobileOnly: { display: { default: "flex", [breakpoints.md]: "none" } },
   mobileMenu: {
-    display: { default: "grid", [breakpoints.md]: "none" },
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
     gap: "0.125rem",
     padding: "0.5rem",
@@ -282,163 +238,113 @@ const styles = stylex.create({
     borderWidth: 0,
     textAlign: "left",
     color: colors.mutedForeground,
+    fontFamily: "inherit",
+    fontSize: "inherit",
     cursor: "pointer",
   },
   emergency: { color: colors.rose },
 });
 
-function IconButton({
-  xstyle,
-  ...props
-}: Omit<React.ComponentProps<"button">, "className" | "style"> & { xstyle?: StyleXStyles }) {
-  return <button type="button" {...stylex.props(styles.iconButton, xstyle)} {...props} />;
+function ThemeIcons() {
+  return (
+    <>
+      <Icon name="sun" data-icon="sun" {...stylex.props(styles.icon18)} />
+      <Icon name="moon" data-icon="moon" {...stylex.props(styles.icon18)} />
+    </>
+  );
 }
 
 export function SiteHeader() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => setMounted(true), []);
-  const closeSearch = useCallback(() => setSearchOpen(false), []);
-  const closeMore = useCallback(() => setMoreOpen(false), []);
-  const closeMenu = useCallback(() => setMenuOpen(false), []);
-  useDismiss(moreOpen, closeMore, moreRef);
-  useDismiss(menuOpen, closeMenu, panelRef);
-
-  useEffect(() => {
-    const handler = () => setSearchOpen(true);
-    window.addEventListener("open-global-search", handler);
-    return () => window.removeEventListener("open-global-search", handler);
-  }, []);
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setSearchOpen((value) => !value);
-      }
-    };
-    window.addEventListener("keydown", onKey, true);
-    return () => window.removeEventListener("keydown", onKey, true);
-  }, []);
-
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
-  const themeIcon =
-    mounted && theme === "dark" ? (
-      <Sun {...stylex.props(styles.icon18)} />
-    ) : (
-      <Moon {...stylex.props(styles.icon18)} />
-    );
-
   return (
     <header {...stylex.props(styles.header)}>
-      <div ref={panelRef} {...stylex.props(styles.panel)}>
+      <div data-mobile-panel {...stylex.props(styles.panel)}>
         <div {...stylex.props(styles.bar)}>
-          <Link href="/" {...stylex.props(styles.brand)} onClick={closeMenu}>
+          <a href="/" {...stylex.props(styles.brand)}>
             MIT Manipal
             <span {...stylex.props(styles.brandSuffix)}> Directory</span>
-          </Link>
+          </a>
 
           <nav {...stylex.props(styles.desktopNav)} aria-label="Main">
             {primaryLinks.map((link) => (
-              <Link key={link.href} href={link.href} {...stylex.props(styles.navLink)}>
+              <a key={link.href} href={link.href} {...stylex.props(styles.navLink)}>
                 {link.label}
-              </Link>
+              </a>
             ))}
-            <div ref={moreRef} {...stylex.props(styles.relative)}>
-              <button
-                type="button"
-                aria-expanded={moreOpen}
-                aria-haspopup="menu"
-                onClick={() => setMoreOpen((value) => !value)}
-                {...stylex.props(styles.moreButton, moreOpen && styles.moreButtonOpen)}
-              >
+            <details data-more {...stylex.props(styles.relative)}>
+              <summary aria-haspopup="menu" {...stylex.props(styles.moreButton)}>
                 More
-                <ChevronDown {...stylex.props(styles.chevron, moreOpen && styles.chevronOpen)} />
-              </button>
-              {moreOpen && (
-                <div role="menu" {...stylex.props(styles.dropdown)}>
-                  {moreLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      role="menuitem"
-                      onClick={closeMore}
-                      {...stylex.props(styles.dropdownLink)}
-                    >
-                      <link.icon {...stylex.props(styles.icon16, styles.mutedIcon)} />
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+                <Icon name="chevronDown" data-chevron="" {...stylex.props(styles.chevron)} />
+              </summary>
+              <div role="menu" {...stylex.props(styles.dropdown)}>
+                {moreLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    role="menuitem"
+                    {...stylex.props(styles.dropdownLink)}
+                  >
+                    <Icon name={link.icon} {...stylex.props(styles.icon16, styles.mutedIcon)} />
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </details>
           </nav>
 
           <div {...stylex.props(styles.actionGroup)}>
-            <IconButton
-              aria-label="Open search"
-              onMouseEnter={preloadSearch}
-              onFocus={preloadSearch}
-              onTouchStart={preloadSearch}
-              onClick={() => setSearchOpen(true)}
+            <a href="/search/" aria-label="Open search" {...stylex.props(styles.iconButton)}>
+              <Icon name="search" {...stylex.props(styles.icon18)} />
+            </a>
+            <button
+              type="button"
+              data-theme-toggle
+              aria-label="Toggle theme"
+              {...stylex.props(styles.iconButton, styles.desktopOnly)}
             >
-              <Search {...stylex.props(styles.icon18)} />
-            </IconButton>
-            <IconButton aria-label="Toggle theme" xstyle={styles.desktopOnly} onClick={toggleTheme}>
-              {themeIcon}
-            </IconButton>
-            <IconButton
-              aria-label="Toggle navigation menu"
-              aria-expanded={menuOpen}
-              xstyle={styles.mobileOnly}
-              onClick={() => setMenuOpen((value) => !value)}
-            >
-              {menuOpen ? (
-                <X {...stylex.props(styles.icon18)} />
-              ) : (
-                <Menu {...stylex.props(styles.icon18)} />
-              )}
-            </IconButton>
+              <ThemeIcons />
+            </button>
+            <details data-mobile-nav {...stylex.props(styles.mobileOnly)}>
+              <summary
+                aria-controls="mobile-menu"
+                aria-label="Toggle navigation menu"
+                {...stylex.props(styles.iconButton)}
+              >
+                <Icon name="menu" data-icon="menu" {...stylex.props(styles.icon18)} />
+                <Icon name="x" data-icon="close" {...stylex.props(styles.icon18)} />
+              </summary>
+            </details>
           </div>
         </div>
 
-        {menuOpen && (
-          <nav aria-label="Main" {...stylex.props(styles.mobileMenu)}>
-            {mobileLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={closeMenu}
-                {...stylex.props(styles.mobileLink, link.accent && styles.emergency)}
-              >
-                <link.icon
-                  {...stylex.props(
-                    styles.icon16,
-                    link.accent ? styles.emergency : styles.mutedIcon,
-                  )}
-                />
-                {link.label}
-              </Link>
-            ))}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              {...stylex.props(styles.mobileLink, styles.mobileThemeButton)}
+        <nav
+          id="mobile-menu"
+          data-mobile-menu
+          aria-label="Main"
+          {...stylex.props(styles.mobileMenu)}
+        >
+          {mobileLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              {...stylex.props(styles.mobileLink, link.accent && styles.emergency)}
             >
-              {themeIcon}
-              Theme
-            </button>
-          </nav>
-        )}
+              <Icon
+                name={link.icon}
+                {...stylex.props(styles.icon16, link.accent ? styles.emergency : styles.mutedIcon)}
+              />
+              {link.label}
+            </a>
+          ))}
+          <button
+            type="button"
+            data-theme-toggle
+            {...stylex.props(styles.mobileLink, styles.mobileThemeButton)}
+          >
+            <ThemeIcons />
+            Theme
+          </button>
+        </nav>
       </div>
-
-      {searchOpen && <SearchDialog onClose={closeSearch} />}
     </header>
   );
 }
