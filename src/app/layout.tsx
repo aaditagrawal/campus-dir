@@ -32,8 +32,13 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Campus Directory",
   },
+  // favicon.ico in this folder is linked by file convention. Setting `icons`
+  // turns off the other file conventions, so the SVG favicon is listed here.
+  // Regenerate every icon with `bun scripts/generate-icons.mjs`.
   icons: {
+    icon: [{ url: "/icons/favicon.svg", type: "image/svg+xml" }],
     apple: "/icons/apple-touch-icon.png",
+    other: [{ rel: "mask-icon", url: "/icons/icon-monochrome.svg", color: "#0a0a0a" }],
   },
 };
 

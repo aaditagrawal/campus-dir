@@ -7,7 +7,7 @@
  *  - Other same-origin assets (icons, images, manifest): stale-while-revalidate.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const PAGE_CACHE = `pages-${VERSION}`;
 const ASSET_CACHE = `assets-${VERSION}`;
 const OFFLINE_FALLBACK = "/";
