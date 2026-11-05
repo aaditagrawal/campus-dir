@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   getTheme,
   getInitialTheme,
@@ -10,7 +10,11 @@ import {
   type ThemeState,
 } from "@/lib/theme";
 
-const ThemeContext = createContext<ThemeState | undefined>(undefined);
+type ThemeContextValue = Partial<ThemeState> & { setTheme: typeof setTheme };
+const ThemeContext = createContext<ThemeContextValue>({ setTheme });
+const themeScript = (
+  <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ThemeState | undefined>(getInitialTheme);
@@ -27,15 +31,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     update();
     return unsubscribe;
   }, []);
+  const value = useMemo(() => ({ ...state, setTheme }), [state]);
   return (
-    <ThemeContext.Provider value={state}>
-      <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+    <ThemeContext.Provider value={value}>
+      {themeScript}
       {children}
     </ThemeContext.Provider>
   );
 }
 
 export function useTheme() {
-  const state = useContext(ThemeContext);
-  return { ...state, setTheme };
+  return useContext(ThemeContext);
 }
