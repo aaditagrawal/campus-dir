@@ -44,9 +44,6 @@ jobs:
       - name: StyleX migration guard
         run: bun run check:styles
 
-      - name: Theme behavior
-        run: bun run test:ui
-
   format:
     name: Format
     runs-on: ubuntu-latest

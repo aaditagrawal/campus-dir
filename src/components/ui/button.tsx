@@ -109,12 +109,19 @@ const sizeStyles = {
   icon: styles.sizeIcon,
 };
 
+type ButtonAttributes = Readonly<ReturnType<typeof stylex.props> & { "data-slot": "button" }>;
+const attributesByVariant = new Map<ButtonVariant, Map<ButtonSize, ButtonAttributes>>();
+
 function buttonProps(
   variant: ButtonVariant = "default",
   size: ButtonSize = "default",
   xstyle?: StyleXStyles,
-) {
-  return {
+): ButtonAttributes {
+  if (xstyle === undefined) {
+    const cached = attributesByVariant.get(variant)?.get(size);
+    if (cached) return cached;
+  }
+  const attributes: ButtonAttributes = {
     "data-slot": "button",
     ...stylex.props(
       stylex.defaultMarker(),
@@ -124,6 +131,16 @@ function buttonProps(
       xstyle,
     ),
   };
+  // Static attributes are immutable and shared by the finite variant/size pairs.
+  if (xstyle === undefined) {
+    let bySize = attributesByVariant.get(variant);
+    if (!bySize) {
+      bySize = new Map();
+      attributesByVariant.set(variant, bySize);
+    }
+    bySize.set(size, Object.freeze(attributes));
+  }
+  return attributes;
 }
 
 function Button({ variant, size, xstyle, ...props }: ButtonProps) {

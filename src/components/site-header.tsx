@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "next-themes";
 import {
   Sun,
   Moon,
