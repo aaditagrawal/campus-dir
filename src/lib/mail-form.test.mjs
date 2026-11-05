@@ -43,7 +43,17 @@ test("each required field rejects missing, null and non-string data", () => {
     const missing = { ...blank };
     delete missing[key];
     assert.equal(parseMailForm(JSON.stringify(missing)), null, key);
-    for (const invalid of [null, 0, false, [], {}, { toString: "text" }]) {
+    for (const invalid of [
+      null,
+      0,
+      false,
+      [],
+      {},
+      { toString: "text" },
+      { constructor: "String" },
+      { constructor: null },
+      { constructor: {} },
+    ]) {
       assert.equal(parseMailForm(JSON.stringify({ ...blank, [key]: invalid })), null, key);
     }
   }
@@ -53,7 +63,18 @@ test("warden selections must be an array containing only strings", () => {
   const missing = { ...blank };
   delete missing.selectedWardens;
   assert.equal(parseMailForm(JSON.stringify(missing)), null);
-  for (const invalid of [null, "a@b.test", {}, [null], [1], ["a", false], [{ toString: "a" }]]) {
+  for (const invalid of [
+    null,
+    "a@b.test",
+    {},
+    [null],
+    [1],
+    ["a", false],
+    [{ toString: "a" }],
+    [{ constructor: "String" }],
+    [{ constructor: null }],
+    [{ constructor: {} }],
+  ]) {
     assert.equal(parseMailForm(JSON.stringify({ ...blank, selectedWardens: invalid })), null);
   }
 });

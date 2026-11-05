@@ -15,6 +15,7 @@ import os from "node:os";
 import assert from "node:assert/strict";
 import { performance } from "node:perf_hooks";
 import { Script, createContext } from "node:vm";
+import { setImmediate as nextTurn } from "node:timers/promises";
 
 const BASE = "5fda47add7ba179d67e6831706cd76048d8feeb9";
 const root = process.cwd();
@@ -380,9 +381,24 @@ function Consumer({ useTheme }) {
   });
   return h("span", null, value.resolvedTheme);
 }
-function mount(before, consumers = 1) {
+function HeaderConsumer({ useTheme }) {
+  const value = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  React.useLayoutEffect(() => {
+    current = value;
+  });
+  return h(
+    "button",
+    { type: "button", onClick: () => value.setTheme(value.theme === "dark" ? "light" : "dark") },
+    mounted && value.theme === "dark" ? "sun" : "moon",
+  );
+}
+function mount(before, consumers = 1, guarded = false) {
   const content = (useTheme) =>
-    Array.from({ length: consumers }, (_, key) => h(Consumer, { key, useTheme }));
+    Array.from({ length: consumers }, (_, key) =>
+      h(guarded ? HeaderConsumer : Consumer, { key, useTheme }),
+    );
   const renderer = createRoot(document.getElementById("app"));
   flushSync(() =>
     renderer.render(
@@ -397,8 +413,8 @@ function mount(before, consumers = 1) {
   );
   return renderer;
 }
-const runLifecycle = (before, consumers) => {
-  const renderer = mount(before, consumers);
+const runLifecycle = (before, consumers, guarded = false) => {
+  const renderer = mount(before, consumers, guarded);
   flushSync(() => renderer.unmount());
 };
 for (const [size, consumers] of [
@@ -413,6 +429,12 @@ for (const [size, consumers] of [
     100,
   );
 }
+measure(
+  "theme/header-startup",
+  () => runLifecycle(true, 1, true),
+  () => runLifecycle(false, 1, true),
+  100,
+);
 for (const name of ["setTheme", "system", "storage"]) {
   // Samples alternate mounted baseline/candidate trees; mounting is untimed.
   const values = [[], []];
@@ -438,13 +460,22 @@ for (const name of ["setTheme", "system", "storage"]) {
               }),
             );
         });
-      for (let i = 0; i < 50; i++) event(i);
-      const cpuStart = process.cpuUsage();
-      const start = performance.now();
-      for (let i = 0; i < count; i++) event(i);
-      values[index].push(((performance.now() - start) * 1000) / count);
-      const cpu = process.cpuUsage(cpuStart);
-      eventCpu[index].push((cpu.user + cpu.system) / count);
+      for (let i = 0; i < 10; i++) event(i);
+      let elapsed = 0;
+      let cpuElapsed = 0;
+      // Browser events arrive on separate turns. Yield outside timing so a
+      // synthetic flushSync loop does not trip React's nested-update limit.
+      for (let offset = 0; offset < count; offset += 20) {
+        await nextTurn();
+        const cpuStart = process.cpuUsage();
+        const start = performance.now();
+        for (let i = offset; i < Math.min(offset + 20, count); i++) event(i);
+        elapsed += performance.now() - start;
+        const cpu = process.cpuUsage(cpuStart);
+        cpuElapsed += cpu.user + cpu.system;
+      }
+      values[index].push((elapsed * 1000) / count);
+      eventCpu[index].push(cpuElapsed / count);
       flushSync(() => renderer.unmount());
     }
   const stats = values.map((v, index) => {

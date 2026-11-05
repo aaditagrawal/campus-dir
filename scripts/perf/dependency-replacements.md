@@ -31,8 +31,10 @@ The workloads cover empty, typical, large, and invalid shared-form JSON; native
 labels and complete styled anchors at 1, 15, and 100 elements plus escaping-heavy
 content; server-rendered theme providers; persisted/system/denied-storage bootstrap;
 subscription mount/cleanup; and real React DOM updates from theme, media, and storage
-events. The fixture checks equivalent serialized UI styles, link attributes, and
-valid theme output. Denied storage is measured through complete startup to resolved
+events. Event measurements yield between batches outside the timed interval,
+matching separate browser event turns without excluding synchronous rendering/effects.
+The fixture checks equivalent serialized UI styles, link attributes, and valid
+theme output. Denied storage is measured through complete startup to resolved
 UI, since the baseline bootstrap alone skips theme application on a storage error.
 jsdom measures integration CPU work and does not establish real
 browser paint or interaction latency. No performance claim should use runs made

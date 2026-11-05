@@ -128,7 +128,19 @@ function buttonProps(
 }
 
 function Button({ variant = "default", size = "default", xstyle, ...props }: ButtonProps) {
-  return <button {...buttonProps(variant, size, xstyle)} {...props} />;
+  return (
+    <button
+      data-slot="button"
+      {...stylex.props(
+        stylex.defaultMarker(),
+        styles.root,
+        variantStyles[variant],
+        sizeStyles[size],
+        xstyle,
+      )}
+      {...props}
+    />
+  );
 }
 
 export { Button, buttonProps, styles as buttonStyles };
