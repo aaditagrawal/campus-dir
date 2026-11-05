@@ -298,15 +298,14 @@ src/
 │   ├── travel/            # Transportation services page
 │   └── globals.css        # Global styles and design system
 ├── components/            # Reusable UI components
-│   ├── ui/               # Radix UI component library
+│   ├── ui/               # Native HTML components styled with StyleX
 │   │   ├── badge.tsx     # Status indicators
 │   │   ├── button.tsx    # Interactive buttons
 │   │   ├── card.tsx      # Content containers
 │   │   ├── input.tsx     # Form inputs
 │   │   ├── label.tsx     # Form labels
 │   │   ├── navigation-menu.tsx # Main navigation
-│   │   ├── sheet.tsx     # Mobile navigation drawer
-│   │   └── switch.tsx    # Toggle controls
+│   │   └── sheet.tsx     # Mobile navigation drawer
 │   ├── site-header.tsx   # Main navigation with search
 │   └── theme-provider.tsx # Dark/light mode provider
 ├── data/                  # JSON data files
@@ -416,7 +415,7 @@ The search functionality is powered by MiniSearch and located in `src/lib/search
 
 ### 🎨 UI Components
 
-The project uses Radix UI primitives for accessibility:
+The project uses native HTML controls and links with shared StyleX styles:
 
 **Available Components:**
 
@@ -425,12 +424,11 @@ The project uses Radix UI primitives for accessibility:
 - `Badge` - Status indicators
 - `NavigationMenu` - Main navigation
 - `Sheet` - Mobile navigation drawer
-- `Switch` - Toggle controls
 
 **Adding New Components:**
 
 1. Create in `src/components/ui/`
-2. Follow Radix UI patterns
+2. Use native HTML semantics and the shared StyleX tokens
 3. Add proper TypeScript types
 4. Include accessibility features
 5. Document usage examples
