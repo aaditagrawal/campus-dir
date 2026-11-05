@@ -13,7 +13,7 @@ product dependencies.
 ```sh
 mkdir -p /tmp/campus-dining-baseline-dependencies-5fda47a
 cat > /tmp/campus-dining-baseline-dependencies-5fda47a/package.json <<'JSON'
-{"private":true,"packageManager":"bun@1.4.2","dependencies":{"@radix-ui/react-label":"2.1.17","@radix-ui/react-slot":"1.5.0","zod":"4.6.7","react":"19.3.1","react-dom":"19.3.1"}}
+{"private":true,"packageManager":"bun@1.4.4","dependencies":{"@radix-ui/react-label":"2.1.17","@radix-ui/react-slot":"1.5.0","zod":"4.6.7","react":"19.3.1","react-dom":"19.3.1"}}
 JSON
 bun install --cwd /tmp/campus-dining-baseline-dependencies-5fda47a
 NODE_ENV=production node scripts/perf/dependency-replacements.mjs --quick
