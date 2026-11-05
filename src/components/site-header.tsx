@@ -25,6 +25,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { breakpoints, colors, motion, preferences, radii } from "@/styles/constants.stylex";
+import { LanguageMenu } from "@/components/language-menu";
 
 const SearchDialog = dynamic(() => import("@/components/search-dialog"), { ssr: false });
 const preloadSearch = () => {
@@ -381,6 +382,7 @@ export function SiteHeader() {
           </nav>
 
           <div {...stylex.props(styles.actionGroup)}>
+            <LanguageMenu />
             <IconButton
               aria-label="Open search"
               onMouseEnter={preloadSearch}
