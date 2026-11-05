@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import data from "@/data/travel.json";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonProps } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Phone, Shuffle } from "lucide-react";
 import { FavoriteButton } from "@/components/favorite-button";
@@ -145,12 +145,13 @@ export default function AutoQuickCallPage() {
               {listing.notes && (
                 <div {...stylex.props(styles.notes)}>{renderNotesWithLinks(listing.notes)}</div>
               )}
-              <Button asChild xstyle={styles.callButton}>
-                <a href={`tel:${listing.phones[0]?.replace(/\s+/g, "") ?? ""}`}>
-                  <Phone {...stylex.props(styles.icon20)} />
-                  Call now
-                </a>
-              </Button>
+              <a
+                href={`tel:${listing.phones[0]?.replace(/\s+/g, "") ?? ""}`}
+                {...buttonProps("default", "default", styles.callButton)}
+              >
+                <Phone {...stylex.props(styles.icon20)} />
+                Call now
+              </a>
             </CardContent>
           </Card>
         ))}

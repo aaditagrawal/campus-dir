@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
@@ -9,7 +8,6 @@ type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghos
 type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 type ButtonProps = Omit<React.ComponentProps<"button">, "className" | "style"> & {
-  asChild?: boolean;
   size?: ButtonSize;
   variant?: ButtonVariant;
   xstyle?: StyleXStyles;
@@ -111,16 +109,27 @@ const sizeStyles = {
   icon: styles.sizeIcon,
 };
 
-function Button({
-  variant = "default",
-  size = "default",
-  asChild = false,
-  xstyle,
-  ...props
-}: ButtonProps) {
-  const Comp = asChild ? Slot : "button";
+/** Shared styles for buttons, native anchors, and Next links. */
+function buttonProps(
+  variant: ButtonVariant = "default",
+  size: ButtonSize = "default",
+  xstyle?: StyleXStyles,
+) {
+  return {
+    "data-slot": "button",
+    ...stylex.props(
+      stylex.defaultMarker(),
+      styles.root,
+      variantStyles[variant],
+      sizeStyles[size],
+      xstyle,
+    ),
+  };
+}
+
+function Button({ variant = "default", size = "default", xstyle, ...props }: ButtonProps) {
   return (
-    <Comp
+    <button
       data-slot="button"
       {...stylex.props(
         stylex.defaultMarker(),
@@ -134,5 +143,5 @@ function Button({
   );
 }
 
-export { Button, styles as buttonStyles };
+export { Button, buttonProps, styles as buttonStyles };
 export type { ButtonProps, ButtonSize, ButtonVariant };
