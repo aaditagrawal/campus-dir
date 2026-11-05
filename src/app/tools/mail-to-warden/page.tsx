@@ -1,6 +1,6 @@
 "use client";
 
-import { z } from "zod";
+import { parseMailForm, type FormData } from "@/lib/mail-form";
 import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,48 +11,6 @@ import hostelsData from "@/data/hostels.json";
 import { useSearchParams } from "next/navigation";
 import { breakpoints, colors, fonts, motion, radii } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
-
-interface FormData {
-  studentName: string;
-  registrationNumber: string;
-  semester: string;
-  branch: string;
-  block: string;
-  roomNumber: string;
-  contactNumber: string;
-  startDate: string;
-  endDate: string;
-  placeOfVisit: string;
-  address: string;
-  purpose: string;
-  customPurpose: string;
-  parentName: string;
-  parentContact: string;
-  selectedWardens: string[];
-}
-
-const FormDataSchema = z.object({
-  studentName: z.string(),
-  registrationNumber: z.string(),
-  semester: z.string(),
-  branch: z.string(),
-  block: z.string(),
-  roomNumber: z.string(),
-  contactNumber: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-  placeOfVisit: z.string(),
-  address: z.string(),
-  purpose: z.string(),
-  customPurpose: z.string(),
-  parentName: z.string(),
-  parentContact: z.string(),
-  selectedWardens: z.array(z.string()),
-});
-
-function isFormData(value: Partial<FormData>): value is FormData {
-  return FormDataSchema.safeParse(value).success;
-}
 
 const PURPOSE_TEMPLATES = [
   {
@@ -272,8 +230,8 @@ function MailToWardenContent() {
     const dataParam = searchParams.get("data");
     if (dataParam) {
       try {
-        const decodedData: Partial<FormData> = JSON.parse(dataParam);
-        if (!isFormData(decodedData)) return;
+        const decodedData = parseMailForm(dataParam);
+        if (decodedData === null) return;
         setFormData(decodedData);
         setIsSharedLink(true);
         // Auto-generate preview for shared links

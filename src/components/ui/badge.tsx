@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
@@ -7,7 +6,6 @@ import { colors, motion, radii } from "@/styles/constants.stylex";
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 type BadgeProps = Omit<React.ComponentProps<"span">, "className" | "style"> & {
-  asChild?: boolean;
   variant?: BadgeVariant;
   xstyle?: StyleXStyles;
 };
@@ -67,10 +65,9 @@ const variantStyles = {
   outline: styles.outline,
 };
 
-function Badge({ variant = "default", asChild = false, xstyle, ...props }: BadgeProps) {
-  const Comp = asChild ? Slot : "span";
+function Badge({ variant = "default", xstyle, ...props }: BadgeProps) {
   return (
-    <Comp
+    <span
       data-slot="badge"
       {...stylex.props(styles.root, variantStyles[variant], xstyle)}
       {...props}

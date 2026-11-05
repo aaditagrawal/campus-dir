@@ -91,7 +91,7 @@ export default function RootLayout({
         <Script defer src="https://stat.sys256.com/script.js" strategy="lazyOnload" />
       </head>
       <body {...stylex.props(styles.body)}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider>
           <SiteHeader />
           {children}
           <PwaInstallLoader />

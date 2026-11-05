@@ -1,11 +1,18 @@
 "use client";
 
-import * as React from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { useSyncExternalStore, type ReactNode } from "react";
+import { getTheme, getServerTheme, setTheme, subscribeTheme, themeBootstrap } from "@/lib/theme";
 
-export function ThemeProvider({
-  children,
-  ...props
-}: React.ComponentProps<typeof NextThemesProvider>) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+      {children}
+    </>
+  );
+}
+
+export function useTheme() {
+  const state = useSyncExternalStore(subscribeTheme, getTheme, getServerTheme);
+  return { ...state, setTheme };
 }
