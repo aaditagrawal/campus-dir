@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import Link from "next/link";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
@@ -9,7 +9,13 @@ type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghos
 type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 type ButtonProps = Omit<React.ComponentProps<"button">, "className" | "style"> & {
-  asChild?: boolean;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  xstyle?: StyleXStyles;
+};
+
+type ButtonLinkProps = Omit<React.ComponentProps<"a">, "className" | "style" | "href"> & {
+  href: string;
   size?: ButtonSize;
   variant?: ButtonVariant;
   xstyle?: StyleXStyles;
@@ -111,28 +117,32 @@ const sizeStyles = {
   icon: styles.sizeIcon,
 };
 
-function Button({
-  variant = "default",
-  size = "default",
-  asChild = false,
-  xstyle,
-  ...props
-}: ButtonProps) {
-  const Comp = asChild ? Slot : "button";
-  return (
-    <Comp
-      data-slot="button"
-      {...stylex.props(
-        stylex.defaultMarker(),
-        styles.root,
-        variantStyles[variant],
-        sizeStyles[size],
-        xstyle,
-      )}
-      {...props}
-    />
+function buttonProps(variant: ButtonVariant, size: ButtonSize, xstyle?: StyleXStyles) {
+  return stylex.props(
+    stylex.defaultMarker(),
+    styles.root,
+    variantStyles[variant],
+    sizeStyles[size],
+    xstyle,
   );
 }
 
-export { Button, styles as buttonStyles };
-export type { ButtonProps, ButtonSize, ButtonVariant };
+function Button({ variant = "default", size = "default", xstyle, ...props }: ButtonProps) {
+  return <button data-slot="button" {...buttonProps(variant, size, xstyle)} {...props} />;
+}
+
+function ButtonLink({
+  variant = "default",
+  size = "default",
+  xstyle,
+  href,
+  ...props
+}: ButtonLinkProps) {
+  const Component = href.startsWith("/") ? Link : "a";
+  return (
+    <Component data-slot="button" href={href} {...buttonProps(variant, size, xstyle)} {...props} />
+  );
+}
+
+export { Button, ButtonLink, styles as buttonStyles };
+export type { ButtonProps, ButtonLinkProps, ButtonSize, ButtonVariant };

@@ -10,7 +10,7 @@ import {
 } from "@/hooks/useFavorites";
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Star, Phone, ExternalLink, Trash2, Download, Check, Copy } from "lucide-react";
 import Link from "next/link";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
@@ -208,15 +208,15 @@ export default function FavoritesPage() {
               and click the star icon to add them to your favorites.
             </p>
             <div {...stylex.props(styles.emptyActions)}>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/restaurants">Browse Restaurants</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/emergency">Emergency Contacts</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/hostels">Hostels</Link>
-              </Button>
+              <ButtonLink variant="outline" size="sm" href="/restaurants">
+                Browse Restaurants
+              </ButtonLink>
+              <ButtonLink variant="outline" size="sm" href="/emergency">
+                Emergency Contacts
+              </ButtonLink>
+              <ButtonLink variant="outline" size="sm" href="/hostels">
+                Hostels
+              </ButtonLink>
             </div>
           </CardContent>
         </Card>
@@ -281,19 +281,17 @@ export default function FavoritesPage() {
                         )}
 
                         <div {...stylex.props(styles.actions)}>
-                          <Button asChild variant="outline" size="sm" xstyle={styles.actionGrow}>
-                            {item.href.startsWith("http") ? (
-                              <a href={item.href} target="_blank" rel="noreferrer">
-                                <ExternalLink {...stylex.props(styles.icon14, styles.actionIcon)} />
-                                Open Link
-                              </a>
-                            ) : (
-                              <Link href={item.href}>
-                                <ExternalLink {...stylex.props(styles.icon14, styles.actionIcon)} />
-                                View Details
-                              </Link>
-                            )}
-                          </Button>
+                          <ButtonLink
+                            variant="outline"
+                            size="sm"
+                            xstyle={styles.actionGrow}
+                            href={item.href}
+                            target={item.href.startsWith("http") ? "_blank" : undefined}
+                            rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+                          >
+                            <ExternalLink {...stylex.props(styles.icon14, styles.actionIcon)} />
+                            {item.href.startsWith("http") ? "Open Link" : "View Details"}
+                          </ButtonLink>
                           {item.phones && item.phones.length > 0 && (
                             <Button
                               variant="outline"

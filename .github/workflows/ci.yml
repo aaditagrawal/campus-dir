@@ -44,6 +44,9 @@ jobs:
       - name: StyleX migration guard
         run: bun run check:styles
 
+      - name: Owned controls and payload validation
+        run: bun run test:owned
+
   format:
     name: Format
     runs-on: ubuntu-latest

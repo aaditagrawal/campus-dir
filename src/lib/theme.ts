@@ -1,0 +1,92 @@
+export type Theme = "light" | "dark" | "system";
+type ThemeState = { theme: Theme; resolvedTheme: "light" | "dark" };
+
+// Self-contained so the exact same code can run before hydration and on changes.
+export function applyTheme(preference?: Theme): ThemeState {
+  let theme = preference ?? "system";
+  if (preference === undefined) {
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark" || saved === "system") theme = saved;
+    } catch {
+      // Private browsing can block storage while themes remain usable.
+    }
+  }
+  let systemDark = false;
+  if (theme === "system") {
+    try {
+      systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } catch {
+      // Use light when the browser cannot report a color preference.
+    }
+  }
+  const resolvedTheme = theme === "system" ? (systemDark ? "dark" : "light") : theme;
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(resolvedTheme);
+  root.style.colorScheme = resolvedTheme;
+  return { theme, resolvedTheme };
+}
+
+export const themeBootstrap = `(${applyTheme.toString()})()`;
+
+const listeners = new Set<() => void>();
+let current: ThemeState | undefined;
+let stopListening: (() => void) | undefined;
+
+function update(preference?: Theme) {
+  const next = applyTheme(preference);
+  if (next.theme === current?.theme && next.resolvedTheme === current?.resolvedTheme) return;
+  current = next;
+  for (const listener of listeners) listener();
+}
+
+export function setTheme(theme: Theme) {
+  update(theme);
+  try {
+    localStorage.setItem("theme", theme);
+  } catch {
+    // Keep the in-memory selection even when persistence is unavailable.
+  }
+}
+
+export function getTheme() {
+  return current;
+}
+
+export function getServerTheme() {
+  return undefined;
+}
+
+export function subscribeTheme(listener: () => void) {
+  listeners.add(listener);
+  if (listeners.size === 1) startListening();
+  return () => {
+    listeners.delete(listener);
+    if (listeners.size === 0) stopListening?.();
+  };
+}
+
+function startListening() {
+  update();
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== "theme" && event.key !== null) return;
+    const value = event.newValue;
+    update(value === "light" || value === "dark" ? value : "system");
+  };
+  const onSystemChange = () => {
+    if (current?.theme === "system") update("system");
+  };
+  window.addEventListener("storage", onStorage);
+  let media: MediaQueryList | undefined;
+  try {
+    media = window.matchMedia("(prefers-color-scheme: dark)");
+    media.addEventListener("change", onSystemChange);
+  } catch {
+    // The explicit light/dark toggle also works without matchMedia.
+  }
+  stopListening = () => {
+    window.removeEventListener("storage", onStorage);
+    media?.removeEventListener("change", onSystemChange);
+  };
+}

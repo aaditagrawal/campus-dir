@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import data from "@/data/emergency.json";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
 import { Phone } from "lucide-react";
@@ -103,12 +103,15 @@ function EmergencyContactCard({
         ) : null}
       </CardContent>
       <CardFooter xstyle={styles.footer}>
-        <Button asChild variant="secondary" size="sm" xstyle={styles.button}>
-          <a href={`tel:${entry.phones[0]?.replace(/\s+/g, "") ?? ""}`}>
-            <Phone {...stylex.props(styles.icon)} />
-            Call Now
-          </a>
-        </Button>
+        <ButtonLink
+          variant="secondary"
+          size="sm"
+          xstyle={styles.button}
+          href={`tel:${entry.phones[0]?.replace(/\s+/g, "") ?? ""}`}
+        >
+          <Phone {...stylex.props(styles.icon)} />
+          Call Now
+        </ButtonLink>
         <DownloadVCardButton
           size="sm"
           xstyle={styles.button}
