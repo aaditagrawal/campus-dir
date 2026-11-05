@@ -2,7 +2,7 @@ export type Theme = "light" | "dark" | "system";
 type ThemeState = { theme: Theme; resolvedTheme: "light" | "dark" };
 
 // Self-contained so the exact same code can run before hydration and on changes.
-export function applyTheme(preference?: Theme): ThemeState {
+export function applyTheme(preference?: Theme, fallback: Theme = "system"): ThemeState {
   let theme = preference ?? "system";
   if (preference === undefined) {
     try {
@@ -10,6 +10,7 @@ export function applyTheme(preference?: Theme): ThemeState {
       if (saved === "light" || saved === "dark" || saved === "system") theme = saved;
     } catch {
       // Private browsing can block storage while themes remain usable.
+      theme = fallback;
     }
   }
   let systemDark = false;
@@ -35,7 +36,7 @@ let current: ThemeState | undefined;
 let stopListening: (() => void) | undefined;
 
 function update(preference?: Theme) {
-  const next = applyTheme(preference);
+  const next = applyTheme(preference, current?.theme);
   if (next.theme === current?.theme && next.resolvedTheme === current?.resolvedTheme) return;
   current = next;
   // React can unsubscribe and resubscribe synchronously while notified.
