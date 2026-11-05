@@ -127,3 +127,27 @@ test("blocked storage and unavailable matchMedia keep explicit themes usable", (
   assert.equal(document.documentElement.style.colorScheme, "dark");
   stop();
 });
+
+test("reentrant subscribers see the persisted selection once", () => {
+  let armed = false;
+  let calls = 0;
+  let stop = () => {};
+  const listener = () => {
+    if (!armed) return;
+    calls++;
+    assert.ok(calls <= 2, "resubscription must not loop in one notification");
+    stop();
+    stop = subscribeTheme(listener);
+  };
+  stop = subscribeTheme(listener);
+  armed = true;
+  try {
+    setTheme("dark");
+    assert.equal(calls, 1);
+    assert.equal(getTheme()?.theme, "dark");
+    assert.equal(storage.get("theme"), "dark");
+  } finally {
+    armed = false;
+    stop();
+  }
+});

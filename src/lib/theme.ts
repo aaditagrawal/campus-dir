@@ -38,16 +38,17 @@ function update(preference?: Theme) {
   const next = applyTheme(preference);
   if (next.theme === current?.theme && next.resolvedTheme === current?.resolvedTheme) return;
   current = next;
-  for (const listener of listeners) listener();
+  // React can unsubscribe and resubscribe synchronously while notified.
+  for (const listener of [...listeners]) listener();
 }
 
 export function setTheme(theme: Theme) {
-  update(theme);
   try {
     localStorage.setItem("theme", theme);
   } catch {
     // Keep the in-memory selection even when persistence is unavailable.
   }
+  update(theme);
 }
 
 export function getTheme() {

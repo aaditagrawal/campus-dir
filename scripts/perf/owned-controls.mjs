@@ -47,6 +47,10 @@ function compile(file, source) {
   compiled.require = (name) => {
     // StyleX has already compiled these token imports into CSS variable names.
     if (name === "@/styles/constants.stylex") return {};
+    // Match Next's production alias for its bundled Babel helpers.
+    if (name.startsWith("@babel/runtime/")) {
+      return require(join(dirname(require.resolve("next/package.json")), "dist/compiled", name));
+    }
     return originalRequire(name);
   };
   compiled._compile(code, filename);

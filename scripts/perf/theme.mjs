@@ -138,6 +138,13 @@ try {
         {
           name: "benchmark-resolution",
           setup(build) {
+            // Match the aliases supplied by Next's production browser bundler.
+            build.onResolve({ filter: /^@babel\/runtime\// }, ({ path: specifier }) => ({
+              path: require.resolve(`next/dist/compiled/${specifier}`),
+            }));
+            build.onResolve({ filter: /^react-server-dom-webpack\/client$/ }, () => ({
+              path: require.resolve("next/dist/compiled/react-server-dom-webpack/client.browser"),
+            }));
             build.onResolve(
               { filter: /^(react(?:\/.*)?|react-dom(?:\/.*)?|next-themes)$/ },
               ({ path: specifier }) => ({
@@ -161,8 +168,10 @@ try {
                 ),
               };
             });
+            // Both sides use the same public Next/link entry in this isolated
+            // component fixture. Full App Router navigation is outside its scope.
             build.onResolve({ filter: /^next\/link$/ }, () => ({
-              path: require.resolve("next/dist/client/app-dir/link.js"),
+              path: require.resolve("next/link"),
             }));
             build.onResolve({ filter: /^@stylexjs\/stylex$/ }, () => ({
               path: require.resolve("@stylexjs/stylex"),
@@ -270,54 +279,60 @@ try {
         ? Math.max(2, Math.floor(100 / controls))
         : workload === "mount"
           ? 40
-          : 150;
+          : // Bound synchronous selections below React's nested-update limit.
+            // Real user events yield between selections.
+            16;
     const samples = { baseline: [], candidate: [] };
     for (let round = -4; round < rounds; round++) {
       for (const variant of round % 2 === 0
         ? ["baseline", "candidate"]
         : ["candidate", "baseline"]) {
-        const elapsed = await pages[variant].evaluate(
-          ({ workload, count }) => {
-            localStorage.setItem("theme", workload === "prepaint-saved" ? "dark" : "system");
-            const controls = Number(workload.split("-")[1]);
-            if (
-              !workload.startsWith("controls") &&
-              !workload.startsWith("prepaint") &&
-              workload !== "mount"
-            ) {
-              window.mount();
-              window.mountControls(24);
-            }
-            const start = performance.now();
-            for (let index = 0; index < count; index++) {
-              if (workload.startsWith("controls")) {
-                window.mountControls(controls);
-                window.updateControls(controls, index + 1);
-                document.querySelector("button").click();
-                window.layoutSink = document.body.offsetHeight;
-                window.unmountControls();
-              } else if (workload.startsWith("prepaint")) window.prepaint();
-              else if (workload === "mount") {
+        const elapsed = await pages[variant]
+          .evaluate(
+            ({ workload, count }) => {
+              localStorage.setItem("theme", workload === "prepaint-saved" ? "dark" : "system");
+              const controls = Number(workload.split("-")[1]);
+              if (
+                !workload.startsWith("controls") &&
+                !workload.startsWith("prepaint") &&
+                workload !== "mount"
+              ) {
                 window.mount();
+                window.mountControls(24);
+              }
+              const start = performance.now();
+              for (let index = 0; index < count; index++) {
+                if (workload.startsWith("controls")) {
+                  window.mountControls(controls);
+                  window.updateControls(controls, index + 1);
+                  document.querySelector("button").click();
+                  window.layoutSink = document.body.offsetHeight;
+                  window.unmountControls();
+                } else if (workload.startsWith("prepaint")) window.prepaint();
+                else if (workload === "mount") {
+                  window.mount();
+                  window.unmount();
+                } else if (workload === "toggle") window.toggle(index % 2 === 0 ? "dark" : "light");
+                else window.storageChange(index % 2 === 0 ? "dark" : "light");
+                if (workload === "toggle" || workload === "storage")
+                  window.layoutSink = document.body.offsetHeight;
+              }
+              const microseconds = ((performance.now() - start) * 1000) / count;
+              if (
+                !workload.startsWith("controls") &&
+                !workload.startsWith("prepaint") &&
+                workload !== "mount"
+              ) {
+                window.unmountControls();
                 window.unmount();
-              } else if (workload === "toggle") window.toggle(index % 2 === 0 ? "dark" : "light");
-              else window.storageChange(index % 2 === 0 ? "dark" : "light");
-              if (workload === "toggle" || workload === "storage")
-                window.layoutSink = document.body.offsetHeight;
-            }
-            const microseconds = ((performance.now() - start) * 1000) / count;
-            if (
-              !workload.startsWith("controls") &&
-              !workload.startsWith("prepaint") &&
-              workload !== "mount"
-            ) {
-              window.unmountControls();
-              window.unmount();
-            }
-            return microseconds;
-          },
-          { workload, count },
-        );
+              }
+              return microseconds;
+            },
+            { workload, count },
+          )
+          .catch((error) => {
+            throw new Error(`${variant}/${workload}/round${round}`, { cause: error });
+          });
         if (round >= 0) samples[variant].push(elapsed);
       }
     }

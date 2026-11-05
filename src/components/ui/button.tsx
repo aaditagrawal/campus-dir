@@ -140,7 +140,7 @@ function ButtonLink({
 }: ButtonLinkProps) {
   const Component = href.startsWith("/") ? Link : "a";
   return (
-    <Component data-slot="button" href={href} {...buttonProps(variant, size, xstyle)} {...props} />
+    <Component href={href} data-slot="button" {...buttonProps(variant, size, xstyle)} {...props} />
   );
 }
 
