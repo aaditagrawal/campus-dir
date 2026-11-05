@@ -2,7 +2,7 @@ export type ThemePreference = "light" | "dark" | "system";
 export type ThemeState = { theme: ThemePreference; resolvedTheme: "light" | "dark" };
 
 /** Self-contained so the same initialization can run before the first paint. */
-export function initializeTheme(): ThemeState {
+export function initializeTheme(apply = true): ThemeState {
   let theme: ThemePreference = "system";
   try {
     const saved = window.localStorage.getItem("theme");
@@ -16,10 +16,12 @@ export function initializeTheme(): ThemeState {
         ? "dark"
         : "light"
       : theme;
-  const root = window.document.documentElement;
-  root.classList.remove("light", "dark");
-  root.classList.add(resolvedTheme);
-  root.style.colorScheme = resolvedTheme;
+  if (apply) {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(resolvedTheme);
+    root.style.colorScheme = resolvedTheme;
+  }
   return { theme, resolvedTheme };
 }
 
@@ -58,8 +60,8 @@ export function getTheme(): ThemeState | undefined {
   return state;
 }
 
-export function getServerTheme(): undefined {
-  return undefined;
+export function getInitialTheme(): ThemeState | undefined {
+  return "window" in globalThis ? initializeTheme(false) : undefined;
 }
 
 export function subscribeTheme(listener: () => void): () => void {

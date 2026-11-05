@@ -28,6 +28,7 @@ test("shared forms accept empty fields, arbitrary strings and extra keys", () =>
     studentName: "Ångström <&>",
     selectedWardens: ["", "a@b.test"],
     extra: { retained: true },
+    constructor: "String",
   };
   assert.deepEqual(parseMailForm(JSON.stringify(shared)), shared);
 });

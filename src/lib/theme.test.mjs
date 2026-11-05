@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { runInNewContext } from "node:vm";
-import { themeBootstrap, subscribeTheme, getTheme, getServerTheme, setTheme } from "./theme.ts";
+import { themeBootstrap, subscribeTheme, getTheme, getInitialTheme, setTheme } from "./theme.ts";
 
 function browser(saved, dark = false, denied = false) {
   const classes = new Set(["font-class", "light"]);
@@ -59,6 +59,19 @@ test("the actual pre-paint script resolves persisted and system themes", () => {
   assert.equal(denied.style.colorScheme, "dark");
 });
 
+test("initial theme is server-safe and does not mutate the DOM during rendering", () => {
+  assert.equal(getInitialTheme(), undefined);
+  const env = browser("system", true);
+  globalThis.window = env.window;
+  try {
+    assert.deepEqual(getInitialTheme(), { theme: "system", resolvedTheme: "dark" });
+    assert.deepEqual([...env.classes], ["font-class", "light"]);
+    assert.equal(env.style.colorScheme, undefined);
+  } finally {
+    delete globalThis.window;
+  }
+});
+
 test("theme store handles system changes, persistence, cross-tab changes and cleanup", () => {
   const env = browser("system", true);
   globalThis.window = env.window;
@@ -66,7 +79,7 @@ test("theme store handles system changes, persistence, cross-tab changes and cle
     let changes = 0;
     const stop = subscribeTheme(() => changes++);
     const second = subscribeTheme(() => changes++);
-    assert.equal(getServerTheme(), undefined);
+    assert.deepEqual(getInitialTheme(), { theme: "system", resolvedTheme: "dark" });
     assert.deepEqual(getTheme(), { theme: "system", resolvedTheme: "dark" });
     assert.equal(env.systemListeners.size, 1);
     env.media.matches = false;

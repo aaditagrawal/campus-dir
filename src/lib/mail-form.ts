@@ -17,24 +17,6 @@ export interface FormData {
   selectedWardens: string[];
 }
 
-const TEXT_FIELDS = [
-  "studentName",
-  "registrationNumber",
-  "semester",
-  "branch",
-  "block",
-  "roomNumber",
-  "contactNumber",
-  "startDate",
-  "endDate",
-  "placeOfVisit",
-  "address",
-  "purpose",
-  "customPurpose",
-  "parentName",
-  "parentContact",
-] as const;
-
 /** Decode the shared-link JSON without imposing validation on unfinished form fields. */
 export function parseMailForm(json: string): FormData | null {
   try {
@@ -43,18 +25,31 @@ export function parseMailForm(json: string): FormData | null {
     // JSON cannot contain functions or boxed strings. Only primitive strings
     // can have the native String constructor; parsed constructor keys cannot
     // spoof it. This never coerces objects or calls their methods.
-    for (const key of TEXT_FIELDS) {
-      if (!Object.hasOwn(value, key) || value[key]?.constructor !== String) {
-        return null;
-      }
-    }
+    if (
+      value.studentName?.constructor !== String ||
+      value.registrationNumber?.constructor !== String ||
+      value.semester?.constructor !== String ||
+      value.branch?.constructor !== String ||
+      value.block?.constructor !== String ||
+      value.roomNumber?.constructor !== String ||
+      value.contactNumber?.constructor !== String ||
+      value.startDate?.constructor !== String ||
+      value.endDate?.constructor !== String ||
+      value.placeOfVisit?.constructor !== String ||
+      value.address?.constructor !== String ||
+      value.purpose?.constructor !== String ||
+      value.customPurpose?.constructor !== String ||
+      value.parentName?.constructor !== String ||
+      value.parentContact?.constructor !== String
+    )
+      return null;
     if (
       !Array.isArray(value.selectedWardens) ||
       !value.selectedWardens.every((entry) => entry?.constructor === String)
     ) {
       return null;
     }
-    // SAFETY: every required own string field and the string array were checked above.
+    // SAFETY: every required string field and the string array were checked above.
     return value as FormData;
   } catch {
     return null;
