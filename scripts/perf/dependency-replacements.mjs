@@ -20,6 +20,7 @@ import { setImmediate as nextTurn } from "node:timers/promises";
 const BASE = "5fda47add7ba179d67e6831706cd76048d8feeb9";
 const root = process.cwd();
 assert.equal(process.version, `v${readFileSync(path.join(root, ".node-version"), "utf8").trim()}`);
+assert.equal(process.env.NODE_ENV, "production", "Run with NODE_ENV=production");
 const require = createRequire(import.meta.url);
 const baselineDir =
   process.env.CAMPUS_PERF_BASELINE_DIR || "/tmp/campus-dining-baseline-dependencies-5fda47a";
@@ -48,6 +49,7 @@ assert.equal(React.version, versions.react);
 require.cache[baselineRequire.resolve("react")] = require.cache[require.resolve("react")];
 const { renderToStaticMarkup } = require("react-dom/server");
 const { transformSync } = require("@babel/core");
+const { transformSync: optimizeSync } = require("next/dist/build/swc");
 const cache = new Map();
 function compile(file, baseline = false, supplied) {
   const key = `${baseline}:${file}`;
@@ -57,8 +59,9 @@ function compile(file, baseline = false, supplied) {
     (baseline
       ? execFileSync("git", ["show", `${BASE}:${file}`], { encoding: "utf8" })
       : readFileSync(path.join(root, file), "utf8"));
-  const compiled = transformSync(source, {
+  const transformed = transformSync(source, {
     filename: path.join(root, file),
+    caller: { name: "next-babel-turbo-loader", isServer: true, isDev: false },
     babelrc: false,
     configFile: false,
     presets: [["next/babel", { "preset-env": { modules: "commonjs" } }]],
@@ -75,6 +78,16 @@ function compile(file, baseline = false, supplied) {
         },
       ],
     ],
+  }).code;
+  const compiled = optimizeSync(transformed, {
+    filename: path.join(root, file),
+    minify: true,
+    jsc: {
+      parser: { syntax: "ecmascript" },
+      target: "es2022",
+      minify: { compress: true, mangle: true },
+    },
+    module: { type: "commonjs" },
   }).code;
   const compiledModule = { exports: {} };
   cache.set(key, compiledModule);
@@ -308,6 +321,20 @@ const providerBefore = () =>
 const providerAfter = () => renderToStaticMarkup(h(afterProvider, null, children));
 const scriptBefore = providerBefore().match(/<script[^>]*>([\s\S]*?)<\/script>/)[1];
 const scriptAfter = providerAfter().match(/<script[^>]*>([\s\S]*?)<\/script>/)[1];
+const builtScripts = [
+  ...readFileSync(path.join(root, "out/index.html"), "utf8").matchAll(
+    /<script\b[^>]*>([\s\S]*?)<\/script>/g,
+  ),
+]
+  .map((match) => match[1])
+  .filter(
+    (script) =>
+      script.includes("localStorage") &&
+      script.includes("prefers-color-scheme") &&
+      script.includes("classList"),
+  );
+assert.equal(builtScripts.length, 1, "Build the current project before benchmarking");
+const builtScript = builtScripts[0];
 measure("theme/provider-SSR", providerBefore, providerAfter, 5000);
 const { JSDOM } = baselineRequire("jsdom");
 function environment(saved, dark = false) {
@@ -329,9 +356,10 @@ for (const [name, saved, dark] of [
   ["large", "dark", false],
 ]) {
   const a = environment(saved, dark),
-    b = environment(saved, dark);
+    b = environment(saved, dark),
+    built = environment(saved, dark);
   if (name === "large")
-    for (const env of [a, b])
+    for (const env of [a, b, built])
       env.dom.window.document.documentElement.classList.add(
         ...Array.from({ length: 100 }, (_, i) => `existing-${i}`),
       );
@@ -345,6 +373,7 @@ for (const [name, saved, dark] of [
     cb = context(b);
   const sa = new Script(scriptBefore),
     sb = new Script(scriptAfter);
+  new Script(builtScript).runInContext(context(built));
   measure(
     `theme/bootstrap-${name}`,
     () => sa.runInContext(ca),
@@ -357,8 +386,13 @@ for (const [name, saved, dark] of [
     b.dom.window.document.documentElement.outerHTML,
   );
   assert.ok(b.dom.window.document.documentElement.classList.contains("font-class"));
+  assert.equal(
+    b.dom.window.document.documentElement.outerHTML,
+    built.dom.window.document.documentElement.outerHTML,
+  );
   a.dom.window.close();
   b.dom.window.close();
+  built.dom.window.close();
 }
 
 // Real React DOM lifecycle and events. DOM construction and module loading are
@@ -444,12 +478,17 @@ for (const name of ["setTheme", "system", "storage"]) {
     for (const index of sample % 2 ? [1, 0] : [0, 1]) {
       localStorage.setItem("theme", name === "system" ? "system" : "light");
       const renderer = mount(index === 0);
-      const event = (i) =>
+      const event = (i) => {
         flushSync(() => {
           if (name === "setTheme") current.setTheme(i % 2 ? "light" : "dark");
           if (name === "system") {
             env.media.matches = i % 2 === 0;
-            env.media.dispatchEvent(new window.Event("change"));
+            env.media.dispatchEvent(
+              Object.assign(new window.Event("change"), {
+                matches: env.media.matches,
+                media: "(prefers-color-scheme: dark)",
+              }),
+            );
           }
           if (name === "storage")
             window.dispatchEvent(
@@ -460,6 +499,11 @@ for (const name of ["setTheme", "system", "storage"]) {
               }),
             );
         });
+        const expected =
+          name === "system" ? (env.media.matches ? "dark" : "light") : i % 2 ? "light" : "dark";
+        assert.equal(current.resolvedTheme, expected);
+        assert.ok(document.documentElement.classList.contains(expected));
+      };
       for (let i = 0; i < 10; i++) event(i);
       let elapsed = 0;
       let cpuElapsed = 0;
@@ -539,6 +583,12 @@ process.stdout.write(
       base: BASE,
       node: process.version,
       nodeEnv: process.env.NODE_ENV ?? "development",
+      compiler: "Next/Babel/StyleX production server caller + pinned Next SWC ES2022 minification",
+      bootstrapBytes: {
+        baseline: Buffer.byteLength(scriptBefore),
+        candidate: Buffer.byteLength(scriptAfter),
+        builtCandidate: Buffer.byteLength(builtScript),
+      },
       platform: `${os.platform()} ${os.release()} ${os.arch()}`,
       cpu: os.cpus()[0].model,
       versions,
