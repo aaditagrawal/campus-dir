@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
@@ -9,7 +8,6 @@ type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghos
 type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 type ButtonProps = Omit<React.ComponentProps<"button">, "className" | "style"> & {
-  asChild?: boolean;
   size?: ButtonSize;
   variant?: ButtonVariant;
   xstyle?: StyleXStyles;
@@ -111,16 +109,44 @@ const sizeStyles = {
   icon: styles.sizeIcon,
 };
 
-function Button({
-  variant = "default",
-  size = "default",
-  asChild = false,
-  xstyle,
-  ...props
-}: ButtonProps) {
-  const Comp = asChild ? Slot : "button";
+type ButtonAttributes = Readonly<ReturnType<typeof stylex.props> & { "data-slot": "button" }>;
+const attributesByVariant = new Map<ButtonVariant, Map<ButtonSize, ButtonAttributes>>();
+
+function buttonProps(
+  variant: ButtonVariant = "default",
+  size: ButtonSize = "default",
+  xstyle?: StyleXStyles,
+): ButtonAttributes {
+  if (xstyle === undefined) {
+    const cached = attributesByVariant.get(variant)?.get(size);
+    if (cached) return cached;
+  }
+  const attributes: ButtonAttributes = {
+    "data-slot": "button",
+    ...stylex.props(
+      stylex.defaultMarker(),
+      styles.root,
+      variantStyles[variant],
+      sizeStyles[size],
+      xstyle,
+    ),
+  };
+  // Static attributes are immutable and shared by the finite variant/size pairs.
+  if (xstyle === undefined) {
+    let bySize = attributesByVariant.get(variant);
+    if (!bySize) {
+      bySize = new Map();
+      attributesByVariant.set(variant, bySize);
+    }
+    bySize.set(size, Object.freeze(attributes));
+  }
+  return attributes;
+}
+
+function Button({ variant = "default", size = "default", xstyle, ...props }: ButtonProps) {
+  if (xstyle === undefined) return <button {...buttonProps(variant, size)} {...props} />;
   return (
-    <Comp
+    <button
       data-slot="button"
       {...stylex.props(
         stylex.defaultMarker(),
@@ -134,5 +160,5 @@ function Button({
   );
 }
 
-export { Button, styles as buttonStyles };
+export { Button, buttonProps };
 export type { ButtonProps, ButtonSize, ButtonVariant };

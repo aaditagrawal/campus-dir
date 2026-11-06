@@ -46,7 +46,7 @@ All directory content lives in `src/data/*.json`. To update a phone number, rest
 
 ## Tech
 
-Next.js 16 (App Router, static export), React 19, TypeScript, StyleX, Radix UI, and MiniSearch.
+Next.js 16 (App Router, static export), React 19, TypeScript, StyleX, and MiniSearch.
 
 ## Contributing
 
