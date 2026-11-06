@@ -40,8 +40,19 @@ for (const file of ["src/components/theme-provider.tsx", "src/lib/theme.ts"]) {
     .update(await readFile(path.join(root, file)))
     .digest("hex");
 }
-const styles = [];
+const constantsFile = "src/styles/constants.stylex.ts";
+const constantsSource = await readFile(path.join(root, constantsFile), "utf8");
+assert.equal(
+  constantsSource,
+  execFileSync("git", ["show", `${base}:${constantsFile}`], { encoding: "utf8" }),
+);
+const constants = transformSync(constantsSource, { filename: path.join(root, constantsFile) });
+await writeFile(path.join(temporary, "constants.js"), constants.code);
+fingerprints[constantsFile] = createHash("sha256").update(constantsSource).digest("hex");
+const { processStylexRules } = require("@stylexjs/babel-plugin");
+const styles = {};
 for (const variant of ["baseline", "candidate"]) {
+  const rules = [...constants.metadata.stylex];
   for (const control of ["button", "label"]) {
     const file = `src/components/ui/${control}.tsx`;
     const source =
@@ -50,12 +61,18 @@ for (const variant of ["baseline", "candidate"]) {
         : await readFile(path.join(root, file), "utf8");
     fingerprints[`${variant}/${file}`] = createHash("sha256").update(source).digest("hex");
     const compiled = transformSync(source, { filename: path.join(root, file) });
-    styles.push(...compiled.metadata.stylex.map((rule) => rule[1].ltr));
+    rules.push(...compiled.metadata.stylex);
     await writeFile(path.join(temporary, `${variant}-${control}.js`), compiled.code);
   }
+  styles[variant] = processStylexRules(rules, { useLayers: false });
 }
+assert.equal(styles.candidate, styles.baseline, "production-processed control CSS must match");
 const globals = await readFile(path.join(root, "src/app/globals.css"), "utf8");
-await writeFile(path.join(temporary, "constants.js"), "module.exports = {};");
+assert.equal(
+  globals,
+  execFileSync("git", ["show", `${base}:src/app/globals.css`], { encoding: "utf8" }),
+);
+const css = globals.replace("@stylex;", styles.baseline);
 const browser = await chromium.launch({
   executablePath: process.env.CHROME_PATH || "/usr/bin/google-chrome",
   headless: true,
@@ -204,7 +221,7 @@ try {
       }),
     );
     await page.goto("https://theme-bench.invalid/");
-    await page.addStyleTag({ content: globals + styles.join("\n") });
+    await page.addStyleTag({ content: css });
     await page.addScriptTag({ content: bundle });
     await page.waitForFunction(() => window.ready);
     pages[variant] = page;
@@ -266,6 +283,7 @@ try {
       );
     await page.evaluate(() => window.unmountControls());
     // Compare pixels as well as DOM with unchanged CSS at both viewport sizes.
+    await page.bringToFront();
     await page.evaluate(() => {
       window.mount();
       window.mountControls(3);
@@ -288,25 +306,37 @@ try {
           }
           if (state === "hover") await button.hover();
           await button.evaluate(async (element) => {
+            await new Promise((resolve) => requestAnimationFrame(resolve));
             await Promise.all(element.getAnimations().map((animation) => animation.finished));
           });
           const key = `${width}/${theme}/${state}`;
-          const actualState = await button.evaluate((element) => {
+          const actualState = await button.evaluate((element, hover) => {
             const style = getComputedStyle(element);
+            const rootStyle = getComputedStyle(document.documentElement);
+            // Resolve pending style changes before querying pseudo classes.
+            const backgroundColor = style.backgroundColor;
+            const boxShadow = style.boxShadow;
+            const opacity = style.opacity;
             return {
               focused: element === document.activeElement,
               focusVisible: element.matches(":focus-visible"),
-              hovered: element.matches(":hover"),
+              reportedHover: element.matches(":hover"),
               disabled: element.disabled,
-              backgroundColor: style.backgroundColor,
-              boxShadow: style.boxShadow,
-              opacity: style.opacity,
+              backgroundColor,
+              expectedBackground: rootStyle
+                .getPropertyValue(hover ? "--accent" : "--background")
+                .trim(),
+              boxShadow,
+              opacity,
             };
-          });
+          }, state === "hover");
           assert.equal(actualState.focused, state === "focus", key);
           assert.equal(actualState.focusVisible, state === "focus", key);
-          assert.equal(actualState.hovered, state === "hover", key);
+          // Chromium can report :hover=false while painting the hover color.
+          // Verify the resolved palette, so a missing hover effect still fails.
+          assert.equal(actualState.backgroundColor, actualState.expectedBackground, key);
           assert.equal(actualState.disabled, state === "disabled", key);
+          assert.equal(actualState.opacity, state === "disabled" ? "0.5" : "1", key);
           if (variant === "baseline") visualStates.set(key, actualState);
           else assert.deepEqual(actualState, visualStates.get(key), `control state parity: ${key}`);
           const screenshot = await page.screenshot({ animations: "disabled" });
@@ -437,6 +467,7 @@ try {
         warmups: 4,
         visualChecks: Object.fromEntries(visualChecks),
         visualStates: Object.fromEntries(visualStates),
+        cssHash: createHash("sha256").update(css).digest("hex"),
         order: "alternating paired samples; same browser, separate pages",
         results,
       },
