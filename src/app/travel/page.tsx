@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import data from "@/data/travel.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
 import { Phone } from "lucide-react";
@@ -112,12 +112,14 @@ function ListingCard({ listing, sectionTitle }: { listing: Listing; sectionTitle
           <div {...stylex.props(styles.notes)}>{renderNotesWithLinks(listing.notes)}</div>
         )}
         <div {...stylex.props(styles.actions)}>
-          <Button asChild variant="secondary" size="sm">
-            <a href={`tel:${listing.phones[0]?.replace(/\s+/g, "") ?? ""}`}>
-              <Phone {...stylex.props(styles.icon)} />
-              Call Now
-            </a>
-          </Button>
+          <ButtonLink
+            variant="secondary"
+            size="sm"
+            href={`tel:${listing.phones[0]?.replace(/\s+/g, "") ?? ""}`}
+          >
+            <Phone {...stylex.props(styles.icon)} />
+            Call Now
+          </ButtonLink>
           <DownloadVCardButton
             size="sm"
             filename={listing.name}

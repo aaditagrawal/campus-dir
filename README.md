@@ -66,7 +66,7 @@ instructions instead.
 
 ## Tech
 
-Next.js 16 (App Router, static export), React 19, TypeScript, StyleX, Radix UI, and MiniSearch.
+Next.js 16 (App Router, static export), React 19, TypeScript, StyleX, native controls, and MiniSearch.
 
 ## Contributing
 

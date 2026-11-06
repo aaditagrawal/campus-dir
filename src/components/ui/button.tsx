@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import Link from "next/link";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
@@ -9,7 +9,13 @@ type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghos
 type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 type ButtonProps = Omit<React.ComponentProps<"button">, "className" | "style"> & {
-  asChild?: boolean;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  xstyle?: StyleXStyles;
+};
+
+type ButtonLinkProps = Omit<React.ComponentProps<"a">, "className" | "style" | "href"> & {
+  href: string;
   size?: ButtonSize;
   variant?: ButtonVariant;
   xstyle?: StyleXStyles;
@@ -111,28 +117,43 @@ const sizeStyles = {
   icon: styles.sizeIcon,
 };
 
-function Button({
+// At most 24 default combinations; custom styles are computed per call.
+const defaultButtonProps = new Map<string, ReturnType<typeof stylex.props>>();
+
+function buttonProps(variant: ButtonVariant, size: ButtonSize, xstyle?: StyleXStyles) {
+  let key: string | undefined;
+  if (xstyle === undefined) {
+    key = `${variant}/${size}`;
+    const cached = defaultButtonProps.get(key);
+    if (cached) return cached;
+  }
+  const props = stylex.props(
+    stylex.defaultMarker(),
+    styles.root,
+    variantStyles[variant],
+    sizeStyles[size],
+    xstyle,
+  );
+  if (key !== undefined) defaultButtonProps.set(key, props);
+  return props;
+}
+
+function Button({ variant = "default", size = "default", xstyle, ...props }: ButtonProps) {
+  return <button data-slot="button" {...buttonProps(variant, size, xstyle)} {...props} />;
+}
+
+function ButtonLink({
   variant = "default",
   size = "default",
-  asChild = false,
   xstyle,
+  href,
   ...props
-}: ButtonProps) {
-  const Comp = asChild ? Slot : "button";
+}: ButtonLinkProps) {
+  const Component = href.startsWith("/") ? Link : "a";
   return (
-    <Comp
-      data-slot="button"
-      {...stylex.props(
-        stylex.defaultMarker(),
-        styles.root,
-        variantStyles[variant],
-        sizeStyles[size],
-        xstyle,
-      )}
-      {...props}
-    />
+    <Component href={href} data-slot="button" {...buttonProps(variant, size, xstyle)} {...props} />
   );
 }
 
-export { Button, styles as buttonStyles };
-export type { ButtonProps, ButtonSize, ButtonVariant };
+export { Button, ButtonLink, styles as buttonStyles };
+export type { ButtonProps, ButtonLinkProps, ButtonSize, ButtonVariant };
