@@ -117,14 +117,25 @@ const sizeStyles = {
   icon: styles.sizeIcon,
 };
 
+// At most 24 default combinations; custom styles are computed per call.
+const defaultButtonProps = new Map<string, ReturnType<typeof stylex.props>>();
+
 function buttonProps(variant: ButtonVariant, size: ButtonSize, xstyle?: StyleXStyles) {
-  return stylex.props(
+  let key: string | undefined;
+  if (xstyle === undefined) {
+    key = `${variant}/${size}`;
+    const cached = defaultButtonProps.get(key);
+    if (cached) return cached;
+  }
+  const props = stylex.props(
     stylex.defaultMarker(),
     styles.root,
     variantStyles[variant],
     sizeStyles[size],
     xstyle,
   );
+  if (key !== undefined) defaultButtonProps.set(key, props);
+  return props;
 }
 
 function Button({ variant = "default", size = "default", xstyle, ...props }: ButtonProps) {

@@ -182,15 +182,40 @@ try {
     "src/components/ui/label.tsx",
     readFileSync(join(root, "src/components/ui/label.tsx"), "utf8"),
   ).Label;
-  const beforeButton = compile(
+  const beforeControls = compile(
     "src/components/ui/button.tsx",
     startingSource("src/components/ui/button.tsx"),
-  ).Button;
+  );
+  const beforeButton = beforeControls.Button;
   const { ButtonLink: afterLink, Button: afterButton } = compile(
     "src/components/ui/button.tsx",
     readFileSync(join(root, "src/components/ui/button.tsx"), "utf8"),
   );
   const h = React.createElement;
+  for (const variant of ["default", "destructive", "outline", "secondary", "ghost", "link"]) {
+    for (const size of ["default", "sm", "lg", "icon"]) {
+      for (const xstyle of [undefined, beforeControls.buttonStyles.sizeLg, undefined]) {
+        assert.equal(
+          renderToStaticMarkup(h(beforeButton, { variant, size, xstyle }, "Save")),
+          renderToStaticMarkup(h(afterButton, { variant, size, xstyle }, "Save")),
+          `button ${variant}/${size}: cached/custom/cached`,
+        );
+        assert.equal(
+          renderToStaticMarkup(
+            h(
+              beforeButton,
+              { variant, size, xstyle, asChild: true },
+              h("a", { href: "tel:9876543210" }, "Call"),
+            ),
+          ),
+          renderToStaticMarkup(
+            h(afterLink, { variant, size, xstyle, href: "tel:9876543210" }, "Call"),
+          ),
+          `link ${variant}/${size}: cached/custom/cached`,
+        );
+      }
+    }
+  }
   for (const [count, iterations] of [
     [1, 1000],
     [24, 50],
@@ -206,7 +231,7 @@ try {
           ),
         ),
       );
-    const renderButtons = (Component) =>
+    const renderButtons = (Component, xstyle) =>
       renderToStaticMarkup(
         h(
           "div",
@@ -214,13 +239,13 @@ try {
           Array.from({ length: count }, (_, i) =>
             h(
               Component,
-              { variant: "outline", size: "sm", key: i, onClick() {} },
+              { variant: "outline", size: "sm", xstyle, key: i, onClick() {} },
               "Download contact",
             ),
           ),
         ),
       );
-    const beforeLinks = () =>
+    const beforeLinks = (xstyle) =>
       renderToStaticMarkup(
         h(
           "div",
@@ -228,13 +253,13 @@ try {
           Array.from({ length: count }, (_, i) =>
             h(
               beforeButton,
-              { asChild: true, variant: "secondary", size: "sm", key: i },
+              { asChild: true, variant: "secondary", size: "sm", xstyle, key: i },
               h("a", { href: `tel:987654321${i % 10}` }, "Call Now"),
             ),
           ),
         ),
       );
-    const afterLinks = () =>
+    const afterLinks = (xstyle) =>
       renderToStaticMarkup(
         h(
           "div",
@@ -242,7 +267,7 @@ try {
           Array.from({ length: count }, (_, i) =>
             h(
               afterLink,
-              { variant: "secondary", size: "sm", href: `tel:987654321${i % 10}`, key: i },
+              { variant: "secondary", size: "sm", xstyle, href: `tel:987654321${i % 10}`, key: i },
               "Call Now",
             ),
           ),
@@ -264,6 +289,23 @@ try {
       () => renderButtons(afterButton),
     );
     compare(`button-link/render-${count}`, iterations, beforeLinks, afterLinks);
+    // A real compiled style override exercises the uncached/custom path.
+    const override = beforeControls.buttonStyles.sizeLg;
+    assert.equal(renderButtons(beforeButton, override), renderButtons(afterButton, override));
+    assert.equal(beforeLinks(override), afterLinks(override));
+    assert.equal(renderButtons(beforeButton), renderButtons(afterButton));
+    compare(
+      `button-custom/render-${count}`,
+      iterations,
+      () => renderButtons(beforeButton, override),
+      () => renderButtons(afterButton, override),
+    );
+    compare(
+      `button-link-custom/render-${count}`,
+      iterations,
+      () => beforeLinks(override),
+      () => afterLinks(override),
+    );
   }
   process.stdout.write(
     JSON.stringify(
