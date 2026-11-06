@@ -71,6 +71,7 @@ process.once("SIGTERM", stop);
 try {
   const pages = {};
   const visualChecks = new Map();
+  const visualStates = new Map();
   const pageErrors = [];
   for (const variant of ["baseline", "candidate"]) {
     const provider =
@@ -286,7 +287,28 @@ try {
             await page.keyboard.press("Shift+Tab");
           }
           if (state === "hover") await button.hover();
+          await button.evaluate(async (element) => {
+            await Promise.all(element.getAnimations().map((animation) => animation.finished));
+          });
           const key = `${width}/${theme}/${state}`;
+          const actualState = await button.evaluate((element) => {
+            const style = getComputedStyle(element);
+            return {
+              focused: element === document.activeElement,
+              focusVisible: element.matches(":focus-visible"),
+              hovered: element.matches(":hover"),
+              disabled: element.disabled,
+              backgroundColor: style.backgroundColor,
+              boxShadow: style.boxShadow,
+              opacity: style.opacity,
+            };
+          });
+          assert.equal(actualState.focused, state === "focus", key);
+          assert.equal(actualState.focusVisible, state === "focus", key);
+          assert.equal(actualState.hovered, state === "hover", key);
+          assert.equal(actualState.disabled, state === "disabled", key);
+          if (variant === "baseline") visualStates.set(key, actualState);
+          else assert.deepEqual(actualState, visualStates.get(key), `control state parity: ${key}`);
           const screenshot = await page.screenshot({ animations: "disabled" });
           const digest = createHash("sha256").update(screenshot).digest("hex");
           if (variant === "baseline") visualChecks.set(key, digest);
@@ -326,9 +348,16 @@ try {
       for (const variant of round % 2 === 0
         ? ["baseline", "candidate"]
         : ["candidate", "baseline"]) {
+        await pages[variant].bringToFront();
         const elapsed = await pages[variant]
           .evaluate(
-            ({ workload, count }) => {
+            async ({ workload, count }) => {
+              // Equalize active-tab state after keyboard and screenshot checks.
+              // Browser focus/visibility and frame settling are outside timing.
+              await new Promise((resolve) => requestAnimationFrame(resolve));
+              if (document.visibilityState !== "visible" || !document.hasFocus()) {
+                throw new Error("Each measured page must be visible and focused");
+              }
               localStorage.setItem("theme", workload === "prepaint-saved" ? "dark" : "system");
               const controls = Number(workload.split("-")[1]);
               if (
@@ -407,6 +436,7 @@ try {
           "Actual mounted providers: prepaint, selection, persistence, storage removal, system changes, font classes. Mixed control DOM equality, label focus, keyboard button activation, native tel/internal Next links. Original compiled CSS and forced layout included.",
         warmups: 4,
         visualChecks: Object.fromEntries(visualChecks),
+        visualStates: Object.fromEntries(visualStates),
         order: "alternating paired samples; same browser, separate pages",
         results,
       },
