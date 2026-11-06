@@ -33,6 +33,11 @@ const document = {
     classList: {
       add: (...values: string[]) => values.forEach((value) => classes.add(value)),
       remove: (...values: string[]) => values.forEach((value) => classes.delete(value)),
+      replace: (previous: string, next: string) => {
+        if (!classes.delete(previous)) return false;
+        classes.add(next);
+        return true;
+      },
     },
     style: { colorScheme: "" },
   },
@@ -104,6 +109,17 @@ test("system preference changes, explicit selection, cross-tab removal, and clea
   assert.equal(getTheme()?.resolvedTheme, "light");
   assert.ok(calls >= 4);
   stop();
+});
+
+test("theme changes repair conflicting classes and preserve unrelated classes", () => {
+  classes.add("light");
+  classes.add("dark");
+  applyTheme("dark");
+  assert.deepEqual([...classes].sort(), ["dark", "font-sans"]);
+  applyTheme("dark");
+  assert.deepEqual([...classes].sort(), ["dark", "font-sans"]);
+  applyTheme("light");
+  assert.deepEqual([...classes].sort(), ["font-sans", "light"]);
 });
 
 test("multiple consumers retain shared listeners until the last unsubscribe", () => {

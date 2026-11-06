@@ -3,7 +3,7 @@
  * Build preparation uses Bun; measurements run in one pinned Chromium process.
  * BASELINE_THEMES points at a temporary/cache next-themes 0.4.6 installation.
  * PLAYWRIGHT_MODULE points at a temporary/cache playwright-core ESM entry.
- * NODE_ENV=production bun scripts/perf/theme.mjs [rounds=19]
+ * NODE_ENV=production bun scripts/perf/theme.mjs [rounds=61]
  */
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -22,7 +22,7 @@ assert.ok(baseline, "Set BASELINE_THEMES to a next-themes 0.4.6 package director
 assert.equal(JSON.parse(await readFile(path.join(baseline, "package.json"))).version, "0.4.6");
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || "playwright-core");
 const temporary = await mkdtemp(path.join(tmpdir(), "campus-theme-perf-"));
-const rounds = Number(process.argv[2] || 19);
+const rounds = Number(process.argv[2] || 61);
 assert.ok(rounds >= 9);
 const baselineProvider = execFileSync(
   "git",
@@ -70,6 +70,8 @@ process.once("SIGINT", stop);
 process.once("SIGTERM", stop);
 try {
   const pages = {};
+  const visualChecks = new Map();
+  const pageErrors = [];
   for (const variant of ["baseline", "candidate"]) {
     const provider =
       variant === "baseline"
@@ -193,7 +195,7 @@ try {
     const bundle = await result.outputs[0].text();
     const page = await browser.newPage({ colorScheme: "light" });
     page.setDefaultTimeout(15000);
-    page.on("pageerror", (error) => console.error(variant, error.message));
+    page.on("pageerror", (error) => pageErrors.push(`${variant}: ${error.message}`));
     await page.route("https://theme-bench.invalid/**", (route) =>
       route.fulfill({
         contentType: "text/html",
@@ -234,6 +236,8 @@ try {
     const label = page.locator("label").first();
     await label.click();
     await page.waitForFunction(() => document.activeElement.id === "field-0");
+    await label.dblclick();
+    assert.equal(await page.evaluate(() => window.getSelection().toString()), "");
     await page.locator("button").first().focus();
     await page.keyboard.press("Enter");
     assert.equal(await page.evaluate(() => window.controlClicks), 1);
@@ -260,6 +264,41 @@ try {
         "actual DOM parity for form, button, tel and internal Next links",
       );
     await page.evaluate(() => window.unmountControls());
+    // Compare pixels as well as DOM with unchanged CSS at both viewport sizes.
+    await page.evaluate(() => {
+      window.mount();
+      window.mountControls(3);
+    });
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ width, height: 800 });
+      for (const theme of ["light", "dark"]) {
+        await page.evaluate((value) => window.toggle(value), theme);
+        for (const state of ["normal", "focus", "hover", "disabled"]) {
+          const button = page.locator("button").first();
+          await page.evaluate(() => document.activeElement?.blur());
+          await page.mouse.move(0, 0);
+          await button.evaluate((element, disabled) => {
+            element.disabled = disabled;
+          }, state === "disabled");
+          if (state === "focus") {
+            await button.focus();
+            await page.keyboard.press("Tab");
+            await page.keyboard.press("Shift+Tab");
+          }
+          if (state === "hover") await button.hover();
+          const key = `${width}/${theme}/${state}`;
+          const screenshot = await page.screenshot({ animations: "disabled" });
+          const digest = createHash("sha256").update(screenshot).digest("hex");
+          if (variant === "baseline") visualChecks.set(key, digest);
+          else assert.equal(digest, visualChecks.get(key), `pixel parity: ${key}`);
+        }
+      }
+    }
+    await page.evaluate(() => {
+      window.unmountControls();
+      window.unmount();
+    });
+    await page.setViewportSize({ width: 1280, height: 720 });
   }
   const results = [];
   for (const workload of [
@@ -352,8 +391,10 @@ try {
       units: "us/op",
       baseline: summarize(samples.baseline),
       candidate: summarize(samples.candidate),
+      raw: samples,
     });
   }
+  assert.deepEqual(pageErrors, [], "providers and controls must not emit browser errors");
   console.log(
     JSON.stringify(
       {
@@ -365,6 +406,7 @@ try {
         correctness:
           "Actual mounted providers: prepaint, selection, persistence, storage removal, system changes, font classes. Mixed control DOM equality, label focus, keyboard button activation, native tel/internal Next links. Original compiled CSS and forced layout included.",
         warmups: 4,
+        visualChecks: Object.fromEntries(visualChecks),
         order: "alternating paired samples; same browser, separate pages",
         results,
       },

@@ -23,8 +23,10 @@ export function applyTheme(preference?: Theme, fallback: Theme = "system"): Them
   }
   const resolvedTheme = theme === "system" ? (systemDark ? "dark" : "light") : theme;
   const root = document.documentElement;
-  root.classList.remove("light", "dark");
-  root.classList.add(resolvedTheme);
+  // Change the theme in one mutation while preserving unrelated classes.
+  if (!root.classList.replace(resolvedTheme === "dark" ? "light" : "dark", resolvedTheme)) {
+    root.classList.add(resolvedTheme);
+  }
   root.style.colorScheme = resolvedTheme;
   return { theme, resolvedTheme };
 }
