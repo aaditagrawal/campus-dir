@@ -143,8 +143,21 @@ function buttonProps(
   return attributes;
 }
 
-function Button({ variant, size, xstyle, ...props }: ButtonProps) {
-  return <button {...buttonProps(variant, size, xstyle)} {...props} />;
+function Button({ variant = "default", size = "default", xstyle, ...props }: ButtonProps) {
+  if (xstyle === undefined) return <button {...buttonProps(variant, size)} {...props} />;
+  return (
+    <button
+      data-slot="button"
+      {...stylex.props(
+        stylex.defaultMarker(),
+        styles.root,
+        variantStyles[variant],
+        sizeStyles[size],
+        xstyle,
+      )}
+      {...props}
+    />
+  );
 }
 
 export { Button, buttonProps };

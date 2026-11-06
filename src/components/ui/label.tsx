@@ -20,8 +20,16 @@ const styles = stylex.create({
   },
 });
 
+const defaultAttributes = stylex.props(styles.label);
+
 function Label({ xstyle, ...props }: LabelProps) {
-  return <label data-slot="label" {...stylex.props(styles.label, xstyle)} {...props} />;
+  return (
+    <label
+      data-slot="label"
+      {...(xstyle === undefined ? defaultAttributes : stylex.props(styles.label, xstyle))}
+      {...props}
+    />
+  );
 }
 
 export { Label };

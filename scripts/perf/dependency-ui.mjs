@@ -13,6 +13,7 @@ import { transformSync } from "@babel/core";
 import stylexPlugin from "@stylexjs/babel-plugin";
 
 const base = "e3b74374ce6f439eee044b2eefbd7a09f42c8ee3";
+const published = "be3b11d1974f8bbf36061cb4220720527e856549";
 assert.equal(process.env.NODE_ENV, "production", "benchmark React with NODE_ENV=production");
 const root = process.cwd();
 const fixture = path.join(
@@ -31,6 +32,7 @@ if (process.argv.includes("--setup")) {
         "@radix-ui/react-slot": "1.5.0",
         "@stylexjs/stylex": "0.19.1",
         jsdom: "30.1.3",
+        "next-themes": "0.4.6",
         react: "19.3.1",
         "react-dom": "19.3.1",
       },
@@ -49,13 +51,19 @@ const { renderToStaticMarkup } = fixtureRequire("react-dom/server");
 const { JSDOM } = fixtureRequire("jsdom");
 const h = React.createElement;
 
-function compile(file, baseline = false, suffix = "") {
+function compile(file, baseline = false, suffix = "", revision = base) {
   let source = baseline
-    ? execFileSync("git", ["show", `${base}:${file}`], { encoding: "utf8" })
+    ? execFileSync("git", ["show", `${revision}:${file}`], { encoding: "utf8" })
     : readFileSync(file, "utf8");
   if (file.endsWith("ui/button.tsx")) {
     source +=
       '\nconst benchmarkStyles = stylex.create({ override: { width: "100%", color: "red", fontSize: "1rem" } }); export const benchmarkOverride = benchmarkStyles.override;';
+    source +=
+      '\nconst benchmarkActual = stylex.create({ copy: { height: "1.75rem", paddingInline: "0.5rem", cursor: "pointer" }, favorite: { position: "relative", zIndex: 20, cursor: "pointer", transitionProperty: "color, background-color, border-color, box-shadow, transform, opacity", transitionDuration: "200ms" }, small: { width: "1.75rem", height: "1.75rem" }, pending: { cursor: "not-allowed", opacity: 0.5 } }); export const benchmarkCopyButton = benchmarkActual.copy; export const benchmarkFavorite = benchmarkActual.favorite; export const benchmarkFavoriteSize = benchmarkActual.small; export const benchmarkPending = benchmarkActual.pending;';
+  }
+  if (file.endsWith("ui/label.tsx")) {
+    source +=
+      '\nconst benchmarkFields = stylex.create({ field: { display: "block", marginBottom: "0.5rem" }, large: { display: "block", marginBottom: "0.75rem" } }); export const benchmarkFieldLabel = benchmarkFields.field; export const benchmarkFieldLabelLarge = benchmarkFields.large;';
   }
   const filename = path.join(root, file);
   const javascript = new Bun.Transpiler({
@@ -89,6 +97,7 @@ function compile(file, baseline = false, suffix = "") {
     '"@/styles/constants.stylex"',
     '"./candidate-constants.stylex.mjs"',
   );
+  code = code.replaceAll('"@/lib/theme"', '"./candidate-theme.mjs"');
   writeFileSync(output, code);
   return import(pathToFileURL(output).href);
 }
@@ -96,10 +105,76 @@ function compile(file, baseline = false, suffix = "") {
 await compile("src/styles/constants.stylex.ts");
 const baselineButton = await compile("src/components/ui/button.tsx", true);
 const candidateButton = await compile("src/components/ui/button.tsx");
+const publishedButton = await compile(
+  "src/components/ui/button.tsx",
+  true,
+  "-published",
+  published,
+);
 const baselineBadge = await compile("src/components/ui/badge.tsx", true);
 const candidateBadge = await compile("src/components/ui/badge.tsx");
 const baselineLabel = await compile("src/components/ui/label.tsx", true);
 const candidateLabel = await compile("src/components/ui/label.tsx");
+const publishedLabel = await compile("src/components/ui/label.tsx", true, "-published", published);
+await compile("src/lib/theme.ts");
+const baselineProvider = await compile("src/components/theme-provider.tsx", true);
+const candidateProvider = await compile("src/components/theme-provider.tsx");
+for (const styles of [
+  (button) => button.benchmarkCopyButton,
+  (button) => [button.benchmarkFavorite, button.benchmarkFavoriteSize, undefined],
+  (button) => [
+    button.benchmarkFavorite,
+    button.benchmarkFavoriteSize,
+    button.benchmarkPending,
+    undefined,
+  ],
+]) {
+  for (const disabled of [false, true]) {
+    assert.equal(
+      renderToStaticMarkup(
+        h(
+          baselineButton.Button,
+          { variant: "ghost", size: "icon", xstyle: styles(baselineButton), disabled },
+          "Favorite",
+        ),
+      ),
+      renderToStaticMarkup(
+        h(
+          candidateButton.Button,
+          { variant: "ghost", size: "icon", xstyle: styles(candidateButton), disabled },
+          "Favorite",
+        ),
+      ),
+    );
+  }
+}
+assert.equal(
+  renderToStaticMarkup(h(baselineButton.Button, null, "Default")),
+  renderToStaticMarkup(h(candidateButton.Button, null, "Default")),
+);
+const mailSource = execFileSync("git", ["show", `${base}:src/app/tools/mail-to-warden/page.tsx`], {
+  encoding: "utf8",
+});
+assert.ok(mailSource.includes('fieldLabel: { display: "block", marginBottom: "0.5rem" }'));
+assert.ok(mailSource.includes('fieldLabelLarge: { display: "block", marginBottom: "0.75rem" }'));
+for (const name of ["benchmarkFieldLabel", "benchmarkFieldLabelLarge"]) {
+  assert.equal(
+    renderToStaticMarkup(
+      h(
+        baselineLabel.Label,
+        { htmlFor: "studentName", xstyle: baselineLabel[name] },
+        "Student name",
+      ),
+    ),
+    renderToStaticMarkup(
+      h(
+        candidateLabel.Label,
+        { htmlFor: "studentName", xstyle: candidateLabel[name] },
+        "Student name",
+      ),
+    ),
+  );
+}
 
 function uiTree(button, badge, label, owned) {
   const links = ["/restaurants", "/emergency", "/hostels", "tel:08202920000"];
@@ -229,7 +304,20 @@ function largeTree(button, badge, label, owned) {
                 h("a", { href: `tel:${phone}` }, "Call now"),
               ),
         ),
-        h(button.Button, { variant: "outline", size: "sm" }, "Download contact"),
+        h(
+          button.Button,
+          {
+            variant: "ghost",
+            size: "icon",
+            xstyle: [button.benchmarkFavorite, button.benchmarkFavoriteSize, undefined],
+          },
+          "Favorite",
+        ),
+        h(
+          button.Button,
+          { variant: "outline", size: "sm", xstyle: button.benchmarkCopyButton },
+          "Download contact",
+        ),
       ),
     ),
     h(
@@ -239,10 +327,11 @@ function largeTree(button, badge, label, owned) {
         h(
           "div",
           { key: field },
-          h(label.Label, { htmlFor: field }, field),
+          h(label.Label, { htmlFor: field, xstyle: label.benchmarkFieldLabel }, field),
           h("input", { id: field }),
         ),
       ),
+      h(label.Label, { xstyle: label.benchmarkFieldLabelLarge }, "Select Warden(s)"),
       h(button.Button, { type: "submit" }, "Generate mail"),
     ),
   );
@@ -261,16 +350,30 @@ const cases = [];
 const environment = { cpu: cpus()[0].model, cores: cpus().length, load: loadavg() };
 
 function summary(values) {
-  values.sort((a, b) => a - b);
+  const sorted = values.toSorted((a, b) => a - b);
   return {
-    median_us: values[Math.floor(values.length / 2)],
-    p95_us: values[Math.ceil(values.length * 0.95) - 1],
-    min_us: values[0],
-    max_us: values.at(-1),
+    median_us: sorted[Math.floor(sorted.length / 2)],
+    p95_us: sorted[Math.ceil(sorted.length * 0.95) - 1],
+    min_us: sorted[0],
+    max_us: sorted.at(-1),
   };
 }
 
-function measure(name, baseline, candidate, iterations = 200, rounds = 25) {
+function measure(name, baseline, candidate, iterations = 200, rounds = 25, baselineRef = base) {
+  const calibrationStart = performance.now();
+  // Keep identical operation counts. Tiny sub-millisecond samples expose GC/JIT
+  // phase rather than throughput, so calibrate both sides to at least 50ms.
+  for (;;) {
+    const durations = [];
+    for (const run of [baseline, candidate]) {
+      const start = performance.now();
+      for (let i = 0; i < iterations; i++) run();
+      durations.push(performance.now() - start);
+    }
+    if (Math.min(...durations) >= 50) break;
+    iterations *= 2;
+  }
+  const calibrationMs = performance.now() - calibrationStart;
   for (let warmup = 0; warmup < 5; warmup++) {
     for (let i = 0; i < iterations; i++) {
       baseline();
@@ -294,12 +397,68 @@ function measure(name, baseline, candidate, iterations = 200, rounds = 25) {
     ...summary(times),
     cpu: summary(cpuSamples[side]),
   }));
-  cases.push({ name, iterations, rounds, baseline: stats[0], candidate: stats[1] });
+  cases.push({
+    name,
+    baseline_ref: baselineRef,
+    iterations,
+    rounds,
+    calibration_ms: calibrationMs,
+    wall_samples_us: samples,
+    cpu_samples_us: cpuSamples,
+    baseline: stats[0],
+    candidate: stats[1],
+  });
 }
 measure(
-  "form label SSR",
+  "default label API SSR",
   () => renderToStaticMarkup(h(baselineLabel.Label, { htmlFor: "name" }, "Student name")),
   () => renderToStaticMarkup(h(candidateLabel.Label, { htmlFor: "name" }, "Student name")),
+);
+measure(
+  "cached label vs published native label SSR",
+  () => renderToStaticMarkup(h(publishedLabel.Label, { htmlFor: "name" }, "Student name")),
+  () => renderToStaticMarkup(h(candidateLabel.Label, { htmlFor: "name" }, "Student name")),
+  200,
+  25,
+  published,
+);
+measure(
+  "mail form fieldLabel SSR",
+  () =>
+    renderToStaticMarkup(
+      h(
+        baselineLabel.Label,
+        { htmlFor: "studentName", xstyle: baselineLabel.benchmarkFieldLabel },
+        "Student name",
+      ),
+    ),
+  () =>
+    renderToStaticMarkup(
+      h(
+        candidateLabel.Label,
+        { htmlFor: "studentName", xstyle: candidateLabel.benchmarkFieldLabel },
+        "Student name",
+      ),
+    ),
+);
+measure(
+  "mail form fieldLabelLarge SSR",
+  () =>
+    renderToStaticMarkup(
+      h(
+        baselineLabel.Label,
+        { htmlFor: "studentName", xstyle: baselineLabel.benchmarkFieldLabelLarge },
+        "Student name",
+      ),
+    ),
+  () =>
+    renderToStaticMarkup(
+      h(
+        candidateLabel.Label,
+        { htmlFor: "studentName", xstyle: candidateLabel.benchmarkFieldLabelLarge },
+        "Student name",
+      ),
+    ),
 );
 measure(
   "ordinary native button SSR",
@@ -331,6 +490,67 @@ measure(
       ),
     ),
 );
+for (const [name, initial, reference] of [
+  ["original", baselineButton, base],
+  ["published", publishedButton, published],
+]) {
+  measure(
+    `native Button object override vs ${name} SSR`,
+    () =>
+      renderToStaticMarkup(
+        h(
+          initial.Button,
+          { variant: "ghost", size: "sm", xstyle: initial.benchmarkCopyButton },
+          "Copy",
+        ),
+      ),
+    () =>
+      renderToStaticMarkup(
+        h(
+          candidateButton.Button,
+          { variant: "ghost", size: "sm", xstyle: candidateButton.benchmarkCopyButton },
+          "Copy",
+        ),
+      ),
+    200,
+    25,
+    reference,
+  );
+  measure(
+    `native Button fresh override array vs ${name} SSR`,
+    () =>
+      renderToStaticMarkup(
+        h(
+          initial.Button,
+          {
+            variant: "ghost",
+            size: "icon",
+            xstyle: [initial.benchmarkFavorite, initial.benchmarkFavoriteSize, undefined],
+          },
+          "Favorite",
+        ),
+      ),
+    () =>
+      renderToStaticMarkup(
+        h(
+          candidateButton.Button,
+          {
+            variant: "ghost",
+            size: "icon",
+            xstyle: [
+              candidateButton.benchmarkFavorite,
+              candidateButton.benchmarkFavoriteSize,
+              undefined,
+            ],
+          },
+          "Favorite",
+        ),
+      ),
+    200,
+    25,
+    reference,
+  );
+}
 measure(
   "directory controls SSR",
   () => renderToStaticMarkup(baseTree()),
@@ -342,11 +562,24 @@ measure(
   () => renderToStaticMarkup(candidateLargeTree()),
   30,
 );
+measure(
+  "theme provider SSR",
+  () =>
+    renderToStaticMarkup(
+      h(
+        baselineProvider.ThemeProvider,
+        { attribute: "class", defaultTheme: "system", enableSystem: true },
+        h("div", null, "Directory"),
+      ),
+    ),
+  () => renderToStaticMarkup(h(candidateProvider.ThemeProvider, null, h("div", null, "Directory"))),
+);
 
 console.log(
   JSON.stringify(
     {
       base,
+      published,
       runtime: process.version,
       node_env: process.env.NODE_ENV,
       bun: Bun.version,
@@ -354,8 +587,10 @@ console.log(
       environment,
       corpus: { restaurants: restaurants.length, form_fields: fields.length },
       correctness:
-        "Exact markup/classes, native label association, all variant/size/override controls and full restaurant/mail form SSR pass; unchanged next-themes retained.",
+        "Exact markup/classes, native label association, all variant/size/override controls and full restaurant/mail form SSR pass.",
       warmup_rounds: 5,
+      statistic:
+        "Median/p95/min/max of batch-average microseconds per render; all allocations/GC retained, identical calibrated operation counts on both sides.",
       cases,
     },
     null,
