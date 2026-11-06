@@ -362,17 +362,21 @@ try {
     "controls-1",
     "controls-24",
     "controls-240",
+    "controls-update-1",
+    "controls-update-24",
   ]) {
-    const controls = Number(workload.split("-")[1]);
-    const count = workload.startsWith("prepaint")
-      ? 500
-      : workload.startsWith("controls")
-        ? Math.max(2, Math.floor(100 / controls))
-        : workload === "mount"
-          ? 40
-          : // Bound synchronous selections below React's nested-update limit.
-            // Real user events yield between selections.
-            16;
+    const controls = Number(workload.split("-").at(-1));
+    const count = workload.startsWith("controls-update")
+      ? 100
+      : workload.startsWith("prepaint")
+        ? 500
+        : workload.startsWith("controls")
+          ? Math.max(2, Math.floor(100 / controls))
+          : workload === "mount"
+            ? 40
+            : // Bound synchronous selections below React's nested-update limit.
+              // Real user events yield between selections.
+              16;
     const samples = { baseline: [], candidate: [] };
     for (let round = -4; round < rounds; round++) {
       for (const variant of round % 2 === 0
@@ -389,7 +393,12 @@ try {
                 throw new Error("Each measured page must be visible and focused");
               }
               localStorage.setItem("theme", workload === "prepaint-saved" ? "dark" : "system");
-              const controls = Number(workload.split("-")[1]);
+              const controls = Number(workload.split("-").at(-1));
+              const persistent = workload.startsWith("controls-update");
+              if (persistent) {
+                window.mountControls(controls);
+                window.layoutSink = document.body.offsetHeight;
+              }
               if (
                 !workload.startsWith("controls") &&
                 !workload.startsWith("prepaint") &&
@@ -398,9 +407,14 @@ try {
                 window.mount();
                 window.mountControls(24);
               }
+              const clicksBefore = window.controlClicks;
               const start = performance.now();
               for (let index = 0; index < count; index++) {
-                if (workload.startsWith("controls")) {
+                if (persistent) {
+                  window.updateControls(controls, index + 1);
+                  document.querySelector("button").click();
+                  window.layoutSink = document.body.offsetHeight;
+                } else if (workload.startsWith("controls")) {
                   window.mountControls(controls);
                   window.updateControls(controls, index + 1);
                   document.querySelector("button").click();
@@ -416,6 +430,12 @@ try {
                   window.layoutSink = document.body.offsetHeight;
               }
               const microseconds = ((performance.now() - start) * 1000) / count;
+              if (persistent) {
+                if (window.controlClicks - clicksBefore !== count) {
+                  throw new Error("Every update must retain the button event handler");
+                }
+                window.unmountControls();
+              }
               if (
                 !workload.startsWith("controls") &&
                 !workload.startsWith("prepaint") &&
