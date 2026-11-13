@@ -139,26 +139,111 @@
       {
         "name": "Academic Regulations - 2022 Scheme",
         "description": "Read the published attendance, assessment, examination, and progression rules for the 2022 curriculum scheme.",
-        "url": "https://www.manipal.edu/content/dam/manipal/mu/mit/documents/MIT-Academic%20regulations-2022%20curriculum.pdf",
-        "source": "https://www.manipal.edu/content/dam/manipal/mu/mit/documents/MIT-Academic%20regulations-2022%20curriculum.pdf",
-        "checkedOn": "2026-10-07",
+        "url": "https://evbab.manipal.edu/content/dam/manipal/mu/mit/documents/MIT-Academic%20regulations-2022%20curriculum.pdf",
+        "source": "https://evbab.manipal.edu/content/dam/manipal/mu/mit/documents/MIT-Academic%20regulations-2022%20curriculum.pdf",
+        "checkedOn": "2026-11-13",
         "campus": "MIT Manipal",
         "appliesTo": "2022 curriculum scheme only. Confirm your applicable scheme and later amendments with the Academic Section."
+      },
+      {
+        "name": "Academic Regulations - 2026",
+        "description": "Read BTech attendance, assessment, promotion, backlog, graduation, honours, and branch-change rules.",
+        "url": "https://evbab.manipal.edu/content/dam/manipal/mu/mit/documents/Regulations%202026%20B.Tech.pdf",
+        "source": "https://evbab.manipal.edu/content/dam/manipal/mu/mit/documents/Regulations%202026%20B.Tech.pdf",
+        "checkedOn": "2026-11-13",
+        "campus": "MIT Manipal",
+        "appliesTo": "Published in the MIT UG Academic Handbook 2026-2027. Confirm which regulations apply to your batch with the Academic Section; do not assume these replace the 2022 scheme.",
+        "keywords": ["attendance", "backlogs", "promotion", "honours", "branch change"]
       }
     ]
   },
   {
-    "section": "Scholarships & Study Abroad",
+    "section": "Curriculum & Syllabi",
+    "items": [
+      {
+        "name": "First-Year BTech Syllabus - CS Branches (2026)",
+        "description": "Find first- and second-semester course codes, credits, physics and chemistry cycles, topics, and references for CS branches.",
+        "url": "https://evbab.manipal.edu/content/dam/manipal/mu/mit/documents/First%20year%20CS%202026%20B.Tech.pdf",
+        "source": "https://evbab.manipal.edu/content/dam/manipal/mu/mit/documents/First%20year%20CS%202026%20B.Tech.pdf",
+        "checkedOn": "2026-11-13",
+        "campus": "MIT Manipal",
+        "appliesTo": "Curriculum 2026; common to first-year BTech CS branches. Check your curriculum before using this syllabus for another batch.",
+        "keywords": ["computer science", "course outline", "subjects", "first semester", "second semester"]
+      },
+      {
+        "name": "First-Year BTech Syllabus - Core Branches (2026)",
+        "description": "Find first- and second-semester course codes, credits, physics and chemistry cycles, topics, and references for core branches.",
+        "url": "https://evbab.manipal.edu/content/dam/manipal/mu/mit/documents/First%20year%20Core%202026%20B.Tech.pdf",
+        "source": "https://evbab.manipal.edu/content/dam/manipal/mu/mit/documents/First%20year%20Core%202026%20B.Tech.pdf",
+        "checkedOn": "2026-11-13",
+        "campus": "MIT Manipal",
+        "appliesTo": "Curriculum 2026; common to first-year BTech core branches. This is separate from the CS syllabus; check your curriculum before using it for another batch.",
+        "keywords": ["non CS", "course outline", "subjects", "first semester", "second semester"]
+      }
+    ]
+  },
+  {
+    "section": "Scholarships",
     "items": [
       {
         "name": "Scholarships & Financial Aid",
-        "description": "Browse MAHE scholarships, including HBSF-MAHE EduEmpower for MIT Manipal BTech students, and follow the applicable application policy.",
-        "url": "https://www.manipal.edu/educationloan",
-        "source": "https://www.manipal.edu/educationloan",
-        "checkedOn": "2026-10-07",
+        "description": "Browse the MAHE scholarship catalogue and filter by campus and institute to find the applicable policy.",
+        "url": "https://www.manipal.edu/admissions/scholarships-and-financial-aid",
+        "source": "https://www.manipal.edu/admissions/scholarships-and-financial-aid",
+        "checkedOn": "2026-11-13",
         "campus": "MIT Manipal",
-        "appliesTo": "2026 scholarship policy. Eligibility and renewal conditions depend on the scheme and intake."
+        "appliesTo": "Eligibility, application, and renewal conditions depend on the scholarship and intake."
       },
+      {
+        "name": "Freeship, Scholar & Achiever Scholarships",
+        "description": "Find BTech scholarship instructions, annual academic-performance criteria, and renewal conditions. Freeship and Scholar awards start in the first year; Achiever awards start from the second year.",
+        "url": "https://www.manipal.edu/admissions/scholarships-and-financial-aid/freeship-scholar-and-achiever-scholarship-for-b-tech-at-mit-manipal-bengaluru-campus",
+        "source": "https://www.manipal.edu/admissions/scholarships-and-financial-aid/freeship-scholar-and-achiever-scholarship-for-b-tech-at-mit-manipal-bengaluru-campus",
+        "checkedOn": "2026-11-13",
+        "campus": "MIT Manipal",
+        "appliesTo": "BTech policy covering MIT Manipal and MIT Bengaluru. Confirm the scholarship and renewal conditions for your intake.",
+        "keywords": ["merit scholarship", "financial aid", "renewal"]
+      },
+      {
+        "name": "HBSF-MAHE EduEmpower Scholarship",
+        "description": "Read the MIT Manipal BTech scholarship application, selection, continuation, and disqualification conditions.",
+        "url": "https://www.manipal.edu/admissions/scholarships-and-financial-aid/hbsf-mahe-edu-empower-scholarship-for-b-tech-students-of-mit-manipal",
+        "source": "https://www.manipal.edu/admissions/scholarships-and-financial-aid/hbsf-mahe-edu-empower-scholarship-for-b-tech-students-of-mit-manipal",
+        "checkedOn": "2026-11-13",
+        "campus": "MIT Manipal",
+        "appliesTo": "MIT Manipal BTech students. The published page references a 2025 application form; confirm intake-specific terms with MAHE before applying.",
+        "keywords": ["financial aid", "renewal", "scholarship application"]
+      },
+      {
+        "name": "Scholarship for Meritorious Girl Students",
+        "description": "Find the MIT Manipal scholarship instructions for meritorious girl students, including renewal and branch-change conditions.",
+        "url": "https://www.manipal.edu/admissions/scholarships-and-financial-aid/scholarship-for-meritorious-girl-students-joining-mit-manipal",
+        "source": "https://www.manipal.edu/admissions/scholarships-and-financial-aid/scholarship-for-meritorious-girl-students-joining-mit-manipal",
+        "checkedOn": "2026-11-13",
+        "campus": "MIT Manipal",
+        "appliesTo": "Limited to eligible MIT Manipal branches and intakes. The published page references a 2025 application form; confirm the applicable branch list and intake terms before applying.",
+        "keywords": ["women", "female students", "financial aid", "renewal"]
+      }
+    ]
+  },
+  {
+    "section": "Fees & Refunds",
+    "items": [
+      {
+        "name": "Fee Refund Policy - 2026 Admissions (AICTE, Non-MBA)",
+        "description": "Find withdrawal procedures, required documents, dues-clearance requirements, and refund rules for BTech, MTech, MCA, and other listed AICTE-approved programmes.",
+        "url": "https://www.manipal.edu/admissions/fee-refund-policy-2026-aicte-approved-programs-other-than-mba",
+        "source": "https://www.manipal.edu/admissions/refunds",
+        "checkedOn": "2026-11-13",
+        "campus": "MIT Manipal",
+        "appliesTo": "2026 admissions; AICTE-approved programmes other than MBA. Published withdrawal deadlines may already have passed. Check the policy for your intake rather than assuming a current refund entitlement.",
+        "keywords": ["withdrawal", "admission cancellation", "no dues", "fee reimbursement"]
+      }
+    ]
+  },
+  {
+    "section": "Study Abroad",
+    "items": [
       {
         "name": "MIT Study Abroad Programme",
         "description": "Find semester eligibility, academic requirements, application documents, and credit transfer instructions.",
