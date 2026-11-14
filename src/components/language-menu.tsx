@@ -1,7 +1,7 @@
 "use client";
 
 import { Globe2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@/components/locale-provider";
 import { supportedLocales } from "@/lib/locale";
@@ -30,15 +30,35 @@ const styles = stylex.create({
 export function LanguageMenu() {
   const { locale, setLocale } = useLocale();
   const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !wrapRef.current?.contains(event.target)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
   return (
-    <div {...stylex.props(styles.wrap)}>
-      <button type="button" aria-label="Select language" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((value) => !value)} {...stylex.props(styles.trigger)}>
+    <div ref={wrapRef} {...stylex.props(styles.wrap)}>
+      <button ref={triggerRef} type="button" aria-label="Select language" aria-expanded={open} aria-haspopup="true" onClick={() => setOpen((value) => !value)} {...stylex.props(styles.trigger)}>
         <Globe2 aria-hidden {...stylex.props(styles.icon)} />
       </button>
       {open && (
-        <div role="menu" aria-label="Select language" {...stylex.props(styles.menu)}>
+        <div role="group" aria-label="Select language" {...stylex.props(styles.menu)}>
           {supportedLocales.map((supportedLocale) => (
-            <button key={supportedLocale.code} type="button" role="menuitemradio" aria-checked={locale.code === supportedLocale.code} onClick={() => setLocale(supportedLocale.code)} {...stylex.props(styles.option, locale.code === supportedLocale.code && styles.selected)}>
+            <button key={supportedLocale.code} type="button" aria-pressed={locale.code === supportedLocale.code} onClick={() => setLocale(supportedLocale.code)} {...stylex.props(styles.option, locale.code === supportedLocale.code && styles.selected)}>
               {supportedLocale.label}
             </button>
           ))}
