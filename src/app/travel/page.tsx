@@ -1,12 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import data from "@/data/travel.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
-import { Phone } from "lucide-react";
-import { FavoriteButton } from "@/components/favorite-button";
-import { DownloadVCardButton } from "@/components/contact-actions";
+import { Icon } from "@/components/icons";
+import { directoryButton, SaveStar, VCardDownload } from "@/components/static-actions";
 import { colors, radii } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
 
@@ -83,12 +81,12 @@ function ListingCard({ listing, sectionTitle }: { listing: Listing; sectionTitle
       <CardHeader xstyle={styles.header}>
         <div {...stylex.props(styles.row)}>
           <CardTitle xstyle={styles.cardTitle}>{listing.name}</CardTitle>
-          <FavoriteButton
+          <SaveStar
             item={{
               id: `travel-${slugify(sectionTitle)}-${slugify(listing.name)}`,
               type: "travel",
               name: listing.name,
-              href: `/travel#${slugify(listing.name)}`,
+              href: `/travel/#${slugify(listing.name)}`,
               phones: listing.phones,
               subtitle: sectionTitle,
             }}
@@ -112,19 +110,20 @@ function ListingCard({ listing, sectionTitle }: { listing: Listing; sectionTitle
           <div {...stylex.props(styles.notes)}>{renderNotesWithLinks(listing.notes)}</div>
         )}
         <div {...stylex.props(styles.actions)}>
-          <Button asChild variant="secondary" size="sm">
-            <a href={`tel:${listing.phones[0]?.replace(/\s+/g, "") ?? ""}`}>
-              <Phone {...stylex.props(styles.icon)} />
-              Call Now
-            </a>
-          </Button>
-          <DownloadVCardButton
+          <a
+            href={`tel:${listing.phones[0]?.replace(/\s+/g, "") ?? ""}`}
+            {...stylex.props(directoryButton.base, directoryButton.secondary, directoryButton.sm)}
+          >
+            <Icon name="phone" {...stylex.props(styles.icon)} />
+            Call Now
+          </a>
+          <VCardDownload
             size="sm"
             filename={listing.name}
             vcard={buildVCard({ name: listing.name, phones: listing.phones, org: "Travel" })}
           >
             Download contact
-          </DownloadVCardButton>
+          </VCardDownload>
         </div>
       </CardContent>
     </Card>

@@ -11,12 +11,20 @@ import {
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Phone, ExternalLink, Trash2, Download, Check, Copy } from "lucide-react";
-import Link from "next/link";
+import { Check, Copy, Download, ExternalLink, Phone, Star, Trash2 } from "lucide-react";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { useMemo, useState } from "react";
 import { breakpoints, colors, fonts } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
+
+function directoryHref(href: string): string {
+  if (href.startsWith("http://") || href.startsWith("https://")) return href;
+  const hashAt = href.indexOf("#");
+  const path = hashAt === -1 ? href : href.slice(0, hashAt);
+  const hash = hashAt === -1 ? "" : href.slice(hashAt);
+  const slashed = path.endsWith("/") ? path : `${path}/`;
+  return `${slashed}${hash}`;
+}
 
 const SECTIONS: ReadonlyArray<{ type: FavoriteType; label: string }> = [
   { type: "restaurant", label: "Restaurants" },
@@ -209,13 +217,13 @@ export default function FavoritesPage() {
             </p>
             <div {...stylex.props(styles.emptyActions)}>
               <Button asChild variant="outline" size="sm">
-                <Link href="/restaurants">Browse Restaurants</Link>
+                <a href="/restaurants/">Browse Restaurants</a>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/emergency">Emergency Contacts</Link>
+                <a href="/emergency/">Emergency Contacts</a>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/hostels">Hostels</Link>
+                <a href="/hostels/">Hostels</a>
               </Button>
             </div>
           </CardContent>
@@ -244,9 +252,12 @@ export default function FavoritesPage() {
                                 <CardTitle xstyle={styles.cardTitle}>{item.name}</CardTitle>
                               </a>
                             ) : (
-                              <Link href={item.href} {...stylex.props(styles.titleLink)}>
+                              <a
+                                href={directoryHref(item.href)}
+                                {...stylex.props(styles.titleLink)}
+                              >
                                 <CardTitle xstyle={styles.cardTitle}>{item.name}</CardTitle>
-                              </Link>
+                              </a>
                             )}
                             {item.subtitle && (
                               <p {...stylex.props(styles.subtitle)}>{item.subtitle}</p>
@@ -288,10 +299,10 @@ export default function FavoritesPage() {
                                 Open Link
                               </a>
                             ) : (
-                              <Link href={item.href}>
+                              <a href={directoryHref(item.href)}>
                                 <ExternalLink {...stylex.props(styles.icon14, styles.actionIcon)} />
                                 View Details
-                              </Link>
+                              </a>
                             )}
                           </Button>
                           {item.phones && item.phones.length > 0 && (
