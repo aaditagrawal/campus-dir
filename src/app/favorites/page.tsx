@@ -10,7 +10,7 @@ import {
 } from "@/hooks/useFavorites";
 import * as stylex from "@stylexjs/stylex";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonProps } from "@/components/ui/button";
 import { Check, Copy, Download, ExternalLink, Phone, Star, Trash2 } from "lucide-react";
 import { buildVCard, downloadVCardFile } from "@/lib/vcard";
 import { useMemo, useState } from "react";
@@ -216,15 +216,15 @@ export default function FavoritesPage() {
               and click the star icon to add them to your favorites.
             </p>
             <div {...stylex.props(styles.emptyActions)}>
-              <Button asChild variant="outline" size="sm">
-                <a href="/restaurants/">Browse Restaurants</a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <a href="/emergency/">Emergency Contacts</a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <a href="/hostels/">Hostels</a>
-              </Button>
+              <a href="/restaurants/" {...buttonProps("outline", "sm")}>
+                Browse Restaurants
+              </a>
+              <a href="/emergency/" {...buttonProps("outline", "sm")}>
+                Emergency Contacts
+              </a>
+              <a href="/hostels/" {...buttonProps("outline", "sm")}>
+                Hostels
+              </a>
             </div>
           </CardContent>
         </Card>
@@ -292,19 +292,27 @@ export default function FavoritesPage() {
                         )}
 
                         <div {...stylex.props(styles.actions)}>
-                          <Button asChild variant="outline" size="sm" xstyle={styles.actionGrow}>
+                          <>
                             {item.href.startsWith("http") ? (
-                              <a href={item.href} target="_blank" rel="noreferrer">
+                              <a
+                                href={item.href}
+                                target="_blank"
+                                rel="noreferrer"
+                                {...buttonProps("outline", "sm", styles.actionGrow)}
+                              >
                                 <ExternalLink {...stylex.props(styles.icon14, styles.actionIcon)} />
                                 Open Link
                               </a>
                             ) : (
-                              <a href={directoryHref(item.href)}>
+                              <a
+                                href={directoryHref(item.href)}
+                                {...buttonProps("outline", "sm", styles.actionGrow)}
+                              >
                                 <ExternalLink {...stylex.props(styles.icon14, styles.actionIcon)} />
                                 View Details
                               </a>
                             )}
-                          </Button>
+                          </>
                           {item.phones && item.phones.length > 0 && (
                             <Button
                               variant="outline"

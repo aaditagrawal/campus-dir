@@ -1,3 +1,5 @@
+import { themeInitializationScript } from "@/lib/theme";
+
 /**
  * Inline document boot.
  *
@@ -6,7 +8,7 @@
  * favourites, vCards, the install prompt, and the search shortcut. It must
  * stay free of framework code so the first view does not download React.
  */
-export const DOCUMENT_BOOT_SCRIPT = `
+export const DOCUMENT_BOOT_SCRIPT = `${themeInitializationScript};
 (function () {
   var root = document.documentElement;
   var THEME_KEY = "theme";
