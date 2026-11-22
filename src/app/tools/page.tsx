@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import data from "@/data/tools.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { slugify } from "@/lib/utils";
-import { FavoriteButton } from "@/components/favorite-button";
+import { SaveStar } from "@/components/static-actions";
 import { colors } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
 
@@ -38,7 +38,7 @@ function ToolCard({ tool, internal = false }: { tool: Tool; internal?: boolean }
       <CardHeader>
         <div {...stylex.props(styles.row)}>
           <CardTitle>{tool.name}</CardTitle>
-          <FavoriteButton
+          <SaveStar
             item={{
               id: `tool-${internal ? "internal" : "web"}-${slugify(tool.name)}`,
               type: "tool",

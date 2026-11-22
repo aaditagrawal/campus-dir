@@ -1,12 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import data from "@/data/emergency.json";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { buttonProps } from "@/components/ui/button";
 import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
-import { Phone } from "lucide-react";
-import { FavoriteButton } from "@/components/favorite-button";
-import { DownloadVCardButton } from "@/components/contact-actions";
+import { Icon } from "@/components/icons";
+import { directoryButton, SaveStar, VCardDownload } from "@/components/static-actions";
 import { colors } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
 
@@ -76,7 +74,7 @@ function EmergencyContactCard({
       <CardHeader xstyle={styles.header}>
         <div {...stylex.props(styles.row)}>
           <CardTitle xstyle={styles.cardTitle}>{entry.name}</CardTitle>
-          <FavoriteButton
+          <SaveStar
             item={{
               id: favoriteId,
               type: "emergency",
@@ -105,12 +103,17 @@ function EmergencyContactCard({
       <CardFooter xstyle={styles.footer}>
         <a
           href={`tel:${entry.phones[0]?.replace(/\s+/g, "") ?? ""}`}
-          {...buttonProps("secondary", "sm", styles.button)}
+          {...stylex.props(
+            directoryButton.base,
+            directoryButton.secondary,
+            directoryButton.sm,
+            styles.button,
+          )}
         >
-          <Phone {...stylex.props(styles.icon)} />
+          <Icon name="phone" {...stylex.props(styles.icon)} />
           Call Now
         </a>
-        <DownloadVCardButton
+        <VCardDownload
           size="sm"
           xstyle={styles.button}
           filename={entry.name}
@@ -122,7 +125,7 @@ function EmergencyContactCard({
           })}
         >
           Download contact
-        </DownloadVCardButton>
+        </VCardDownload>
       </CardFooter>
     </Card>
   );
@@ -180,7 +183,7 @@ export default function EmergencyPage() {
               key={entry.name}
               entry={entry}
               favoriteId={`emergency-${slugify(entry.name)}`}
-              href={`/emergency#${slugify(entry.name)}`}
+              href={`/emergency/#${slugify(entry.name)}`}
               org="Emergency"
             />
           ))}
@@ -195,7 +198,7 @@ export default function EmergencyPage() {
               key={`manipal-${entry.name}`}
               entry={entry}
               favoriteId={`emergency-manipal-${slugify(entry.name)}`}
-              href={`/emergency#${slugify(entry.name)}`}
+              href={`/emergency/#${slugify(entry.name)}`}
               subtitle="Manipal Helpline"
               org="Helpline"
             />
@@ -216,7 +219,7 @@ export default function EmergencyPage() {
               key={`sp-${entry.name}`}
               entry={entry}
               favoriteId={`emergency-suicide-${slugify(entry.name)}`}
-              href={`/emergency#${slugify(entry.name)}`}
+              href={`/emergency/#${slugify(entry.name)}`}
               subtitle="Suicide Prevention"
               org="Helpline"
             />
@@ -232,7 +235,7 @@ export default function EmergencyPage() {
               key={`india-${entry.name}`}
               entry={entry}
               favoriteId={`emergency-india-${slugify(entry.name)}`}
-              href={`/emergency#${slugify(entry.name)}`}
+              href={`/emergency/#${slugify(entry.name)}`}
               subtitle="India Helpline"
               org="Helpline"
             />

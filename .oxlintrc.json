@@ -28,7 +28,7 @@
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react/no-unescaped-entities": "off",
-    "nextjs/no-html-link-for-pages": "error",
+    "nextjs/no-html-link-for-pages": "off",
     "nextjs/no-img-element": "warn",
     "nextjs/no-sync-scripts": "error",
     "import/no-anonymous-default-export": "error",

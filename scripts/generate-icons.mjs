@@ -9,7 +9,7 @@
  *
  * Outputs:
  *   public/icons/favicon.svg          browser favicon, flips with the OS color scheme
- *   src/app/favicon.ico               16/32/48 fallback for browsers without SVG favicons
+ *   public/favicon.ico               16/32/48 fallback for browsers without SVG favicons
  *   public/icons/icon.svg             master artwork (tile + glyph)
  *   public/icons/icon-monochrome.svg  bare single-color glyph (Safari mask-icon, docs)
  *   public/icons/icon-{192,512}.png           manifest "any", full-bleed square
@@ -218,7 +218,7 @@ const outputs = {
   "public/icons/icon-monochrome-512.png": () =>
     png(monochromeIcon(512, "#ffffff", MONOCHROME_SCALE)),
   "public/icons/apple-touch-icon.png": () => png(tileIcon(180, { scale: APPLE_SCALE })),
-  "src/app/favicon.ico": async () =>
+  "public/favicon.ico": async () =>
     encodeIco(
       await Promise.all(
         [16, 32, 48].map(async (size) => ({

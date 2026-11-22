@@ -3,9 +3,8 @@ import data from "@/data/grievance.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
-import { Mail, Phone } from "lucide-react";
-import { FavoriteButton } from "@/components/favorite-button";
-import { DownloadVCardButton } from "@/components/contact-actions";
+import { Icon } from "@/components/icons";
+import { SaveStar, VCardDownload } from "@/components/static-actions";
 import { colors, radii } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
 
@@ -130,13 +129,13 @@ function ContactDetails({ contact, divided }: { contact: Contact; divided: boole
             href={`mailto:${email}`}
             {...stylex.props(styles.contactLink, styles.truncate)}
           >
-            <Mail {...stylex.props(styles.icon14)} />
+            <Icon name="mail" {...stylex.props(styles.icon14)} />
             {email}
           </a>
         ))}
         {phones.map((phone) => (
           <a key={phone} href={`tel:${telHref(phone)}`} {...stylex.props(styles.contactLink)}>
-            <Phone {...stylex.props(styles.icon14)} />
+            <Icon name="phone" {...stylex.props(styles.icon14)} />
             {phone}
           </a>
         ))}
@@ -175,12 +174,12 @@ export default function GrievancePage() {
               <CardHeader xstyle={styles.header}>
                 <div {...stylex.props(styles.row)}>
                   <CardTitle xstyle={styles.cardTitle}>{category.title}</CardTitle>
-                  <FavoriteButton
+                  <SaveStar
                     item={{
                       id: `grievance-${slugify(category.title)}`,
                       type: "grievance",
                       name: category.title,
-                      href: `/grievance#${slugify(category.title)}`,
+                      href: `/grievance/#${slugify(category.title)}`,
                       subtitle: category.contacts
                         .map((contact) => contact.name || contact.role)
                         .join(", "),
@@ -201,7 +200,7 @@ export default function GrievancePage() {
                   ))}
                 </div>
                 <div {...stylex.props(styles.actions)}>
-                  <DownloadVCardButton
+                  <VCardDownload
                     size="sm"
                     filename={category.title}
                     vcard={category.contacts
@@ -217,7 +216,7 @@ export default function GrievancePage() {
                       .join("\n")}
                   >
                     Download contact{category.contacts.length > 1 ? "s" : ""}
-                  </DownloadVCardButton>
+                  </VCardDownload>
                 </div>
               </CardContent>
             </Card>
@@ -237,12 +236,12 @@ export default function GrievancePage() {
               <CardHeader xstyle={styles.header}>
                 <div {...stylex.props(styles.row)}>
                   <CardTitle xstyle={styles.cardTitle}>{contact.role || contact.name}</CardTitle>
-                  <FavoriteButton
+                  <SaveStar
                     item={{
                       id: `grievance-sc-${slugify(contact.email)}`,
                       type: "grievance",
                       name: contact.role || contact.name || "Student Council",
-                      href: `/grievance#${slugify(contact.role || contact.email)}`,
+                      href: `/grievance/#${slugify(contact.role || contact.email)}`,
                     }}
                     size="sm"
                   />
@@ -250,11 +249,11 @@ export default function GrievancePage() {
               </CardHeader>
               <CardContent xstyle={styles.content}>
                 <a href={`mailto:${contact.email}`} {...stylex.props(styles.councilLink)}>
-                  <Mail {...stylex.props(styles.icon14)} />
+                  <Icon name="mail" {...stylex.props(styles.icon14)} />
                   {contact.email}
                 </a>
                 <div {...stylex.props(styles.actions)}>
-                  <DownloadVCardButton
+                  <VCardDownload
                     size="sm"
                     xstyle={styles.shrink}
                     filename={contact.role || contact.name || "Student Council"}
@@ -265,7 +264,7 @@ export default function GrievancePage() {
                     })}
                   >
                     Download contact
-                  </DownloadVCardButton>
+                  </VCardDownload>
                 </div>
               </CardContent>
             </Card>

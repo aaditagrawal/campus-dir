@@ -3,8 +3,7 @@ import data from "@/data/services.json";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildVCard } from "@/lib/vcard";
 import { slugify } from "@/lib/utils";
-import { FavoriteButton } from "@/components/favorite-button";
-import { DownloadVCardButton } from "@/components/contact-actions";
+import { SaveStar, VCardDownload } from "@/components/static-actions";
 import { colors } from "@/styles/constants.stylex";
 import { shared } from "@/styles/shared";
 
@@ -55,12 +54,12 @@ function Section({ title, items }: { title: string; items: Listing[] }) {
             <CardHeader>
               <div {...stylex.props(styles.row)}>
                 <CardTitle>{item.name}</CardTitle>
-                <FavoriteButton
+                <SaveStar
                   item={{
                     id: `service-${slugify(title)}-${slugify(item.name)}`,
                     type: "service",
                     name: item.name,
-                    href: `/services#${slugify(item.name)}`,
+                    href: `/services/#${slugify(item.name)}`,
                     phones: item.phones,
                     subtitle: title,
                   }}
@@ -78,7 +77,7 @@ function Section({ title, items }: { title: string; items: Listing[] }) {
               </div>
               {item.notes && <div {...stylex.props(styles.muted)}>{item.notes}</div>}
               <div>
-                <DownloadVCardButton
+                <VCardDownload
                   variant="secondary"
                   filename={item.name}
                   vcard={buildVCard({
@@ -88,7 +87,7 @@ function Section({ title, items }: { title: string; items: Listing[] }) {
                   })}
                 >
                   Download contact
-                </DownloadVCardButton>
+                </VCardDownload>
               </div>
             </CardContent>
           </Card>

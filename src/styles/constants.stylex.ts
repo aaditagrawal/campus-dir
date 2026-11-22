@@ -36,8 +36,10 @@ export const colors = stylex.defineConsts({
 });
 
 export const fonts = stylex.defineConsts({
-  sans: "var(--font-instrument-sans)",
-  serif: "var(--font-instrument-serif)",
+  // Brand faces are opt-in. `--app-*` stays on the system stack until the boot
+  // script decides the connection can spare the font files.
+  sans: "var(--app-sans)",
+  serif: "var(--app-serif)",
   mono: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
 });
 

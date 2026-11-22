@@ -1,11 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import data from "@/data/travel.json";
-import Link from "next/link";
-import { buttonProps } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Phone, Shuffle } from "lucide-react";
-import { FavoriteButton } from "@/components/favorite-button";
-import { RandomTelButton } from "@/components/contact-actions";
+import { Icon } from "@/components/icons";
+import { directoryButton, SaveStar } from "@/components/static-actions";
 import { getAutoPhoneOptions } from "@/lib/random-auto";
 import { slugify } from "@/lib/utils";
 import { colors, radii } from "@/styles/constants.stylex";
@@ -91,9 +88,9 @@ export default function AutoQuickCallPage() {
   return (
     <main {...stylex.props(shared.page)}>
       <div {...stylex.props(shared.pageHeader)}>
-        <Link href="/travel" {...stylex.props(styles.back)}>
+        <a href="/travel/" {...stylex.props(styles.back)}>
           ← Travel
-        </Link>
+        </a>
         <h1 {...stylex.props(shared.heading1, shared.heading1Strong, styles.title)}>
           Rapid-call an auto
         </h1>
@@ -101,10 +98,14 @@ export default function AutoQuickCallPage() {
           Gate stands and drivers - tap to dial. If one line is busy, try the next.
         </p>
         <div {...stylex.props(styles.randomWrap)}>
-          <RandomTelButton options={getAutoPhoneOptions()} xstyle={styles.randomButton}>
-            <Shuffle aria-hidden {...stylex.props(styles.icon16)} />
+          <button
+            type="button"
+            data-random-tel={JSON.stringify(getAutoPhoneOptions())}
+            {...stylex.props(styles.randomButton)}
+          >
+            <Icon name="shuffle" aria-hidden {...stylex.props(styles.icon16)} />
             Call Random Auto
-          </RandomTelButton>
+          </button>
         </div>
       </div>
       <div {...stylex.props(shared.grid2)}>
@@ -117,12 +118,12 @@ export default function AutoQuickCallPage() {
             <CardHeader xstyle={styles.header}>
               <div {...stylex.props(styles.row)}>
                 <CardTitle xstyle={styles.cardTitle}>{listing.name}</CardTitle>
-                <FavoriteButton
+                <SaveStar
                   item={{
                     id: `travel-autos-${slugify(listing.name)}`,
                     type: "travel",
                     name: listing.name,
-                    href: `/travel#${slugify(listing.name)}`,
+                    href: `/travel/#${slugify(listing.name)}`,
                     phones: listing.phones,
                     subtitle: "Autos",
                   }}
@@ -147,9 +148,9 @@ export default function AutoQuickCallPage() {
               )}
               <a
                 href={`tel:${listing.phones[0]?.replace(/\s+/g, "") ?? ""}`}
-                {...buttonProps("default", "default", styles.callButton)}
+                {...stylex.props(directoryButton.base, directoryButton.primary, styles.callButton)}
               >
-                <Phone {...stylex.props(styles.icon20)} />
+                <Icon name="phone" {...stylex.props(styles.icon20)} />
                 Call now
               </a>
             </CardContent>

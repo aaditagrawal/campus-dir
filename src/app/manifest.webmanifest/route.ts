@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export const dynamic = "force-static";
 
-export default function manifest(): MetadataRoute.Manifest {
-  return {
+export function GET() {
+  const manifest: MetadataRoute.Manifest = {
     name: "MIT Manipal Campus Directory",
     short_name: "Campus Directory",
     description:
@@ -72,4 +72,5 @@ export default function manifest(): MetadataRoute.Manifest {
       },
     ],
   };
+  return Response.json(manifest, { headers: { "Content-Type": "application/manifest+json" } });
 }

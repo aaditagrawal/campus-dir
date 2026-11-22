@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:portless": "portless run",
-    "build": "next build --turbopack",
+    "build": "next build --turbopack && bun scripts/strip-static-runtime.mjs",
     "start": "next start",
     "lint": "oxlint .",
     "check:styles": "bun scripts/check-stylex-migration.mjs",
