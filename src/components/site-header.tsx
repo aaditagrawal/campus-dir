@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 import {
   Sun,
   Moon,
@@ -295,15 +295,13 @@ function IconButton({
 }
 
 export function SiteHeader() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const { setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setMounted(true), []);
   const closeSearch = useCallback(() => setSearchOpen(false), []);
   const closeMore = useCallback(() => setMoreOpen(false), []);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -327,13 +325,14 @@ export function SiteHeader() {
     return () => window.removeEventListener("keydown", onKey, true);
   }, []);
 
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
-  const themeIcon =
-    mounted && theme === "dark" ? (
-      <Sun {...stylex.props(styles.icon18)} />
-    ) : (
-      <Moon {...stylex.props(styles.icon18)} />
-    );
+  const toggleTheme = () =>
+    setTheme(document.documentElement.classList.contains("dark") ? "light" : "dark");
+  const themeIcon = (
+    <>
+      <Sun aria-hidden data-theme-icon="dark" {...stylex.props(styles.icon18)} />
+      <Moon aria-hidden data-theme-icon="light" {...stylex.props(styles.icon18)} />
+    </>
+  );
 
   return (
     <header {...stylex.props(styles.header)}>
