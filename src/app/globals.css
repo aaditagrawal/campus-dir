@@ -181,3 +181,8 @@ video {
 [hidden] {
   display: none !important;
 }
+
+html:not(.dark) [data-theme-icon="dark"],
+html.dark [data-theme-icon="light"] {
+  display: none;
+}
