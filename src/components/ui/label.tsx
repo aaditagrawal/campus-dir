@@ -1,11 +1,10 @@
 "use client";
 
 import * as React from "react";
-import * as LabelPrimitive from "@radix-ui/react-label";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
-type LabelProps = Omit<React.ComponentProps<typeof LabelPrimitive.Root>, "className" | "style"> & {
+type LabelProps = Omit<React.ComponentProps<"label">, "className" | "style"> & {
   xstyle?: StyleXStyles;
 };
 
@@ -22,9 +21,7 @@ const styles = stylex.create({
 });
 
 function Label({ xstyle, ...props }: LabelProps) {
-  return (
-    <LabelPrimitive.Root data-slot="label" {...stylex.props(styles.label, xstyle)} {...props} />
-  );
+  return <label data-slot="label" {...stylex.props(styles.label, xstyle)} {...props} />;
 }
 
 export { Label };
