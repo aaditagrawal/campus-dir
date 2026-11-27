@@ -16,8 +16,8 @@
     "test:ui": "bun test scripts/theme.test.mjs"
   },
   "dependencies": {
-    "@stylexjs/stylex": "^0.19.1",
-    "lucide-react": "^1.64.0",
+    "@stylexjs/stylex": "^0.19.2",
+    "lucide-react": "^1.81.0",
     "minisearch": "^7.2.0",
     "next": "^16.4.6",
     "react": "19.3.1",
@@ -25,15 +25,15 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@oxlint/plugins": "^1.90.0",
-    "@stylexjs/babel-plugin": "^0.19.1",
-    "@stylexjs/postcss-plugin": "^0.19.1",
+    "@oxlint/plugins": "^1.95.0",
+    "@stylexjs/babel-plugin": "^0.19.2",
+    "@stylexjs/postcss-plugin": "^0.19.2",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.6.2",
     "oxfmt": "^0.75.0",
-    "oxlint": "^1.90.0",
+    "oxlint": "^1.95.0",
     "postcss": "^8.5.32",
     "typescript": "^7.0.2"
   },
