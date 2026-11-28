@@ -19,7 +19,8 @@ const serverOnlyRoutes = [
   "travel/auto",
 ];
 const interactiveRoutes = ["favorites", "hostels", "restaurants", "search", "tools/mail-to-warden"];
-const nextChunks = "/_next/static/chunks/";
+// Vercel's Next.js adapter places chunks under static/immutable.
+const nextChunkUrl = /^\/_next\/static\/(?:immutable\/)?chunks\//;
 
 function scriptSpans(html) {
   const spans = [];
@@ -48,7 +49,7 @@ function scriptSrc(attrs) {
 
 function dropSpan(span) {
   const src = scriptSrc(span.attrs);
-  if (src !== null) return src.startsWith(nextChunks);
+  if (src !== null) return nextChunkUrl.test(src);
   return /^\s*(?:\(self\.__next_f|self\.__next_f\.push\(|.*TURBOPACK)/.test(span.body);
 }
 
@@ -78,7 +79,9 @@ function stripPreloadedScripts(html) {
   return stripLinks(
     html,
     (tag) =>
-      tag.includes('rel="preload"') && tag.includes('as="script"') && tag.includes(nextChunks),
+      tag.includes('rel="preload"') &&
+      tag.includes('as="script"') &&
+      nextChunkUrl.test(/ href="([^"]+)"/.exec(tag)?.[1] ?? ""),
   );
 }
 
@@ -111,7 +114,7 @@ async function assertServerOnly(route) {
 }
 
 function referencesRuntimeScript(html) {
-  return scriptSpans(html).some((span) => scriptSrc(span.attrs)?.startsWith(nextChunks));
+  return scriptSpans(html).some((span) => nextChunkUrl.test(scriptSrc(span.attrs) ?? ""));
 }
 
 for (const route of serverOnlyRoutes) await assertServerOnly(route);
