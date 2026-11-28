@@ -19,8 +19,8 @@ const serverOnlyRoutes = [
   "travel/auto",
 ];
 const interactiveRoutes = ["favorites", "hostels", "restaurants", "search", "tools/mail-to-warden"];
-// Vercel can serve Next.js chunks from a separate asset origin.
-const nextChunkUrl = /^(?:(?:https?:)?\/\/[^/?#]+)?\/_next\/static\/chunks\//;
+// Vercel's Next.js adapter places chunks under static/immutable.
+const nextChunkUrl = /^\/_next\/static\/(?:immutable\/)?chunks\//;
 
 function scriptSpans(html) {
   const spans = [];
@@ -139,8 +139,7 @@ for (const name of staticFiles) {
 for (const route of interactiveRoutes) {
   const html = await readFile(path.join(outDir, route, "index.html"), "utf8");
   if (!referencesRuntimeScript(html)) {
-    const scripts = scriptSpans(html).map(({ attrs }) => attrs).join(", ");
-    throw new Error(`/${route} lost its client runtime. Script tags: ${scripts}`);
+    throw new Error(`/${route} lost its client runtime.`);
   }
 }
 
