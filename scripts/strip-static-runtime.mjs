@@ -139,7 +139,8 @@ for (const name of staticFiles) {
 for (const route of interactiveRoutes) {
   const html = await readFile(path.join(outDir, route, "index.html"), "utf8");
   if (!referencesRuntimeScript(html)) {
-    throw new Error(`/${route} lost its client runtime.`);
+    const scripts = scriptSpans(html).map(({ attrs }) => attrs).join(", ");
+    throw new Error(`/${route} lost its client runtime. Script tags: ${scripts}`);
   }
 }
 
