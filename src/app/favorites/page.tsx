@@ -271,7 +271,10 @@ export default function FavoritesPage() {
                             {item.phones.map((phone) => (
                               <div key={`${item.id}-${phone}`} {...stylex.props(styles.phoneRow)}>
                                 <Phone {...stylex.props(styles.phoneIcon)} />
-                                <a href={`tel:${phone}`} {...stylex.props(styles.phoneLink)}>
+                                <a
+                                  href={`tel:${phone.replace(/\s+/g, "")}`}
+                                  {...stylex.props(styles.phoneLink)}
+                                >
                                   {phone}
                                 </a>
                                 <Button
@@ -279,6 +282,7 @@ export default function FavoritesPage() {
                                   size="sm"
                                   onClick={() => copyPhone(phone)}
                                   xstyle={styles.copyButton}
+                                  aria-label={`Copy ${phone}`}
                                 >
                                   {copiedPhone === phone ? (
                                     <Check {...stylex.props(styles.icon14)} />

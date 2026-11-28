@@ -162,7 +162,7 @@ export const DOCUMENT_BOOT_SCRIPT = `${themeInitializationScript};
   function downloadCard(button) {
     var name = button.getAttribute("data-vcard-name") || "contact";
     var body = button.getAttribute("data-vcard") || "";
-    var blob = new Blob([body], { type: "text/vcard" });
+    var blob = new Blob([body.replace(/\\r?\\n/g, "\\r\\n")], { type: "text/vcard" });
     var url = URL.createObjectURL(blob);
     var link = document.createElement("a");
     link.href = url;

@@ -477,17 +477,19 @@ export function searchDirectory(query: string): SearchItem[] {
   // index has admitted it is guessing - but the weak indexed hits are kept
   // behind it rather than discarded.
   const merged: SearchItem[] = [];
-  const seen = new Set<string>();
+  // Entries can share a destination (for example contacts in one grievance
+  // category). Keep each distinct directory entry when merging the two paths.
+  const seen = new Set<SearchItem>();
   for (const { item } of fuzzy.search(trimmed)) {
     if (merged.length >= MAX_RESULTS) break;
-    if (seen.has(item.href)) continue;
-    seen.add(item.href);
+    if (seen.has(item)) continue;
+    seen.add(item);
     merged.push(item);
   }
   for (const item of results) {
     if (merged.length >= MAX_RESULTS) break;
-    if (seen.has(item.href)) continue;
-    seen.add(item.href);
+    if (seen.has(item)) continue;
+    seen.add(item);
     merged.push(item);
   }
   return merged;

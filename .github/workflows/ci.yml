@@ -40,8 +40,8 @@ jobs:
       - name: StyleX migration guard
         run: bun run check:styles
 
-      - name: Theme behavior
-        run: bun run test:ui
+      - name: Regression tests
+        run: bun test
 
   format:
     name: Format
