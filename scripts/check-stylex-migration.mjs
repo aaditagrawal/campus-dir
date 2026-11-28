@@ -48,7 +48,7 @@ const files = await sourceFiles(sourceRoot);
 const sources = await Promise.all(files.map((file) => readFile(file, "utf8")));
 
 for (const [index, file] of files.entries()) {
-  const relative = path.relative(root, file);
+  const relative = path.relative(root, file).split(path.sep).join("/");
   const source = sources[index];
 
   if (forbiddenSourceReference.test(source)) {

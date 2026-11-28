@@ -248,7 +248,7 @@ export function getAllSearchItems(): SearchItem[] {
               title: w.name,
               section: "Hostels",
               subtitle: `${h.block}${w.designation ? ` • ${w.designation}` : ""}`,
-              href: `/hostels/#${slugify(h.block)}`,
+              href: `/hostels/#${slugify(`${h.block}-${w.name}`)}`,
               phones: [
                 ...(Array.isArray(w.mobiles) ? w.mobiles : []),
                 ...(w.officePhone ? [w.officePhone] : []),
@@ -327,7 +327,7 @@ export function getAllSearchItems(): SearchItem[] {
         title: c.role || "Student Council",
         section: "Grievance Redressal",
         subtitle: sc.name,
-        href: `/grievance/#${slugify("Student Council")}`,
+        href: `/grievance/#${slugify(c.role || c.email)}`,
         notes: c.email,
       });
     }

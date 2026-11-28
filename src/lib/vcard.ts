@@ -8,6 +8,14 @@ export type VCardInput = {
   title?: string;
 };
 
+function escapeText(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\r\n|\r|\n/g, "\\n")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,");
+}
+
 export function buildVCard({
   name,
   phones = [],
@@ -21,15 +29,17 @@ export function buildVCard({
   const lines: Array<string | undefined> = [
     "BEGIN:VCARD",
     "VERSION:3.0",
-    `FN:${name}`,
-    org ? `ORG:${org}` : undefined,
-    title ? `TITLE:${title}` : undefined,
+    `FN:${escapeText(name)}`,
+    // Keep the full display name together when no family/given split is known.
+    `N:${escapeText(name)};;;;`,
+    org ? `ORG:${escapeText(org)}` : undefined,
+    title ? `TITLE:${escapeText(title)}` : undefined,
     ...phones.map((p) => `TEL;TYPE=CELL:${p}`),
     ...allEmails.map((e) => `EMAIL;TYPE=INTERNET:${e}`),
-    address ? `ADR;TYPE=WORK:;;${address}` : undefined,
+    address ? `ADR;TYPE=WORK:;;${escapeText(address)};;;;` : undefined,
     "END:VCARD",
   ];
-  return lines.filter((line) => line !== undefined).join("\n");
+  return `${lines.filter((line) => line !== undefined).join("\r\n")}\r\n`;
 }
 
 export function downloadVCardFile(baseName: string, vcardContent: string) {
