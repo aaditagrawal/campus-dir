@@ -6,7 +6,8 @@ test("fuzzy search keeps distinct contacts that share a category link", async ()
   await loadFuzzyEngine();
   assert.ok(isFuzzyEngineReady());
 
-  const contacts = searchDirectory("student welfare").filter(
+  // The typo routes this query through the fuzzy merge.
+  const contacts = searchDirectory("student welfre").filter(
     (item) => item.href === "/grievance/#student-welfare",
   );
 
